@@ -6,6 +6,8 @@ using Firebase;
 using Firebase.Auth;
 using Firebase.Extensions;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
+
 
 public class AuthManager : MonoBehaviour
 {
@@ -53,6 +55,8 @@ public class AuthManager : MonoBehaviour
             AuthResult authResult = registerTask.Result;
             FirebaseUser user = authResult.User;
             Debug.Log($"Registration successful: {user.Email}");
+
+            SceneManager.LoadScene("Login");
         }
         catch (FirebaseException e)
         {
@@ -80,6 +84,8 @@ public class AuthManager : MonoBehaviour
             AuthResult authResult = loginTask.Result;
             FirebaseUser user = authResult.User;
             Debug.Log($"Login successful: {user.Email}");
+
+            SceneManager.LoadScene("Menu");
         }
         catch (FirebaseException e)
         {
