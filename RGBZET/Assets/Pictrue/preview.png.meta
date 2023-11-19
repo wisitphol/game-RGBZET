@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 32acc388e714b96459593451e0fe3a7a
+guid: b0ecd73230742a44cbfab53efd58b7e7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,13 +117,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Card game 85_0
+      name: preview_0
       rect:
         serializedVersion: 2
-        x: 166
-        y: 790
-        width: 323
-        height: 95
+        x: 179
+        y: 57
+        width: 967
+        height: 199
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +131,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 618e4b044a37d154bbedcb3f990390d4
-      internalID: -442890708
+      spriteID: aa6f951904fc1c747b251e604f8ef37b
+      internalID: 2074799901
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Card game 85_1
+      name: preview_1
       rect:
         serializedVersion: 2
-        x: 168
-        y: 606
-        width: 333
-        height: 108
+        x: 145
+        y: 265
+        width: 995
+        height: 202
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,50 +152,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 84f9e80c18525f143ad75240f942c02d
-      internalID: -593638879
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Card game 85_2
-      rect:
-        serializedVersion: 2
-        x: 166
-        y: 384
-        width: 323
-        height: 96
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 89283de1a9de9c74bbbdee3caf3d65bb
-      internalID: 1043017591
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Card game 85_3
-      rect:
-        serializedVersion: 2
-        x: 163
-        y: 190
-        width: 326
-        height: 95
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2e50d770d1598134d886307d738a8895
-      internalID: 21995657
+      spriteID: 9388f36d58427eb49b0e7eef9239d82d
+      internalID: 1567828093
       vertices: []
       indices: 
       edges: []
@@ -211,10 +169,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Card game 85_0: -442890708
-      Card game 85_1: -593638879
-      Card game 85_2: 1043017591
-      Card game 85_3: 21995657
+      preview_0: 2074799901
+      preview_1: 1567828093
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
