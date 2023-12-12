@@ -180,10 +180,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &52977600
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -641,10 +641,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &449929796
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -769,10 +769,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &526731880
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1008,10 +1008,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &629405823
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1469,10 +1469,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &1057552863
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2236,10 +2236,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &1629739748
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2364,10 +2364,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &1630703620
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2825,10 +2825,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &1818561841
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2953,10 +2953,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  letter: 
-  color: 
-  font: 
-  scale: 0
+  letter: 0
+  color: 0
+  size: 0
+  texture: 0
 --- !u!212 &2029117554
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3146,6 +3146,7 @@ GameObject:
   - component: {fileID: 2145143619}
   - component: {fileID: 2145143618}
   - component: {fileID: 2145143617}
+  - component: {fileID: 2145143620}
   m_Layer: 0
   m_Name: card rr small airy
   m_TagString: Untagged
@@ -3246,6 +3247,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2145143620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145143616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  letter: 0
+  color: 0
+  size: 0
+  texture: 1
 --- !u!1 &2146162442
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,18 +4,41 @@ using UnityEngine;
 
 public class carddata : MonoBehaviour
 {
-    public string letter;
-    public string color;
-    public string font;
-    public int scale;
-    void Start()
+    
+    public enum LetterType
     {
-        
+        R,
+        G,
+        B
     }
 
-    // Update is called once per frame
-    void Update()
+    public enum ColorType
     {
-        
+        Red,
+        Green,
+        Blue
     }
+
+    public enum SizeType
+    {
+        Small,
+        Normal,
+        Big
+    }
+
+    public enum TextureType
+    {
+        Type1,
+        Type2,
+        Type3
+    }
+
+    public LetterType letter;
+    public ColorType color;
+    public SizeType size;
+    public TextureType texture;
+
+    
+
+
 }
