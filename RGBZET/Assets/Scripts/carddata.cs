@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class carddata : MonoBehaviour
+public class Carddata : MonoBehaviour
 {
     
     public enum LetterType
