@@ -28,9 +28,9 @@ public class Carddata : MonoBehaviour
 
     public enum TextureType
     {
-        Type1,
-        Type2,
-        Type3
+        Thru,
+        Thin,
+        Thick
     }
 
     public LetterType letter;

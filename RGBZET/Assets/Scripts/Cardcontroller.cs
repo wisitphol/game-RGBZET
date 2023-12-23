@@ -4,15 +4,22 @@ using UnityEngine;
 
 public class Cardcontroller : MonoBehaviour
 {
-    // Start is called before the first frame update
+   
+
+    public Carddata[] allCards;
+    // Other game-related variables and functions...
+
     void Start()
     {
-        
+        InitializeCards();
     }
 
-    // Update is called once per frame
-    void Update()
+    void InitializeCards()
     {
-        
+        // Initialize the array with unique card data...
     }
+
+    // Other functions...
+
+
 }
