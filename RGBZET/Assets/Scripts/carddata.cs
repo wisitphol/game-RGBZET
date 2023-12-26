@@ -5,33 +5,10 @@ using UnityEngine;
 public class Carddata : MonoBehaviour
 {
     
-    public enum LetterType
-    {
-        R,
-        G,
-        B
-    }
-
-    public enum ColorType
-    {
-        Red,
-        Green,
-        Blue
-    }
-
-    public enum SizeType
-    {
-        Small,
-        Normal,
-        Big
-    }
-
-    public enum TextureType
-    {
-        Thru,
-        Thin,
-        Thick
-    }
+    public enum LetterType {R,G,B}
+    public enum ColorType {Red,Green,Blue}
+    public enum SizeType {Small,Normal,Big}
+    public enum TextureType {Thru,Thin,Thick}
 
     public LetterType letter;
     public ColorType color;
