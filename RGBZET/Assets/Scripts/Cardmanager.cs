@@ -4,33 +4,24 @@ using UnityEngine;
 
 public class Cardmanager : MonoBehaviour
 {
-   
-    public Carddata[] allCards; // Array to store 81 cards
+
+    public GameObject card1;
+    public GameObject card2;
+    public GameObject card3;
 
     void Start()
     {
-        InitializeCards();
+        Carddata card1Data = card1.GetComponent<Carddata>();
+        Carddata card2Data = card2.GetComponent<Carddata>();
+        Carddata card3Data = card3.GetComponent<Carddata>();
+
+        // ตัวอย่างการเข้าถึงข้อมูลของการ์ด
+        Debug.Log("Card 1: " + card1Data.letter + ", " + card1Data.color + ", " + card1Data.size + ", " + card1Data.texture);
+        Debug.Log("Card 2: " + card2Data.letter + ", " + card2Data.color + ", " + card2Data.size + ", " + card2Data.texture);
+        Debug.Log("Card 3: " + card3Data.letter + ", " + card3Data.color + ", " + card3Data.size + ", " + card3Data.texture);
     }
 
-    void InitializeCards()
-    {
-        // Initialize the array with 81 cards
-        allCards = new Carddata[81];
 
-        for (int i = 0; i < allCards.Length; i++)
-        {
-            // Create an instance of CardData
-            Carddata card = new Carddata();
-
-            // Set properties for the card (customize based on your game rules)
-            card.letter = (Carddata.LetterType)(i % 3); // Assigning a letter type based on index
-            card.color = (Carddata.ColorType)(i % 3);   // Assigning a color type based on index
-            card.size = (Carddata.SizeType)(i % 3);     // Assigning a size type based on index
-
-            // Add the card to the array
-            allCards[i] = card;
-        }
-    }
 
 
 }
