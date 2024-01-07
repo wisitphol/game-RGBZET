@@ -2,19 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Carddata : MonoBehaviour
+public class CardData : MonoBehaviour
 {
     
-    public enum LetterType {R,G,B}
-    public enum ColorType {Red,Green,Blue}
-    public enum SizeType {Small,Normal,Big}
-    public enum TextureType {Thru,Thin,Thick}
+  public static List<Card> cardList = new List<Card>();
+  
 
-    public LetterType letter;
-    public ColorType color;
-    public SizeType size;
-    public TextureType texture;
+  void Awake()
+  {
+      cardList.Add(new Card(0 ,"R" ,"Red"   ,"Normal" ,"Thru" ,Resources.Load<Sprite>("n1") ));
+      cardList.Add(new Card(1 ,"R" ,"Red"   ,"Normal" ,"Thin" ,Resources.Load<Sprite>("n2") ));
+      cardList.Add(new Card(2 ,"R" ,"Red"   ,"Normal" ,"Thick",Resources.Load<Sprite>("n3") ));
+      cardList.Add(new Card(3 ,"R" ,"Green" ,"Normal" ,"Thru" ,Resources.Load<Sprite>("n4") ));
+      cardList.Add(new Card(4 ,"R" ,"Green" ,"Normal" ,"Thin" ,Resources.Load<Sprite>("n5") ));
+      cardList.Add(new Card(5 ,"R" ,"Green" ,"Normal" ,"Thick",Resources.Load<Sprite>("n6") ));
+    
 
+  }
     
 
 
