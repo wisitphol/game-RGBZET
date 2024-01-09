@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 22755604}
   - component: {fileID: 22755603}
   m_Layer: 0
-  m_Name: artImage
+  m_Name: ArtImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -465,7 +465,7 @@ GameObject:
   - component: {fileID: 1286682058}
   - component: {fileID: 1286682057}
   m_Layer: 0
-  m_Name: 'IDText '
+  m_Name: 'IdText '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -625,14 +625,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e77c94bdfb7932c40be6b28182fe7607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayCard:
-  - Id: 0
-    LetterType: 
-    ColorType: 
-    SizeType: 
-    TextureType: 
-    Spriteimg: {fileID: 0}
-  displayId: 2
+  displayCard: []
+  displayId: 0
   Id: 0
   LetterType: 
   ColorType: 
@@ -653,7 +647,7 @@ GameObject:
   - component: {fileID: 1805987541}
   - component: {fileID: 1805987540}
   m_Layer: 0
-  m_Name: border
+  m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
