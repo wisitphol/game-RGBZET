@@ -545,6 +545,7 @@ GameObject:
   - component: {fileID: 1534406923}
   - component: {fileID: 1534406922}
   - component: {fileID: 1534406924}
+  - component: {fileID: 1534406925}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -625,7 +626,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e77c94bdfb7932c40be6b28182fe7607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayCard: []
+  displayCard:
+  - Id: 0
+    LetterType: 
+    ColorType: 
+    SizeType: 
+    TextureType: 
+    Spriteimg: {fileID: 0}
   displayId: 0
   Id: 0
   LetterType: 
@@ -635,6 +642,19 @@ MonoBehaviour:
   Spriteimg: {fileID: 0}
   IdText: {fileID: 1286682057}
   ArtImage: {fileID: 22755603}
+--- !u!114 &1534406925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1534406920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ba77ec83e221cd458aa1e7c60331740, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardSprites: []
 --- !u!1 &1805987538
 GameObject:
   m_ObjectHideFlags: 0

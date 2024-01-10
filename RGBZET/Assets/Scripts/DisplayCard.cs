@@ -25,21 +25,14 @@ public class DisplayCard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       // if (displayId >= 0 && displayId < CardData.cardList.Count)
-       // {
-            
-        displayCard[0] = CardData.cardList[displayId];
+        displayCard = new List<Card>();
+        Debug.Log("CardList Count: " + CardData.cardList.Count);
+        Debug.Log("DisplayId: " + displayId);
 
-       // }
-        //else
-        //{
-        //    Debug.LogError("displayId is out of range.");
-        //}
-    }
+        if (displayId >= 0 && displayId < CardData.cardList.Count)
+        {
+            displayCard.Add(CardData.cardList[displayId]);
 
-    // Update is called once per frame
-    void Update()
-    {
             Id = displayCard[0].Id;
             LetterType = displayCard[0].LetterType;
             ColorType = displayCard[0].ColorType;
@@ -49,5 +42,24 @@ public class DisplayCard : MonoBehaviour
 
             IdText.text = " " + Id;
             ArtImage.sprite = Spriteimg;
+        }
+        else
+        {
+            Debug.LogError("displayId is out of range.");
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+      //  Id = displayCard[0].Id;
+      //  LetterType = displayCard[0].LetterType;
+        //ColorType = displayCard[0].ColorType;
+       // SizeType = displayCard[0].SizeType;
+       // TextureType = displayCard[0].TextureType;
+       // Spriteimg = displayCard[0].Spriteimg;
+
+        //IdText.text = " " + Id;
+        //ArtImage.sprite = Spriteimg; 
     }
 }

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class CardData : MonoBehaviour
 {
     
   public static List<Card> cardList = new List<Card>();
-  
+  public List<Sprite> cardSprites = new List<Sprite>();
   
 
   void Awake()
@@ -18,7 +20,9 @@ public class CardData : MonoBehaviour
       cardList.Add(new Card(4 ,"R" ,"Green" ,"Normal" ,"Thin"  ,Resources.Load<Sprite>("n5") ));
       cardList.Add(new Card(5 ,"R" ,"Green" ,"Normal" ,"Thick" ,Resources.Load<Sprite>("n6") ));
     
+    Debug.Log("CardList Count after adding: " + cardList.Count);
 
+    
   }
     
 
