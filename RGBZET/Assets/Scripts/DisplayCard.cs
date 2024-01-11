@@ -8,7 +8,6 @@ using UnityEngine.EventSystems;
 public class DisplayCard : MonoBehaviour
 {
     public List<Card> displayCard = new List<Card>();
-
     public int displayId;
 
     public int Id;
@@ -25,13 +24,15 @@ public class DisplayCard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        displayCard = new List<Card>();
+        
         Debug.Log("CardList Count: " + CardData.cardList.Count);
         Debug.Log("DisplayId: " + displayId);
 
         if (displayId >= 0 && displayId < CardData.cardList.Count)
         {
-            displayCard.Add(CardData.cardList[displayId]);
+            //displayCard.Add(CardData.cardList[displayId]);
+            displayCard[0] = CardData.cardList[displayId];
+
 
             Id = displayCard[0].Id;
             LetterType = displayCard[0].LetterType;
