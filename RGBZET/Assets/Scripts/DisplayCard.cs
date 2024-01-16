@@ -20,6 +20,9 @@ public class DisplayCard : MonoBehaviour
     public Text IdText;
     public Image ArtImage;
 
+    public bool cardBack;
+    public static bool staticCardBack;
+
     public GameObject Hand;
     public int numberOfCardInDeck;
 
@@ -37,17 +40,6 @@ public class DisplayCard : MonoBehaviour
         {
             //displayCard.Add(CardData.cardList[displayId]);
             displayCard[0] = CardData.cardList[displayId];
-
-
-            Id = displayCard[0].Id;
-            LetterType = displayCard[0].LetterType;
-            ColorType = displayCard[0].ColorType;
-            SizeType = displayCard[0].SizeType;
-            TextureType = displayCard[0].TextureType;
-            Spriteimg = displayCard[0].Spriteimg;
-
-            IdText.text = " " + Id;
-            ArtImage.sprite = Spriteimg;
         }
         else
         {
@@ -58,15 +50,17 @@ public class DisplayCard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      //  Id = displayCard[0].Id;
-      //  LetterType = displayCard[0].LetterType;
-        //ColorType = displayCard[0].ColorType;
-       // SizeType = displayCard[0].SizeType;
-       // TextureType = displayCard[0].TextureType;
-       // Spriteimg = displayCard[0].Spriteimg;
+        Id = displayCard[0].Id;
+        LetterType = displayCard[0].LetterType;
+        ColorType = displayCard[0].ColorType;
+        SizeType = displayCard[0].SizeType;
+        TextureType = displayCard[0].TextureType;
+        Spriteimg = displayCard[0].Spriteimg;
 
-        //IdText.text = " " + Id;
-        //ArtImage.sprite = Spriteimg; 
+        IdText.text = " " + Id;
+        ArtImage.sprite = Spriteimg; 
+
+
 
         Hand = GameObject.Find("Hand");
         if(this.transform.parent == Hand.transform.parent)
@@ -75,7 +69,7 @@ public class DisplayCard : MonoBehaviour
 
         }
 
-        //staticCardBack = cardBack;
+        staticCardBack = cardBack;
 
         if(this.tag == "Clone")
         {

@@ -11,6 +11,8 @@ public class Deck : MonoBehaviour
     public static int deckSize;
     public static List<Card> staticDeck = new List<Card>();
 
+    public GameObject CardInDeck;
+
     public GameObject[] Clones;
     public GameObject Hand;
 
@@ -31,6 +33,10 @@ public class Deck : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(deckSize < 10)
+        {
+            CardInDeck.SetActive(false);
+        }
         staticDeck = deck;
     }
 
