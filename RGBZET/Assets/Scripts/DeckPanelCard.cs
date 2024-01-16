@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CardBack : MonoBehaviour
+public class DeckPanelCard : MonoBehaviour
 {
     public GameObject cardBack;
 
@@ -15,15 +15,6 @@ public class CardBack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(DisplayCard.staticCardBack == true)
-        {
-            cardBack.SetActive(true);
-        }
-        else
-        {
-            cardBack.SetActive(false);
-        }
-
-
+        cardBack.SetActive(true);
     }
 }

@@ -163,7 +163,6 @@ GameObject:
   - component: {fileID: 3695626017689113207}
   - component: {fileID: 3695626017689113205}
   - component: {fileID: 3695626017689113204}
-  - component: {fileID: 3695626017689113202}
   m_Layer: 0
   m_Name: CardBack
   m_TagString: Untagged
@@ -231,34 +230,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3695626017689113202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3695626017689113206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e77c94bdfb7932c40be6b28182fe7607, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayCard:
-  - Id: 0
-    LetterType: 
-    ColorType: 
-    SizeType: 
-    TextureType: 
-    Spriteimg: {fileID: 0}
-  displayId: 10
-  Id: 0
-  LetterType: 
-  ColorType: 
-  SizeType: 
-  TextureType: 
-  Spriteimg: {fileID: 0}
-  IdText: {fileID: 0}
-  ArtImage: {fileID: 3695626016985913965}
-  cardBack: 0
-  Hand: {fileID: 0}
-  numberOfCardInDeck: 0

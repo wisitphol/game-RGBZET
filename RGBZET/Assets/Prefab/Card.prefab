@@ -271,6 +271,8 @@ GameObject:
   - component: {fileID: 3695626017689113205}
   - component: {fileID: 3695626017689113204}
   - component: {fileID: 3695626017689113202}
+  - component: {fileID: 4090628049445096847}
+  - component: {fileID: 8711747662187956210}
   m_Layer: 0
   m_Name: Card
   m_TagString: Untagged
@@ -371,6 +373,32 @@ MonoBehaviour:
   cardBack: 0
   Hand: {fileID: 0}
   numberOfCardInDeck: 0
+--- !u!114 &4090628049445096847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c69761c0d6fa988449d9190fbdf6d0b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardBack: {fileID: 5135999836099068201}
+--- !u!114 &8711747662187956210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3f845556ff31cb4a9e8f61ad0de06bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardBack: {fileID: 5135999836099068201}
 --- !u!1001 &8362970016322900831
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -471,5 +499,10 @@ PrefabInstance:
 --- !u!224 &5135999836099068200 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
+  m_PrefabInstance: {fileID: 8362970016322900831}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5135999836099068201 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
   m_PrefabInstance: {fileID: 8362970016322900831}
   m_PrefabAsset: {fileID: 0}

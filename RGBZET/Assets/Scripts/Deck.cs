@@ -13,6 +13,7 @@ public class Deck : MonoBehaviour
 
     public GameObject CardInDeck;
 
+    public GameObject CardToHand;
     public GameObject[] Clones;
     public GameObject Hand;
 
@@ -21,36 +22,38 @@ public class Deck : MonoBehaviour
     {
         x = 0;
         deckSize = 80;
-        for(int i = 0; i < 80; i++)
+        for(int i = 0; i < deckSize; i++)
         {
             x = Random.Range(0,26);
             deck[i] = CardData.cardList[x];
         }
         
-        //StartCotroutine(StartGame());
+        StartCoroutine(StartGame());
     }
 
     // Update is called once per frame
     void Update()
     {
+        staticDeck = deck;
+
+
         if(deckSize < 10)
         {
             CardInDeck.SetActive(false);
         }
-        staticDeck = deck;
+        
     }
 
-    //IEnumerator StartGame()
-    //{
-    //    for(int i = 0; i <= 4;i++)
-    //    {
-     //       yield return new WaitFordSeconds(1);
+    IEnumerator StartGame()
+    {
+        for(int i = 0;i <= 4;i++)
+        {
+            yield return new WaitForSeconds(1);
 
-            
+            Instantiate(CardToHand, transform.position, transform.rotation);
+        }
+    }
 
-      //      Instantiate(CardToHand, transform.position, transform.rotation);
-    //    }
-  //  }
 
     public void Shuffle()
     {

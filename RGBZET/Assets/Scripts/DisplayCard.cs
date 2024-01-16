@@ -61,12 +61,10 @@ public class DisplayCard : MonoBehaviour
         ArtImage.sprite = Spriteimg; 
 
 
-
         Hand = GameObject.Find("Hand");
         if(this.transform.parent == Hand.transform.parent)
         {
-            //cardBack = false;
-
+            cardBack = false;
         }
 
         staticCardBack = cardBack;
@@ -76,8 +74,8 @@ public class DisplayCard : MonoBehaviour
             displayCard[0] = Deck.staticDeck[numberOfCardInDeck - 1];
             numberOfCardInDeck -= 1;
             Deck.deckSize -= 1;
-            //cardBack = false;
+            cardBack = false;
             this.tag = "Untagged";
         }
     }
-    }
+}
