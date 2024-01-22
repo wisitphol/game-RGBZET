@@ -38,8 +38,8 @@ public class DisplayCard : MonoBehaviour
 
         if (displayId >= 0 && displayId < CardData.cardList.Count)
         {
-            //displayCard.Add(CardData.cardList[displayId]);
-            displayCard[0] = CardData.cardList[displayId];
+            displayCard.Add(CardData.cardList[displayId]);
+            //displayCard[0] = CardData.cardList[displayId];
         }
         else
         {
@@ -50,18 +50,24 @@ public class DisplayCard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Id = displayCard[0].Id;
-        LetterType = displayCard[0].LetterType;
-        ColorType = displayCard[0].ColorType;
-        SizeType = displayCard[0].SizeType;
-        TextureType = displayCard[0].TextureType;
-        Spriteimg = displayCard[0].Spriteimg;
+        if(displayCard.Count > 0)
+        {
+            Id = displayCard[0].Id;
+            LetterType = displayCard[0].LetterType;
+            ColorType = displayCard[0].ColorType;
+            SizeType = displayCard[0].SizeType;
+            TextureType = displayCard[0].TextureType;
+            Spriteimg = displayCard[0].Spriteimg;
 
-        IdText.text = " " + Id;
-        ArtImage.sprite = Spriteimg; 
+            IdText.text = " " + Id;
+            ArtImage.sprite = Spriteimg; 
+        
 
-
-        Hand = GameObject.Find("Hand");
+        if(Hand == null)
+        {
+            Hand = GameObject.Find("Hand");
+        }
+        
         if(this.transform.parent == Hand.transform.parent)
         {
             cardBack = false;
@@ -69,13 +75,20 @@ public class DisplayCard : MonoBehaviour
 
         staticCardBack = cardBack;
 
-        if(this.tag == "Clone")
+        if(this.tag == "Clone" && numberOfCardInDeck > 0)
         {
             displayCard[0] = Deck.staticDeck[numberOfCardInDeck - 1];
             numberOfCardInDeck -= 1;
             Deck.deckSize -= 1;
             cardBack = false;
             this.tag = "Untagged";
+        }
+        
+        }
+
+        else
+        {
+            Debug.LogError("displayCard is empty.");
         }
     }
 }

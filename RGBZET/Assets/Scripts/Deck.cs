@@ -22,6 +22,8 @@ public class Deck : MonoBehaviour
     {
         x = 0;
         deckSize = 80;
+        deck = new List<Card>(new Card[deckSize]);
+
         for(int i = 0; i < deckSize; i++)
         {
             x = Random.Range(0,26);
@@ -42,11 +44,16 @@ public class Deck : MonoBehaviour
             CardInDeck.SetActive(false);
         }
         
+        if(TurnSystem.startTurn == true)
+        {
+            StartCoroutine(Draw(1));
+            TurnSystem.startTurn = false;
+        }
     }
 
     IEnumerator StartGame()
     {
-        for(int i = 0;i <= 4;i++)
+        for(int i = 0;i <= 3;i++)
         {
             yield return new WaitForSeconds(1);
 
@@ -66,5 +73,14 @@ public class Deck : MonoBehaviour
         }
     }
 
+    IEnumerator Draw(int x)
+    {
+        for(int i = 0; i < x; i++)
+        {
+            yield return new WaitForSeconds(1);
+
+            Instantiate(CardToHand, transform.position, transform.rotation);
+        }
+    }
 
 }
