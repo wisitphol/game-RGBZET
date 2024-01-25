@@ -6,10 +6,10 @@ using UnityEngine;
 public class Card 
 {
     public int Id;
-    public string LetterType;   //{R,G,B};
-    public string ColorType;    //{Red,Green,Blue};
-    public string SizeType ;    //{Small,Normal,Big};
-    public string TextureType;  //{Thru,Thin,Thick};
+    public string LetterType;   
+    public string ColorType;    
+    public string SizeType ;    
+    public string TextureType;  
     public Sprite Spriteimg;
 
     public Card()

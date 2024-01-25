@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class Deck : MonoBehaviour
 {
     public List<Card> container = new List<Card>();
@@ -17,11 +16,13 @@ public class Deck : MonoBehaviour
     public GameObject[] Clones;
     public GameObject Hand;
 
+  
+
     // Start is called before the first frame update
     void Start()
     {
         x = 0;
-        deckSize = 80;
+        deckSize = 27;
         deck = new List<Card>(new Card[deckSize]);
 
         for(int i = 0; i < deckSize; i++)
@@ -29,7 +30,9 @@ public class Deck : MonoBehaviour
             x = Random.Range(0,26);
             deck[i] = CardData.cardList[x];
         }
-        
+
+
+
         StartCoroutine(StartGame());
     }
 
@@ -38,8 +41,7 @@ public class Deck : MonoBehaviour
     {
         staticDeck = deck;
 
-
-        if(deckSize < 10)
+        if(deckSize < 1)
         {
             CardInDeck.SetActive(false);
         }
@@ -53,14 +55,14 @@ public class Deck : MonoBehaviour
 
     IEnumerator StartGame()
     {
-        for(int i = 0;i <= 3;i++)
+        for(int i = 0;i <= 26;i++)
         {
             yield return new WaitForSeconds(1);
 
-            Instantiate(CardToHand, transform.position, transform.rotation);
+            GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation);
+           
         }
     }
-
 
     public void Shuffle()
     {
@@ -79,8 +81,8 @@ public class Deck : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
-            Instantiate(CardToHand, transform.position, transform.rotation);
+            GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation);
+            
         }
     }
-
 }
