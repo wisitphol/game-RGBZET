@@ -20,6 +20,7 @@ public class CardToBoard : MonoBehaviour
     {
         Hand = GameObject.Find("Hand");
         HandCard.transform.SetParent(Hand.transform);
+        //Debug.Log("Cardboard set to Hand: " + HandCard);
         HandCard.transform.localScale = Vector3.one;
         HandCard.transform.position = new Vector3(transform.position.x,transform.position.y, -48);
         HandCard.transform.eulerAngles = new Vector3(25, 0, 0);

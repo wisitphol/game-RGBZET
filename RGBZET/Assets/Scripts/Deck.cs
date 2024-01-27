@@ -16,7 +16,8 @@ public class Deck : MonoBehaviour
     public GameObject[] Clones;
     public GameObject Hand;
 
-  
+    private List<Card> selectedCards = new List<Card>();
+    public CardSelection cardSelection;
 
     // Start is called before the first frame update
     void Start()
@@ -55,7 +56,7 @@ public class Deck : MonoBehaviour
 
     IEnumerator StartGame()
     {
-        for(int i = 0;i <= 26;i++)
+        for(int i = 0;i <= 12;i++)
         {
             yield return new WaitForSeconds(1);
 
@@ -73,6 +74,7 @@ public class Deck : MonoBehaviour
             deck[i] = deck[randomIndex];
             deck[randomIndex] = container[0];
         }
+        //Debug.Log("Deck shuffled");
     }
 
     IEnumerator Draw(int x)
@@ -83,6 +85,9 @@ public class Deck : MonoBehaviour
 
             GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation);
             
+            //Debug.Log("New Card created: " + newCard);
         }
     }
+
+    
 }
