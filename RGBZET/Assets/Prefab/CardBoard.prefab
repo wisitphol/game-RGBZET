@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c69761c0d6fa988449d9190fbdf6d0b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardBack: {fileID: 0}
+  cardBack: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
 --- !u!114 &7680703171730792259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,6 +507,10 @@ PrefabInstance:
     - target: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_Name
       value: CardBack
+      objectReference: {fileID: 0}
+    - target: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_Pivot.x

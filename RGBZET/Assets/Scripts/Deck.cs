@@ -22,18 +22,12 @@ public class Deck : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        x = 0;
-        deckSize = 27;
-        deck = new List<Card>(new Card[deckSize]);
+        // Initialize deckSize and cardList if not already done
+        deckSize = CardData.cardList.Count;
+        deck = new List<Card>(CardData.cardList);
+        Shuffle(deck);
 
-        for(int i = 0; i < deckSize; i++)
-        {
-            x = Random.Range(0,26);
-            deck[i] = CardData.cardList[x];
-        }
-
-
-
+        // Now deck is shuffled and ready to use
         StartCoroutine(StartGame());
     }
 
@@ -47,34 +41,34 @@ public class Deck : MonoBehaviour
             CardInDeck.SetActive(false);
         }
         
-        if(TurnSystem.startTurn == true)
-        {
-            StartCoroutine(Draw(1));
-            TurnSystem.startTurn = false;
-        }
+       // if(TurnSystem.startTurn == true)
+      //  {
+      //      StartCoroutine(Draw(1));
+      //      TurnSystem.startTurn = false;
+       // }
     }
 
-    IEnumerator StartGame()
+   IEnumerator StartGame()
+{
+    for(int i = 0; i < 12; i++)
     {
-        for(int i = 0;i <= 12;i++)
-        {
-            yield return new WaitForSeconds(1);
-
-            GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation);
-           
-        }
+        yield return new WaitForSeconds(1);
+        GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation) as GameObject;
+        newCard.transform.SetParent(Hand.transform, false);
+        newCard.SetActive(true);
     }
+}
 
-    public void Shuffle()
+
+    private void Shuffle(List<Card> list)
     {
-        for(int i = 0; i < deckSize; i++)
+        for (int i = list.Count - 1; i > 0; i--)
         {
-            container[0] = deck[i];
-            int randomIndex = Random.Range(i,deckSize);
-            deck[i] = deck[randomIndex];
-            deck[randomIndex] = container[0];
+            int randomIndex = Random.Range(0, i + 1);
+            Card temp = list[i];
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
         }
-        //Debug.Log("Deck shuffled");
     }
 
     IEnumerator Draw(int x)
