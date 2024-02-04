@@ -91,4 +91,19 @@ public class DisplayCard : MonoBehaviour
             Debug.LogError("displayCard is empty.");
         }
     }
+
+    public void HighlightCard(bool highlight)
+    {
+        if(highlight)
+        {
+            // เปลี่ยนขอบหรือสีของการ์ดเพื่อบ่งบอกว่ามันถูกเลือก
+            // นี่เป็นเพียงตัวอย่าง: คุณจะต้องอ้างอิงถึงองค์ประกอบ UI จริง
+            this.GetComponent<Image>().color = Color.yellow; // สีเน้น
+        }
+        else
+        {
+            // คืนค่าการเปลี่ยนแปลงทางภาพถ้าการ์ดไม่ถูกเลือกอีกต่อไป
+            this.GetComponent<Image>().color = Color.white; // สีปกติ
+        }
+    }
 }

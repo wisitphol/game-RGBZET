@@ -7,58 +7,74 @@ using UnityEngine.EventSystems;
 public class ZETbutton : MonoBehaviour
 {
     private List<Card> selectedCards = new List<Card>();
+    public List<DisplayCard> allDisplayCards;
 
-    // สมมติว่าคุณมีวิธีการเพื่อทำให้การ์ดเป็น "selected"
+    public void CardClicked(Card card)
+    {
+        // Assuming you have a way to get the corresponding DisplayCard component
+        DisplayCard display = allDisplayCards.Find(d => d.Id == card.Id);
+
+        if (display != null)
+        {
+            bool highlight = selectedCards.Contains(card);
+            display.HighlightCard(highlight);
+        }
+
+        if (selectedCards.Contains(card))
+        {
+            // Card is already selected, deselect it
+            selectedCards.Remove(card);
+            display.HighlightCard(false); // Update visual state
+        }
+        else if (selectedCards.Count < 3)
+        {
+            // Select the new card
+            selectedCards.Add(card);
+            display.HighlightCard(true); // Update visual state
+        }
+
+        // Debug.Log เมื่อมีการเลือกการ์ด
+        Debug.Log("Selected Cards: " + selectedCards.Count);
+    }
+
     // ฟังก์ชันนี้จะถูกเรียกเมื่อผู้เล่นกดปุ่ม ZET
     public void OnZETButtonPressed()
     {
-        // อาจต้องการรหัสเพิ่มเติมเพื่อการเลือกการ์ด
-        selectedCards = SelectCards();
-
-        // ตรวจสอบเงื่อนไข
-        if (CheckSelectedCards(selectedCards))
+        if (selectedCards.Count == 3)
         {
-            // ทำลายหรือย้ายการ์ดที่เลือก
-            RemoveOrDisableSelectedCards(selectedCards);
+            // ทำอะไรก็ตามกับการ์ดที่เลือก
+            // ตัวอย่าง: อาจมีโค้ดที่ส่งการ์ดที่เลือกไปที่ฟังก์ชันอื่น
+            Debug.Log("ZET button pressed with 3 selected cards.");
+            
+            // เรียกฟังก์ชันเช็คการ์ดที่ถูกเลือก
+            CheckSelectedCards(selectedCards);
+            
+            // ล้างการ์ดที่ถูกเลือกหลังจากการกดปุ่ม "zet"
+            selectedCards.Clear();
+            
+            // รีเซ็ตสถานะการ์ดที่ถูกเลือก
+            ResetSelectedCards(allDisplayCards);
         }
         else
         {
-            // คืนสถานะการ์ด
-            ResetSelectedCards(selectedCards);
+            // แสดงข้อความเตือนหรือแจ้งเตือนผู้เล่นว่าต้องเลือกการ์ด 3 ใบ
+            Debug.Log("Please select 3 cards to use ZET.");
         }
     }
 
-    private List<Card> SelectCards()
-    {
-        // รหัสสำหรับการเลือกการ์ด
-        List<Card> cards = new List<Card>();
-        // จำลองการเลือกการ์ด
-        return cards;
-    }
-
-    private bool CheckSelectedCards(List<Card> cards)
+    private void CheckSelectedCards(List<Card> cards)
     {
         // ตรวจสอบเงื่อนไขของการ์ดที่ถูกเลือก
         // สมมติว่าคุณมีเงื่อนไขการตรวจสอบที่นี่
-        return true; // หรือ false ขึ้นอยู่กับเงื่อนไข
+        // ตัวอย่าง: ให้เรียกฟังก์ชันสำหรับการตรวจสอบการ์ดที่ถูกเลือก
     }
 
-    private void RemoveOrDisableSelectedCards(List<Card> cards)
+    private void ResetSelectedCards(List<DisplayCard> displayCards)
     {
-        // รหัสสำหรับการลบหรือย้ายการ์ดที่ถูกเลือก
-        foreach (Card card in cards)
+        // รีเซ็ตสถานะการ์ดที่ถูกเลือก
+        foreach (DisplayCard display in displayCards)
         {
-            // Destroy(card.gameObject); หรือ card.gameObject.SetActive(false);
-        }
-    }
-
-    private void ResetSelectedCards(List<Card> cards)
-    {
-        // รหัสสำหรับการคืนสถานะการ์ด
-        foreach (Card card in cards)
-        {
-            // ล้างการเลือกหรือคืนค่าสถานะที่เป็นไปได้
+            display.HighlightCard(false);
         }
     }
 }
-

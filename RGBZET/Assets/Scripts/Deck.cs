@@ -16,7 +16,7 @@ public class Deck : MonoBehaviour
     public GameObject[] Clones;
     public GameObject Hand;
 
-    private List<Card> selectedCards = new List<Card>();
+   
    
     // Start is called before the first frame update
     void Start()
