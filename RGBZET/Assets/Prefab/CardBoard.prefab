@@ -91,7 +91,6 @@ GameObject:
   - component: {fileID: 3695626016985913964}
   - component: {fileID: 3695626016985913962}
   - component: {fileID: 3695626016985913965}
-  - component: {fileID: 3695626016985913963}
   m_Layer: 0
   m_Name: ArtImage
   m_TagString: Untagged
@@ -157,32 +156,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!61 &3695626016985913963
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3695626016985913967}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!1 &3695626017434308012
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,6 +247,7 @@ GameObject:
   - component: {fileID: 8703629565376866413}
   - component: {fileID: 7680703171730792259}
   - component: {fileID: 6899618011589851656}
+  - component: {fileID: 8034173576252401858}
   m_Layer: 0
   m_Name: CardBoard
   m_TagString: Clone
@@ -427,6 +401,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &8034173576252401858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a22d6d97f9002541902942f6656e57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7600045837387402959
 PrefabInstance:
   m_ObjectHideFlags: 0

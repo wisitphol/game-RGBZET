@@ -106,4 +106,16 @@ public class DisplayCard : MonoBehaviour
             this.GetComponent<Image>().color = Color.white; // สีปกติ
         }
     }
+
+   // void OnMouseDown()
+   // {
+        // โค้ดสำหรับจัดการการเลือกการ์ด
+   //     Debug.Log("Card Clicked: " + gameObject.name);
+   // }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log("Card was clicked");
+        // Your code for what happens when the card is clicked.
+    }
 }
