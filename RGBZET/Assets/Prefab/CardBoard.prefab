@@ -248,6 +248,7 @@ GameObject:
   - component: {fileID: 7680703171730792259}
   - component: {fileID: 6899618011589851656}
   - component: {fileID: 8034173576252401858}
+  - component: {fileID: 7794216164106165968}
   m_Layer: 0
   m_Name: CardBoard
   m_TagString: Clone
@@ -411,6 +412,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a22d6d97f9002541902942f6656e57f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7794216164106165968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa919a08c10b2143bd588b95acd348b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &7600045837387402959

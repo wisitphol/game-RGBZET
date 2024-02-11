@@ -84,6 +84,7 @@ public class DisplayCard : MonoBehaviour
             this.tag = "Untagged";
         }
         
+            
         }
 
         else
@@ -115,6 +116,7 @@ public class DisplayCard : MonoBehaviour
 
     public void OnPointerClick(PointerEventData eventData)
     {
+       
         Debug.Log("Card was clicked");
         // Your code for what happens when the card is clicked.
     }
