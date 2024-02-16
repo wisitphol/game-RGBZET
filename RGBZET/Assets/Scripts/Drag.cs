@@ -7,11 +7,12 @@ using UnityEngine.EventSystems;
 
 public class Drag : MonoBehaviour , IBeginDragHandler , IDragHandler , IEndDragHandler
 {
-    Transform parentToReturnTo = null;
+    public Transform parentToReturnTo = null;
 
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log("Current parent: " + this.transform.parent.name);
         parentToReturnTo = this.transform.parent;
         this.transform.SetParent(this.transform.parent.parent);
         //Debug.Log("BeginDrag");
@@ -27,19 +28,10 @@ public class Drag : MonoBehaviour , IBeginDragHandler , IDragHandler , IEndDragH
     public void OnEndDrag(PointerEventData eventData)
     {
         this.transform.SetParent(parentToReturnTo);
+        Debug.Log("Returning to parent: " + parentToReturnTo.name);
         //Debug.Log("EndDrag");
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }
