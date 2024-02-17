@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CardToBoard : MonoBehaviour
 {
-    public GameObject Hand;
-    public GameObject HandCard;
+    public GameObject Board;
+    public GameObject BoardCard;
 
     /*
     // Start is called before the first frame update
@@ -30,16 +30,22 @@ public class CardToBoard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Hand = GameObject.Find("Hand");
+        Board = GameObject.Find("Boardzone");
     }
 
-    public void MoveCardToHand()
+    public void MoveCardToฺBoard()
     {
-        HandCard.transform.SetParent(Hand.transform, false);
-        HandCard.transform.localScale = Vector3.one;
+        if (!Button1.isZetActive)
+        {
+            Debug.Log("ZET is not active. Cannot move card to board.");
+            return;
+        }
+        
+        BoardCard.transform.SetParent(Board.transform, false);
+        BoardCard.transform.localScale = Vector3.one;
         // Use localPosition and localRotation for UI elements
-        HandCard.transform.localPosition = new Vector3(0, 0, -48);
-        HandCard.transform.localEulerAngles = new Vector3(25, 0, 0);
+        BoardCard.transform.localPosition = new Vector3(0, 0, -48);
+        BoardCard.transform.localEulerAngles = new Vector3(25, 0, 0);
     }
 
 

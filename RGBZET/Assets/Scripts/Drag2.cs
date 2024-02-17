@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;

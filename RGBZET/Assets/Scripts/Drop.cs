@@ -12,11 +12,18 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         if (eventData.pointerDrag == null)
         return;
 
-        Debug.Log("Pointer entered drop zone");
+        //Debug.Log("Pointer entered drop zone");
     }
 
     public void OnDrop(PointerEventData eventData)
     {
+         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
+        if (!Button1.isZetActive)
+        {
+            Debug.Log("Cannot drop. ZET button has not been pressed.");
+            return; // ยกเลิกการ drop ถ้าปุ่ม ZET ยังไม่ถูกกด
+        }
+
         Debug.Log("OnDrop event detected");
 
         // ตรวจสอบว่ามี object ที่ลากมาวางลงหรือไม่
@@ -38,7 +45,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         if (eventData.pointerDrag == null)
         return;
 
-        Debug.Log("Pointer exited drop zone");
+        //Debug.Log("Pointer exited drop zone");
     }
 
     
