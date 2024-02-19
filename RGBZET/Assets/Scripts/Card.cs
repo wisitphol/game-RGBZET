@@ -10,6 +10,7 @@ public class Card
     public string ColorType;    
     public string SizeType ;    
     public string TextureType;  
+    public int Point;
     public Sprite Spriteimg;
 
     public Card()
@@ -17,13 +18,14 @@ public class Card
 
     }
 
-    public Card (int id,string letter,string color,string size,string texture,Sprite spriteimg)
+    public Card (int id,string letter,string color,string size,string texture,int point,Sprite spriteimg)
     {
         Id = id;
         LetterType = letter;
         ColorType = color;
         SizeType = size;
         TextureType = texture;
+        Point = point;
         Spriteimg = spriteimg;
     }
 }

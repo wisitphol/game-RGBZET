@@ -12,9 +12,9 @@ public class Deck : MonoBehaviour
 
     public GameObject CardInDeck;
 
-    public GameObject CardToHand;
+    public GameObject CardToBoard;
     public GameObject[] Clones;
-    public GameObject Hand;
+    public GameObject Board;
 
    
    
@@ -52,8 +52,8 @@ public class Deck : MonoBehaviour
     for(int i = 0; i < 12; i++)
     {
         yield return new WaitForSeconds(1);
-        GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation) as GameObject;
-        newCard.transform.SetParent(Hand.transform, false);
+        GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation) as GameObject;
+        newCard.transform.SetParent(Board.transform, false);
         newCard.SetActive(true);
     }
 }
@@ -76,7 +76,7 @@ public class Deck : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
-            GameObject newCard = Instantiate(CardToHand, transform.position, transform.rotation);
+            GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation);
             
             //Debug.Log("New Card created: " + newCard);
         }

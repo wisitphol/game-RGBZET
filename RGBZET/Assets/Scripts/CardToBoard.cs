@@ -33,7 +33,7 @@ public class CardToBoard : MonoBehaviour
         Board = GameObject.Find("Boardzone");
     }
 
-    public void MoveCardToฺBoard()
+    public void MoveCardToBoard()
     {
         if (!Button1.isZetActive)
         {

@@ -15,6 +15,7 @@ public class DisplayCard : MonoBehaviour
     public string ColorType; 
     public string SizeType ;    
     public string TextureType; 
+    public int Point;
     public Sprite Spriteimg;
 
     public Text IdText;
@@ -23,7 +24,7 @@ public class DisplayCard : MonoBehaviour
     public bool cardBack;
     public static bool staticCardBack;
 
-    public GameObject Hand;
+    public GameObject Board;
     public int numberOfCardInDeck;
 
 
@@ -33,8 +34,8 @@ public class DisplayCard : MonoBehaviour
     {
         numberOfCardInDeck = Deck.deckSize;
         
-        Debug.Log("CardList Count: " + CardData.cardList.Count);
-        Debug.Log("DisplayId: " + displayId);
+        //Debug.Log("CardList Count: " + CardData.cardList.Count);
+        //Debug.Log("DisplayId: " + displayId);
 
         if (displayId >= 0 && displayId < CardData.cardList.Count)
         {
@@ -57,18 +58,19 @@ public class DisplayCard : MonoBehaviour
             ColorType = displayCard[0].ColorType;
             SizeType = displayCard[0].SizeType;
             TextureType = displayCard[0].TextureType;
+            Point = displayCard[0].Point;
             Spriteimg = displayCard[0].Spriteimg;
 
             IdText.text = " " + Id;
             ArtImage.sprite = Spriteimg; 
         
 
-        if(Hand == null)
+        if(Board == null)
         {
-            Hand = GameObject.Find("Hand");
+            Board = GameObject.Find("Boardzone");
         }
         
-        if(this.transform.parent == Hand.transform.parent)
+        if(this.transform.parent == Board.transform.parent)
         {
             cardBack = false;
         }
