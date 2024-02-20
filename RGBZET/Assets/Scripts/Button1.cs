@@ -9,7 +9,7 @@ public class Button1 : MonoBehaviour
 {
     public static bool isZetActive = false; // ตรวจสอบว่ามีผู้เล่นกดปุ่ม ZET หรือยัง
     public Button zetButton; // ปุ่ม ZET ใน UI
-    public GameController gameController; // อ้างอิงไปยัง GameController
+   
 
     // ฟังก์ชันที่เรียกเมื่อปุ่ม ZET ถูกกด
    public void OnZetButtonPressed()
@@ -20,7 +20,7 @@ public class Button1 : MonoBehaviour
         zetButton.interactable = false;
         Debug.Log("ZET activated by a player.");
 
-        gameController.AddCard();
+        
 
         StartCoroutine(PlayerActionCompleted()); // เริ่ม coroutine หลังจากการตรวจสอบ
     }

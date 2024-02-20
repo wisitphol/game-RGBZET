@@ -20,11 +20,19 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
          // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
         if (!Button1.isZetActive)
         {
-            Debug.Log("Cannot drop. ZET button has not been pressed.");
+            //Debug.Log("Cannot drop. ZET button has not been pressed.");
             return; // ยกเลิกการ drop ถ้าปุ่ม ZET ยังไม่ถูกกด
         }
 
-        Debug.Log("OnDrop event detected");
+        //Debug.Log("OnDrop event detected");
+
+        int numberOfCardsOnDropZone = CheckNumberOfCardsOnDropZone();
+
+        if (numberOfCardsOnDropZone == 3)
+        {
+            Debug.Log("Cannot drop. Maximum number of cards reached.");
+            return;
+        }
 
         // ตรวจสอบว่ามี object ที่ลากมาวางลงหรือไม่
         if (eventData.pointerDrag != null)
@@ -46,6 +54,12 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         return;
 
         //Debug.Log("Pointer exited drop zone");
+    }
+
+    private int CheckNumberOfCardsOnDropZone()
+    {
+        int numberOfCards = this.transform.childCount;
+        return numberOfCards;
     }
 
     
