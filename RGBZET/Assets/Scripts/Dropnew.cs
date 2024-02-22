@@ -1,44 +1,94 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class Dropnew : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    private List<Card> droppedCards = new List<Card>();
+
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // เมื่อมี pointer เข้ามาในระยะ
+        if (eventData.pointerDrag == null)
+            return;
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        GameObject dropped = eventData.pointerDrag; // แก้ไขตรงนี้เป็น pointerDrag
-        if (dropped != null)
+        if (!Button1.isZetActive)
         {
-            Dragnew draggableItem = dropped.GetComponent<Dragnew>();
-            if (draggableItem != null)
+            return;
+        }
+
+        int numberOfCardsOnDropZone = CheckNumberOfCardsOnDropZone();
+
+        if (numberOfCardsOnDropZone == 3)
+        {
+            Debug.Log("Cannot drop. Maximum number of cards reached.");
+            return;
+        }
+
+        if (eventData.pointerDrag != null)
+        {
+            Drag draggable = eventData.pointerDrag.GetComponent<Drag>();
+            if (draggable != null)
             {
-                draggableItem.parentAfterDrag = transform; // ตั้งค่า parent ใหม่หลังจากลาก
-                Debug.Log("Drop");
+                draggable.parentToReturnTo = this.transform;
             }
+
+            // เพิ่มการ์ดลงใน droppedCards
+            DisplayCard displayCard = eventData.pointerDrag.GetComponent<DisplayCard>();
+            if (displayCard != null)
+            {
+                droppedCards.Add(displayCard.displayCard[0]);
+            }
+
+            CheckSetConditions();
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // เมื่อ pointer ออกจากระยะ
+        if (eventData.pointerDrag == null)
+            return;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private int CheckNumberOfCardsOnDropZone()
     {
-        
+        int numberOfCards = this.transform.childCount;
+        return numberOfCards;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void CheckSetConditions()
     {
-        
+        if (droppedCards.Count == 3)
+        {
+            bool isSet = CheckCardsAreSet(droppedCards[0], droppedCards[1], droppedCards[2]);
+
+            if (isSet)
+            {
+                Debug.Log("Set found! Remove the cards from the game.");
+                // ลบการ์ดที่ตรงเงื่อนไขออกจากเกม
+            }
+            else
+            {
+                Debug.Log("Not a valid Set. Return the cards to their original position.");
+                // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
+            }
+        }
+    }
+
+    private bool CheckCardsAreSet(Card card1, Card card2, Card card3)
+    {
+        bool letterSet = ArePropertiesEqual(card1.LetterType, card2.LetterType, card3.LetterType);
+        bool colorSet = ArePropertiesEqual(card1.ColorType, card2.ColorType, card3.ColorType);
+        bool sizeSet = ArePropertiesEqual(card1.SizeType, card2.SizeType, card3.SizeType);
+        bool textureSet = ArePropertiesEqual(card1.TextureType, card2.TextureType, card3.TextureType);
+
+        return (letterSet && colorSet && sizeSet && textureSet);
+    }
+
+    private bool ArePropertiesEqual(string property1, string property2, string property3)
+    {
+        return (property1 == property2 && property2 == property3) || (property1 != property2 && property2 != property3 && property1 != property3);
     }
 }

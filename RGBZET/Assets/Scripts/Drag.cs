@@ -9,7 +9,15 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;
     private Quaternion startRotation; // เพิ่มเติมสำหรับการจัดเก็บการหมุนเริ่มต้น
+    private DisplayCard displayCard;
 
+    void Start()
+    {
+        displayCard = GetComponent<DisplayCard>();
+        //displayCard = GetComponentInParent<DisplayCard>();
+    }
+
+    
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (Button1.isZetActive) // ให้เริ่มลากเฉพาะเมื่อ ZET ถูก activate
@@ -22,6 +30,10 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
             // ย้ายการ์ดออกจาก parent เพื่อทำการลาก
             this.transform.SetParent(this.transform.parent.parent);
             GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+            // เก็บข้อมูลของการ์ดที่ดึงไว้ในตัวแปร cardData
+            //cardData = GetComponent<CardDisplay>().card;
+           
         }
         else
         {
@@ -48,4 +60,5 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
         GetComponent<CanvasGroup>().blocksRaycasts = true;
         //Debug.Log("Returning to original position.");
     }
+
 }
