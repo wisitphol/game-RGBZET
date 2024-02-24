@@ -9,6 +9,14 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;
     private Quaternion startRotation; // เพิ่มเติมสำหรับการจัดเก็บการหมุนเริ่มต้น
+    public Transform originalParent;
+    private DisplayCard displayCard;
+
+    void Start()
+    {
+        displayCard = GetComponent<DisplayCard>();
+        //displayCard = GetComponentInParent<DisplayCard>();
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -18,6 +26,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
             parentToReturnTo = this.transform.parent;
             startPosition = this.transform.localPosition; // จัดเก็บตำแหน่งเริ่มต้น
             startRotation = this.transform.localRotation; // จัดเก็บการหมุนเริ่มต้น
+            originalParent = this.transform.parent;
             
             // ย้ายการ์ดออกจาก parent เพื่อทำการลาก
             this.transform.SetParent(this.transform.parent.parent);

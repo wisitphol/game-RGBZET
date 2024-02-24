@@ -9,7 +9,9 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     private List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
     private DisplayCard displayCard;
     public Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
-
+    private List<Vector3> originalPositions = new List<Vector3>(); // เพิ่มส่วนนี้
+    private List<Quaternion> originalRotations = new List<Quaternion>(); // เพิ่มส่วนนี้
+   
     public void OnPointerEnter(PointerEventData eventData)
     {
         // เมื่อมี pointer เข้ามาในระยะ
@@ -32,6 +34,8 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
         int numberOfCardsOnDropZone = CheckNumberOfCardsOnDropZone();
 
+        StoreOriginalPositionsAndRotations(); // เรียกเมทอดนี้เพื่อเก็บตำแหน่งและการหมุนเริ่มต้นของการ์ดที่วางลงบนบอร์ด
+
         if (numberOfCardsOnDropZone == 3)
         {
             Debug.Log("Cannot drop. Maximum number of cards reached.");
@@ -49,16 +53,18 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 draggable.parentToReturnTo = this.transform;
             }
 
-            DisplayCard displayCard = eventData.pointerDrag.GetComponent<DisplayCard>();
-            if (displayCard != null)
+            DisplayCard displayCardComponent = eventData.pointerDrag.GetComponent<DisplayCard>();
+            if (displayCardComponent != null)
             {
-                droppedCards.Add(displayCard.displayCard[0]);
+                
+                droppedCards.Add(displayCardComponent.displayCard[0]);
             }
 
-            CheckSetConditions();
+           
+            
         }
 
-        
+        CheckSetConditions();   
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -81,9 +87,10 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         
         // เรียกเมธอดหรือทำงานเพิ่มเติมที่ต้องการเมื่อมีการ์ดทั้ง 3 ใบในพื้นที่ drop
         // ตรวจสอบว่าการ์ดทั้งสามใบตรงเงื่อนไขหรือไม่ ตามกฎของเกม Set
-
+         Debug.Log("number of cards: " + droppedCards.Count);
         if(droppedCards.Count == 3)
         {
+           
             bool isSet = CheckCardsAreSet(droppedCards[0], droppedCards[1], droppedCards[2]);
 
             if (isSet)
@@ -93,8 +100,9 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             
                 // แสดงคะแนนที่ Text UI
                 scoreText.text =  totalScore.ToString();
-                Debug.Log("Set found! Remove the cards from the game.");
+                //Debug.Log("Set found! Remove the cards from the game.");
                 // ลบการ์ดที่ตรงเงื่อนไขออกจากเกม
+                RemoveAllCardsFromGame();
                 
                 
             }
@@ -102,6 +110,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             {
                 Debug.Log("Not a valid Set. Return the cards to their original position.");
                 // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
+                ReturnCardsToOriginalPosition();
                 
             }
         }
@@ -130,78 +139,6 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         return (property1 == property2 && property2 == property3) || (property1 != property2 && property2 != property3 && property1 != property3);
     }
 
-    private void RemoveCardsFromGame()
-    {
-        // ตรวจสอบจำนวนการ์ดที่อยู่ในพื้นที่ drop
-        Debug.Log("Number of cards in droppedCards: " + droppedCards.Count);
-
-        // ตรวจสอบว่ามีการ์ดทั้งสามใบอยู่ในพื้นที่ drop แล้วหรือไม่
-        if (droppedCards.Count == 3)
-        {
-            // ลบการ์ดที่ถูก drop จากเกม
-            foreach (Transform cardTransform in transform)
-            {
-                // ตรวจสอบว่าการ์ดที่ต้องการจะลบได้ยังอยู่ในลิสต์ droppedCards หรือไม่
-                DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
-                if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
-                {
-                    // ลบการ์ดออกจากลิสต์ droppedCards
-                    droppedCards.Remove(displayCard.displayCard[0]);
-
-                    // ลบการ์ดที่ถูก drop ออกจากเกม
-                    Destroy(cardTransform.gameObject);
-                }
-            }
-
-            // ตรวจสอบว่าการ์ดทั้งสามถูกลบออกจากเกมหรือไม่
-            if (droppedCards.Count == 0)
-            {
-                Debug.Log("All cards removed successfully.");
-            }
-            else
-            {
-                Debug.Log("Error: Not all cards were removed.");
-            
-                // ลบการ์ดที่เหลืออยู่อีกครั้ง
-                RemoveRemainingCards();
-            }
-        }
-        else
-        {
-            // หากไม่มีการ์ดทั้งสามใบอยู่ในพื้นที่ drop ให้แสดงข้อความเตือนใน Debug Log
-            Debug.Log("Cannot remove cards. Number of cards in the drop zone is not 3.");
-        }
-    }
-
-
-    private void RemoveRemainingCards()
-    {
-        // ลบการ์ดที่เหลืออยู่ออกจากเกม
-        foreach (Transform cardTransform in transform)
-        {
-            // ตรวจสอบว่าการ์ดที่ต้องการจะลบได้ยังอยู่ในลิสต์ droppedCards หรือไม่
-            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
-            if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
-            {
-                // ลบการ์ดออกจากลิสต์ droppedCards
-                droppedCards.Remove(displayCard.displayCard[0]);
-
-                // ลบการ์ดที่ถูก drop ออกจากเกม
-                Destroy(cardTransform.gameObject);
-            }
-        }
-
-        // ตรวจสอบว่าการ์ดทั้งสามถูกลบออกจากเกมหรือไม่
-        if (droppedCards.Count == 0)
-        {
-            Debug.Log("All remaining cards removed successfully.");
-        }
-        else
-        {
-            Debug.Log("Error: Not all remaining cards were removed.");
-        }
-    }
-
     private int CalculateTotalScore(Card card1, Card card2, Card card3)
     {
         // คำนวณคะแนนรวมของการ์ดทั้ง 3 ใบ
@@ -209,10 +146,102 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         return totalScore;
     }
 
-
-    private void ReturnCardsToOriginalPosition()
+/*
+    private void ReturnCardsToOriginalPosition2()
     {
+       
+        foreach (var droppedCard in droppedCards)
+        {
+            // หาตำแหน่งและการหมุนเริ่มต้นของการ์ดจากลิสต์ originalPositions และ originalRotations
+            int index = droppedCards.IndexOf(droppedCard);
+            Vector3 originalPosition = originalPositions[index];
+            Quaternion originalRotation = originalRotations[index];
+
+            // นำการ์ดกลับไปยังตำแหน่งและการหมุนเริ่มต้น
+            for (int i = 0; i < droppedCards.Count; i++)
+            {
+                droppedCards[i].transform.position = originalPositions[i];
+                droppedCards[i].transform.rotation = originalRotations[i];
+            }
+        }
+        
+        // เคลียร์รายการการ์ดที่มีในเขตตรวจสอบ
+        droppedCards.Clear();
+
+    }*/
+
+    private void ReturnCardsToOriginalPosition3()
+    {
+        foreach (Transform cardTransform in transform)
+        {
+            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
+            if (displayCard != null)
+            {
+                displayCard.SetBlocksRaycasts(true); // เปิดการใช้งาน blocksRaycasts เมื่อคืนตำแหน่ง
+            }
+            cardTransform.localPosition = Vector3.zero;
+        }
+        droppedCards.Clear();
+    }
+    private IEnumerator RemoveCardsFromGameCoroutine()
+    {
+        Debug.Log($"Attempting to remove {droppedCards.Count} cards with delay.");
+        foreach (Transform cardTransform in transform)
+        {
+            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
+            if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
+            {
+                //Debug.Log($"Removing card with delay: {displayCard.displayCard[0].Id}");
+                // หน่วงเวลาก่อนการลบ
+                yield return new WaitForSeconds(1f);
+                Destroy(cardTransform.gameObject);
+            }
+        }
+
+        droppedCards.Clear();
+        //Debug.Log("All specified cards removed with delay.");
         
     }
 
+    // เรียกใช้ Coroutine
+    private void RemoveCardsFromGame()
+    {
+        StartCoroutine(RemoveCardsFromGameCoroutine());
+    }
+
+    private void RemoveAllCardsFromGame()
+    {
+        foreach (Transform cardTransform in transform)
+        {
+            Destroy(cardTransform.gameObject);
+        }
+        droppedCards.Clear();
+    }
+
+
+    private void StoreOriginalPositionsAndRotations()
+    {
+        foreach (Transform cardTransform in transform)
+        {
+            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
+            if (displayCard != null)
+            {
+                displayCard.StoreOriginalPositionAndRotation();
+                displayCard.SetBlocksRaycasts(false); // ปิดการใช้งาน blocksRaycasts เมื่อลาก
+            }
+        }
+    }
+
+    private void ReturnCardsToOriginalPosition()
+    {
+        foreach (Transform cardTransform in transform)
+        {
+            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
+            if (displayCard != null)
+            {
+                displayCard.ReturnToOriginalPosition();
+                displayCard.SetBlocksRaycasts(true); // เปิดการใช้งาน blocksRaycasts เมื่อคืนตำแหน่ง
+            }
+        }
+    }
 }

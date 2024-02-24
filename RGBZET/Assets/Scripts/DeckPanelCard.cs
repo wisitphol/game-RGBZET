@@ -6,15 +6,18 @@ public class DeckPanelCard : MonoBehaviour
 {
     public GameObject cardBack;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        cardBack.SetActive(true);
+         // ตรวจสอบว่ามีการ์ดอยู่ในพาเนลหรือไม่
+        if (transform.childCount > 0)
+        {
+            // มีการ์ดอยู่ในพาเนล ให้เปิดการแสดงของ cardBack
+            cardBack.SetActive(true);
+        }
+        else
+        {
+            // ไม่มีการ์ดอยู่ในพาเนล ให้ปิดการแสดงของ cardBack
+            cardBack.SetActive(false);
+        }
     }
 }

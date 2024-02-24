@@ -8,7 +8,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
 {
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;
-    private Quaternion startRotation; // เพิ่มเติมสำหรับการจัดเก็บการหมุนเริ่มต้น
+    private Quaternion startRotation; 
     private DisplayCard displayCard;
 
     void Start()
@@ -31,9 +31,9 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
             this.transform.SetParent(this.transform.parent.parent);
             GetComponent<CanvasGroup>().blocksRaycasts = false;
 
-            // เก็บข้อมูลของการ์ดที่ดึงไว้ในตัวแปร cardData
-            //cardData = GetComponent<CardDisplay>().card;
-           
+           // เพิ่มการบันทึกตำแหน่งและการหมุนเริ่มต้นของการ์ด
+            startPosition = this.transform.localPosition;
+            startRotation = this.transform.localRotation;
         }
         else
         {

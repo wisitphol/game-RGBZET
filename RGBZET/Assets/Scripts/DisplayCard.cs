@@ -10,6 +10,9 @@ public class DisplayCard : MonoBehaviour
     public List<Card> displayCard = new List<Card>();
     public int displayId;
 
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+
     public int Id;
     public string LetterType; 
     public string ColorType; 
@@ -41,6 +44,7 @@ public class DisplayCard : MonoBehaviour
         {
             displayCard.Add(CardData.cardList[displayId]);
             //displayCard[0] = CardData.cardList[displayId];
+            
         }
         else
         {
@@ -110,7 +114,22 @@ public class DisplayCard : MonoBehaviour
         }
     }
 
+    public void StoreOriginalPositionAndRotation()
+    {
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+    }
 
+    // เมื่อต้องการคืนการ์ดกลับไปที่ตำแหน่งเดิม
+    public void ReturnToOriginalPosition()
+    {
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+    }
 
+    public void SetBlocksRaycasts(bool blocksRaycasts)
+    {
+        GetComponent<CanvasGroup>().blocksRaycasts = blocksRaycasts;
+    }
   
 }
