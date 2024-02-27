@@ -40,23 +40,19 @@ public class Deck : MonoBehaviour
             CardInDeck.SetActive(false);
         }
         
-       // if(TurnSystem.startTurn == true)
-      //  {
-      //      StartCoroutine(Draw(1));
-      //      TurnSystem.startTurn = false;
-       // }
+       
     }
 
-   IEnumerator StartGame()
-{
-    for(int i = 0; i < 12; i++)
+    IEnumerator StartGame()
     {
-        yield return new WaitForSeconds(1);
-        GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation) as GameObject;
-        newCard.transform.SetParent(Board.transform, false);
-        newCard.SetActive(true);
+        for(int i = 0; i < 12; i++)
+        {
+            yield return new WaitForSeconds(1);
+            GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation) as GameObject;
+            newCard.transform.SetParent(Board.transform, false);
+            newCard.SetActive(true);
+        }
     }
-}
 
 
     private void Shuffle(List<Card> list)
@@ -70,17 +66,32 @@ public class Deck : MonoBehaviour
         }
     }
 
-    IEnumerator Draw(int x)
+    public IEnumerator Draw(int x)
     {
         for(int i = 0; i < x; i++)
         {
             yield return new WaitForSeconds(1);
 
+            // สร้างการ์ดและเพิ่มลงบอร์ด
             GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation);
-            
-            //Debug.Log("New Card created: " + newCard);
+            newCard.transform.SetParent(Board.transform, false);
+            newCard.SetActive(true);
+
+            // ลดขนาดของสำรับการ์ดลงตามจำนวนการ์ดที่ถูกจั่ว
+            deckSize--;
+
+            // เรียกใช้ Shuffle หากสำรับการ์ดใน deck ใช้หมด
+            if (deckSize <= 0)
+            {
+                Shuffle(deck);
+                deckSize = deck.Count;
+            }   
         }
     }
 
+    public void DrawCards(int numberOfCards)
+    {
+        StartCoroutine(Draw(numberOfCards));
+    }
     
 }

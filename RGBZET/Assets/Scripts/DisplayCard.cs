@@ -10,8 +10,9 @@ public class DisplayCard : MonoBehaviour
     public List<Card> displayCard = new List<Card>();
     public int displayId;
 
-    private Vector3 originalPosition;
-    private Quaternion originalRotation;
+    public Vector3 originalPosition;
+    public Quaternion originalRotation;
+    public Transform originalParent;
 
     public int Id;
     public string LetterType; 
@@ -118,13 +119,17 @@ public class DisplayCard : MonoBehaviour
     {
         originalPosition = transform.position;
         originalRotation = transform.rotation;
+        originalParent = transform.parent;
+        
     }
 
     // เมื่อต้องการคืนการ์ดกลับไปที่ตำแหน่งเดิม
     public void ReturnToOriginalPosition()
     {
+        originalParent = transform.parent;
         transform.position = originalPosition;
         transform.rotation = originalRotation;
+
     }
 
     public void SetBlocksRaycasts(bool blocksRaycasts)

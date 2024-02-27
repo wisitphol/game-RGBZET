@@ -405,7 +405,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 96547542}
-  - component: {fileID: 96547541}
   m_Layer: 0
   m_Name: GameControl
   m_TagString: Untagged
@@ -413,19 +412,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &96547541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 96547540}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0356f81665e9c49fd961d3a2c619154e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cardZone: []
 --- !u!4 &96547542
 Transform:
   m_ObjectHideFlags: 0
@@ -472,42 +458,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 180, y: 130}
   m_EdgeRadius: 0
---- !u!21 &118408797
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 150, g: 110, b: 20, a: 0}
-  m_BuildTextureStacks: []
 --- !u!1001 &148383360
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -785,21 +735,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3695626017689113206, guid: 78268dec2c21e164bade8e481ffd515e, type: 3}
   m_PrefabInstance: {fileID: 148383360}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &148383368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 148383362}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.98409355, g: 1, b: 0.39999998, a: 0.5}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
 --- !u!114 &148383374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1160,7 +1095,7 @@ MonoBehaviour:
   CardToBoard: {fileID: 148383362}
   Clones: []
   Board: {fileID: 1729317774}
---- !u!21 &248524865
+--- !u!21 &249400943
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -1194,7 +1129,7 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
-    - _WidthHeightRadius: {r: 150, g: 110, b: 60, a: 0}
+    - _WidthHeightRadius: {r: 150, g: 110, b: 20, a: 0}
   m_BuildTextureStacks: []
 --- !u!1001 &296803005
 PrefabInstance:
@@ -3509,7 +3444,7 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 150, g: 110, b: 60, a: 0}
   m_BuildTextureStacks: []
---- !u!21 &1424298316
+--- !u!21 &1435583662
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -3939,7 +3874,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 'sorce : 0'
 --- !u!222 &1687864298
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4446,3 +4381,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2068021421}
   m_CullTransparentMesh: 1
+--- !u!21 &2097108126
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 150, g: 110, b: 60, a: 0}
+  m_BuildTextureStacks: []
