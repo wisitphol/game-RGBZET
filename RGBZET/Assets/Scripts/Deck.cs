@@ -39,7 +39,8 @@ public class Deck : MonoBehaviour
         {
             CardInDeck.SetActive(false);
         }
-        
+
+       
        
     }
 
@@ -72,20 +73,28 @@ public class Deck : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
-            // สร้างการ์ดและเพิ่มลงบอร์ด
-            GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation);
-            newCard.transform.SetParent(Board.transform, false);
-            newCard.SetActive(true);
-
-            // ลดขนาดของสำรับการ์ดลงตามจำนวนการ์ดที่ถูกจั่ว
-            deckSize--;
-
-            // เรียกใช้ Shuffle หากสำรับการ์ดใน deck ใช้หมด
-            if (deckSize <= 0)
+            if (deckSize > 0)
             {
-                Shuffle(deck);
-                deckSize = deck.Count;
-            }   
+                // สร้างการ์ดและเพิ่มลงบอร์ด
+                GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation);
+                newCard.transform.SetParent(Board.transform, false);
+                newCard.SetActive(true);
+
+                // ลดขนาดของสำรับการ์ดลงตามจำนวนการ์ดที่ถูกจั่ว
+                deckSize--;
+
+                //เรียกใช้ Shuffle หากสำรับการ์ดใน deck ใช้หมด
+            /*    if (deckSize <= 0)
+                {
+                    Shuffle(deck);
+                    deckSize = deck.Count;
+                }  */
+            }
+            else
+            {
+                Debug.Log("No more cards in the deck. Cannot draw.");
+                break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
+            } 
         }
     }
 

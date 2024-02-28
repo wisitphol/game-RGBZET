@@ -12,7 +12,14 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     private List<Vector3> originalPositions = new List<Vector3>(); // เพิ่มส่วนนี้
     private List<Quaternion> originalRotations = new List<Quaternion>(); // เพิ่มส่วนนี้
     private Transform parentToReturnTo;
-    public Deck deck;
+    private Deck deck;
+    private int currentScore;
+
+    public void Start() 
+    {
+        deck = FindObjectOfType<Deck>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
+        currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
+    }
 
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -78,18 +85,18 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     }
 
-    private int CheckNumberOfCardsOnDropZone()
+    public int CheckNumberOfCardsOnDropZone()
     {
         int numberOfCards = this.transform.childCount;
         return numberOfCards;
     }
 
-    private void CheckSetConditions()
+    public void CheckSetConditions()
     {
         
         // เรียกเมธอดหรือทำงานเพิ่มเติมที่ต้องการเมื่อมีการ์ดทั้ง 3 ใบในพื้นที่ drop
         // ตรวจสอบว่าการ์ดทั้งสามใบตรงเงื่อนไขหรือไม่ ตามกฎของเกม Set
-         Debug.Log("number of cards: " + droppedCards.Count);
+         //Debug.Log("number of cards: " + droppedCards.Count);
         if(droppedCards.Count == 3)
         {
            
@@ -101,12 +108,18 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 int totalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
             
                 // แสดงคะแนนที่ Text UI
-                scoreText.text =  totalScore.ToString();
-                //Debug.Log("Set found! Remove the cards from the game.");
+                //scoreText.text =  totalScore.ToString();
+               
+                currentScore += totalScore;
+
+                UpdateScore();
+
                 // ลบการ์ดที่ตรงเงื่อนไขออกจากเกม
                 RemoveCardsFromGame();
                 
-                //StartCoroutine(deck.Draw(3));
+                deck.DrawCards(3);
+
+               
             }
             else
             {
@@ -124,7 +137,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         
     }
 
-    private bool CheckCardsAreSet(Card card1, Card card2, Card card3)
+    public bool CheckCardsAreSet(Card card1, Card card2, Card card3)
     {
         // ตรวจสอบคุณสมบัติของการ์ดทั้งสามใบ
         bool letterSet = ArePropertiesEqual(card1.LetterType, card2.LetterType, card3.LetterType);
@@ -137,19 +150,19 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     }
 
     // ตรวจสอบว่าคุณสมบัติของการ์ดทั้งสามใบเหมือนหรือต่างกันทั้งหมดหรือไม่
-    private bool ArePropertiesEqual(string property1, string property2, string property3)
+    public bool ArePropertiesEqual(string property1, string property2, string property3)
     {
         return (property1 == property2 && property2 == property3) || (property1 != property2 && property2 != property3 && property1 != property3);
     }
 
-    private int CalculateTotalScore(Card card1, Card card2, Card card3)
+    public int CalculateTotalScore(Card card1, Card card2, Card card3)
     {
         // คำนวณคะแนนรวมของการ์ดทั้ง 3 ใบ
         int totalScore = card1.Point + card2.Point + card3.Point;
         return totalScore;
     }
 
-    private IEnumerator CheckSetWithDelay()
+    public IEnumerator CheckSetWithDelay()
     {
         // หน่วงเวลา 3 วินาที
         yield return new WaitForSeconds(4f);
@@ -158,7 +171,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         CheckSetConditions();
     }
 
-    private void ReturnCardsToOriginalPosition()
+    public void ReturnCardsToOriginalPosition()
     {
         // เก็บ parent และ local position ของการ์ดที่ต้องการย้ายกลับไปยัง boardzone
         List<Transform> cardsToReturn = new List<Transform>();
@@ -186,7 +199,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         droppedCards.Clear();
     }
 
-    private void RemoveCardsFromGame()
+    public void RemoveCardsFromGame()
     {
         // ตรวจสอบจำนวนการ์ดที่อยู่ในพื้นที่ drop
         int numberOfCards = transform.childCount;
@@ -221,6 +234,12 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 Debug.Log("Remaining card in droppedCards: " + card);
             }
         }
+    }
+
+    public void UpdateScore()
+    {
+        // Update the score text UI with the total score
+        scoreText.text = "Score: " + currentScore.ToString();
     }
 
     
