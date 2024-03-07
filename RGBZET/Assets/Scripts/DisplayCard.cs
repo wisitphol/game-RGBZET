@@ -66,7 +66,7 @@ public class DisplayCard : MonoBehaviour
             Point = displayCard[0].Point;
             Spriteimg = displayCard[0].Spriteimg;
 
-            IdText.text = " " + Id;
+            //IdText.text = " " + Id;
             ArtImage.sprite = Spriteimg; 
         
 

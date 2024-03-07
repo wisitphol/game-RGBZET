@@ -12,7 +12,7 @@ public class Deck : MonoBehaviour
 
     public GameObject CardInDeck;
 
-    public GameObject CardToBoard;
+    public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
 
@@ -22,8 +22,8 @@ public class Deck : MonoBehaviour
     void Start()
     {
         // Initialize deckSize and cardList if not already done
-        deckSize = CardData.cardList.Count;
         deck = new List<Card>(CardData.cardList);
+        deckSize = deck.Count;
         Shuffle(deck);
 
         // Now deck is shuffled and ready to use
@@ -35,12 +35,14 @@ public class Deck : MonoBehaviour
     {
         staticDeck = deck;
 
-        if(deckSize < 1)
+        
+        
+        if(deckSize <= 0)
         {
             CardInDeck.SetActive(false);
         }
 
-       
+        
        
     }
 
@@ -49,7 +51,7 @@ public class Deck : MonoBehaviour
         for(int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(1);
-            GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation) as GameObject;
+            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation) as GameObject;
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
         }
@@ -73,29 +75,30 @@ public class Deck : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
+            
+
             if (deckSize > 0)
             {
                 // สร้างการ์ดและเพิ่มลงบอร์ด
-                GameObject newCard = Instantiate(CardToBoard, transform.position, transform.rotation);
+                GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
                 newCard.transform.SetParent(Board.transform, false);
                 newCard.SetActive(true);
 
                 // ลดขนาดของสำรับการ์ดลงตามจำนวนการ์ดที่ถูกจั่ว
                 deckSize--;
 
-                //เรียกใช้ Shuffle หากสำรับการ์ดใน deck ใช้หมด
-            /*    if (deckSize <= 0)
-                {
-                    Shuffle(deck);
-                    deckSize = deck.Count;
-                }  */
+
+                Debug.Log("Number of cards in deck: " + RemainingCardsCount()); 
             }
             else
             {
                 Debug.Log("No more cards in the deck. Cannot draw.");
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
             } 
+            
         }
+        
+        
     }
 
     public void DrawCards(int numberOfCards)
@@ -103,4 +106,30 @@ public class Deck : MonoBehaviour
         StartCoroutine(Draw(numberOfCards));
     }
     
+    public int RemainingCardsCount()
+    {
+        return deckSize;
+    }
+
+  
+    public void RemoveCardsFromDeck(int numberOfCardsToRemove)
+    {
+        for (int i = 0; i < numberOfCardsToRemove; i++)
+        {
+            if (deck.Count > 0)
+            {
+                deck.RemoveAt(0); // ลบการ์ดที่ตำแหน่งแรกของ deck
+                 // ลดขนาดของ deck ลง
+            }
+            else
+            {
+                Debug.Log("No more cards in the deck.");
+                break;
+            }
+        }
+    }
+
+ 
+
+
 }

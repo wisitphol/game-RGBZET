@@ -6,14 +6,23 @@ using UnityEngine.EventSystems;
 
 public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    private List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
-    private DisplayCard displayCard;
     public Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
-    private List<Vector3> originalPositions = new List<Vector3>(); // เพิ่มส่วนนี้
-    private List<Quaternion> originalRotations = new List<Quaternion>(); // เพิ่มส่วนนี้
-    private Transform parentToReturnTo;
-    private Deck deck;
-    private int currentScore;
+    
+    [HideInInspector]
+    public List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
+    [HideInInspector]
+    public DisplayCard displayCard;
+    [HideInInspector]
+    public List<Vector3> originalPositions = new List<Vector3>(); // เพิ่มส่วนนี้
+    [HideInInspector]
+    public List<Quaternion> originalRotations = new List<Quaternion>(); // เพิ่มส่วนนี้
+    [HideInInspector]
+    public Transform parentToReturnTo;
+    [HideInInspector]
+    public Deck deck;
+    [HideInInspector]
+    public int currentScore;
+
 
     public void Start() 
     {
@@ -73,7 +82,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         }
 
         StartCoroutine(CheckSetWithDelay());
-
+        
         
     }
 
@@ -107,19 +116,16 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 // คำนวณคะแนนรวมของการ์ด 3 ใบ
                 int totalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
             
-                // แสดงคะแนนที่ Text UI
+
+                UpdateScore(totalScore);
+                
                 //scoreText.text =  totalScore.ToString();
                
-                currentScore += totalScore;
-
-                UpdateScore();
-
-                // ลบการ์ดที่ตรงเงื่อนไขออกจากเกม
                 RemoveCardsFromGame();
-                
-                deck.DrawCards(3);
 
-               
+                StartCoroutine(deck.Draw(3));
+                
+                
             }
             else
             {
@@ -129,11 +135,13 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 
             }
             FindObjectOfType<Button1>().CheckSetConditionsCompleted();
+            
         }
-         else
+        else
         {
             //Debug.Log("Unexpected number of cards: " + droppedCards.Count); // Debug Log เมื่อมีจำนวนการ์ดไม่ถูกต้อง
         }
+
         
     }
 
@@ -214,10 +222,16 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 // ลบการ์ดที่ถูก drop ออกจากเกม
                 Destroy(cardTransform.gameObject);
 
+              
+
                  // ลบการ์ดออกจากลิสต์ droppedCards
                 droppedCards.Remove(displayCard.displayCard[0]);
+
+                
             }
         }
+
+        
 
         // ตรวจสอบว่าทุกการ์ดที่ต้องการลบออกไปได้หรือไม่
         if (droppedCards.Count == 0)
@@ -236,12 +250,66 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         }
     }
 
-    public void UpdateScore()
+    public void UpdateScore(int addScore)
     {
+
+        currentScore += addScore;
         // Update the score text UI with the total score
         scoreText.text = "Score: " + currentScore.ToString();
     }
 
-    
+    public void CheckSetOnBoard()
+    {
+        // ตรวจสอบเซตของการ์ดทั้ง 12 ใบที่อยู่ใน boardzone
+        List<Card> cardsOnBoard = new List<Card>();
+
+        GameObject Board = GameObject.Find("Boardzone");
+
+        for (int i = 0; i < Board.transform.childCount; i++)
+        {
+            Card card = Board.transform.GetChild(i).GetComponent<DisplayCard>().displayCard[0];
+            cardsOnBoard.Add(card);
+        }
+
+        if (cardsOnBoard.Count == 12)
+        {
+            bool isSet = CheckSetForAllCards(cardsOnBoard);
+
+            if (isSet)
+            {
+                Debug.Log("The cards on the board form a set!");
+            }
+            else
+            {
+                Debug.Log("The cards on the board do not form a set. Drawing three more cards...");
+                StartCoroutine(deck.Draw(3));
+            }
+        }
+        else
+        {
+            Debug.Log("Not enough cards on the board to check for a set.");
+        }
+    }
+
+    private bool CheckSetForAllCards(List<Card> cards)
+    {
+        // ตรวจสอบเซตของการ์ดทั้ง 12 ใบ
+        for (int i = 0; i < cards.Count - 2; i++)
+        {
+            for (int j = i + 1; j < cards.Count - 1; j++)
+            {
+                for (int k = j + 1; k < cards.Count; k++)
+                {
+                    bool isSet = CheckCardsAreSet(cards[i], cards[j], cards[k]);
+                    if (isSet)
+                    {
+                        return true; // เมื่อพบเซต ให้ส่งค่า true กลับ
+                    }
+                }
+            }
+        }
+        return false; // หากไม่พบเซตใดๆ ให้ส่งค่า false กลับ
+    }
+
 
 }

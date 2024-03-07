@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45.8559, y: 40.697723}
+  m_AnchoredPosition: {x: 56.5, y: 50.4}
   m_SizeDelta: {x: 58.2893, y: 28.6047}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4520627256148987311
@@ -118,7 +118,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 110}
+  m_SizeDelta: {x: 200, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3695626016985913962
 CanvasRenderer:
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb30198aa32dd140b5750692dd48104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 30
+  radius: 20
   image: {fileID: 3695626016985913965}
 --- !u!1 &3695626017434308012
 GameObject:
@@ -235,7 +235,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 110}
+  m_SizeDelta: {x: 200, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3695626017434308011
 CanvasRenderer:
@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb30198aa32dd140b5750692dd48104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 30
+  radius: 20
   image: {fileID: 3695626017434308010}
 --- !u!1 &3695626017689113206
 GameObject:
@@ -335,7 +335,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 110}
+  m_SizeDelta: {x: 180, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3695626017689113205
 CanvasRenderer:
@@ -393,18 +393,26 @@ MonoBehaviour:
     ColorType: 
     SizeType: 
     TextureType: 
+    Point: 0
     Spriteimg: {fileID: 0}
+    originalPosition: {x: 0, y: 0, z: 0}
+    originalRotation: {x: 0, y: 0, z: 0, w: 0}
+    originalParent: {fileID: 0}
   displayId: 10
+  originalPosition: {x: 0, y: 0, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0, w: 0}
+  originalParent: {fileID: 0}
   Id: 0
   LetterType: 
   ColorType: 
   SizeType: 
   TextureType: 
+  Point: 0
   Spriteimg: {fileID: 0}
   IdText: {fileID: 0}
   ArtImage: {fileID: 3695626016985913965}
   cardBack: 0
-  Hand: {fileID: 0}
+  Board: {fileID: 0}
   numberOfCardInDeck: 0
 --- !u!114 &4090628049445096847
 MonoBehaviour:
@@ -444,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb30198aa32dd140b5750692dd48104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 30
+  radius: 20
   image: {fileID: 3695626017689113204}
 --- !u!61 &1424512293641625237
 BoxCollider2D:
@@ -484,6 +492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a22d6d97f9002541902942f6656e57f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parentToReturnTo: {fileID: 0}
 --- !u!1001 &8362970016322900831
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -497,11 +506,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3695626016985913964, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 150
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3695626016985913964, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 110
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 3695626016985913964, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -569,11 +578,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 150
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 110
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_LocalPosition.x
