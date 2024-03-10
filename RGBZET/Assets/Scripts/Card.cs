@@ -12,9 +12,6 @@ public class Card
     public string TextureType;  
     public int Point;
     public Sprite Spriteimg;
-
-    public Vector3 originalPosition;
-    public Quaternion originalRotation;
     public Transform originalParent;
 
     public Card()

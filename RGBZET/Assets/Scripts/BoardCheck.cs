@@ -10,27 +10,33 @@ public class BoardCheck: MonoBehaviour
     public Drop dropScript;
     [HideInInspector]
     public Deck deck;
-
+    [HideInInspector]
+   
+    private GameObject Board;
+    
     public void Start()
     {
         dropScript = FindObjectOfType<Drop>();
         deck = FindObjectOfType<Deck>();
+        Board = GameObject.Find("Boardzone");
     }
 
     public void CheckBoard()
     {
         List<Card> cardsOnBoard = new List<Card>();
 
-        GameObject Board = GameObject.Find("Boardzone");
-
         // เช็คการ์ดใน Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
-            Card card = Board.transform.GetChild(i).GetComponent<DisplayCard>().displayCard[0];
-            cardsOnBoard.Add(card);
+            DisplayCard displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard>();
+            if (displayCard != null && displayCard.displayCard.Count > 0)
+            {
+                Card card = displayCard.displayCard[0];
+                cardsOnBoard.Add(card);
+            }
         }
 
-        // ถ้ามีการ์ดใน Boardzone 12 ใบ
+        // นับเฉพาะการ์ดทีโชว์อยู่ใน boardzoneเวลารัน
         if (cardsOnBoard.Count == 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);

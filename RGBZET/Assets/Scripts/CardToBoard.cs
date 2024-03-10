@@ -14,6 +14,12 @@ public class CardToBoard : MonoBehaviour
     {
         Board = GameObject.Find("Boardzone");
         boardCheckScript = FindObjectOfType<BoardCheck>();
+        
+        //นับทุกการ์ดทีอยู่ใน boardzone
+        if (Board.transform.childCount == 13)
+        {
+             boardCheckScript.CheckBoard();
+        }
     }
 
     public void MoveCardToBoard()
@@ -30,10 +36,10 @@ public class CardToBoard : MonoBehaviour
         BoardCard.transform.localPosition = new Vector3(0, 0, -48);
         BoardCard.transform.localEulerAngles = new Vector3(25, 0, 0);
 
-        if (Board.transform.childCount == 12)
-        {
-            boardCheckScript.CheckBoard();
-        }
+        Debug.Log("Card moved to board!"); // เพิ่ม Debug Log เพื่อตรวจสอบการเรียกใช้งาน
+
+
+        
         
 
        
