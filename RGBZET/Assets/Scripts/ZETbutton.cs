@@ -7,75 +7,33 @@ using UnityEngine.EventSystems;
 public class ZETbutton : MonoBehaviour
 {
     
-    private List<Card> selectedCards = new List<Card>();
-    public List<DisplayCard> allDisplayCards;
+    public static bool isZetActive = false;
+    public Button zetButton;
+    public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
 
-    public void CardClicked(Card card)
+    private void Start()
     {
-        // Assuming you have a way to get the corresponding DisplayCard component
-        DisplayCard display = allDisplayCards.Find(d => d.Id == card.Id);
-
-        if (display != null)
-        {
-            bool highlight = selectedCards.Contains(card);
-            display.HighlightCard(highlight);
-        }
-
-        if (selectedCards.Contains(card))
-        {
-            // Card is already selected, deselect it
-            selectedCards.Remove(card);
-            display.HighlightCard(false); // Update visual state
-        }
-        else if (selectedCards.Count < 3)
-        {
-            // Select the new card
-            selectedCards.Add(card);
-            display.HighlightCard(true); // Update visual state
-        }
-
-        // Debug.Log เมื่อมีการเลือกการ์ด
-        Debug.Log("Selected Cards: " + selectedCards.Count);
+        zetButton.interactable = true;
     }
 
-    // ฟังก์ชันนี้จะถูกเรียกเมื่อผู้เล่นกดปุ่ม ZET
-    public void OnZETButtonPressed()
+    public void OnZetButtonPressed()
     {
-        if (selectedCards.Count == 3)
+        if (!isZetActive)
         {
-            // ทำอะไรก็ตามกับการ์ดที่เลือก
-            // ตัวอย่าง: อาจมีโค้ดที่ส่งการ์ดที่เลือกไปที่ฟังก์ชันอื่น
-            Debug.Log("ZET button pressed with 3 selected cards.");
-            
-            // เรียกฟังก์ชันเช็คการ์ดที่ถูกเลือก
-            CheckSelectedCards(selectedCards);
-            
-            // ล้างการ์ดที่ถูกเลือกหลังจากการกดปุ่ม "zet"
-            selectedCards.Clear();
-            
-            // รีเซ็ตสถานะการ์ดที่ถูกเลือก
-            ResetSelectedCards(allDisplayCards);
-        }
-        else
-        {
-            // แสดงข้อความเตือนหรือแจ้งเตือนผู้เล่นว่าต้องเลือกการ์ด 3 ใบ
-            Debug.Log("Please select 3 cards to use ZET.");
+            StartCoroutine(ActivateZetWithCooldown());
         }
     }
 
-    private void CheckSelectedCards(List<Card> cards)
+    private IEnumerator ActivateZetWithCooldown()
     {
-        // ตรวจสอบเงื่อนไขของการ์ดที่ถูกเลือก
-        // สมมติว่าคุณมีเงื่อนไขการตรวจสอบที่นี่
-        // ตัวอย่าง: ให้เรียกฟังก์ชันสำหรับการตรวจสอบการ์ดที่ถูกเลือก
-    }
+        isZetActive = true;
+        zetButton.interactable = false;
+        Debug.Log("ZET activated by a player.");
 
-    private void ResetSelectedCards(List<DisplayCard> displayCards)
-    {
-        // รีเซ็ตสถานะการ์ดที่ถูกเลือก
-        foreach (DisplayCard display in displayCards)
-        {
-            display.HighlightCard(false);
-        }
+        yield return new WaitForSeconds(cooldownTime);
+
+        isZetActive = false;
+        zetButton.interactable = true;
+        Debug.Log("ZET is now available again after cooldown.");
     }
 }

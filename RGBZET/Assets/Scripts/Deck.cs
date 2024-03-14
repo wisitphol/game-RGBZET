@@ -106,25 +106,5 @@ public class Deck : MonoBehaviour
         return deckSize;
     }
 
-  
-    public void RemoveCardsFromDeck(int numberOfCardsToRemove)
-    {
-        for (int i = 0; i < numberOfCardsToRemove; i++)
-        {
-            if (deck.Count > 0)
-            {
-                deck.RemoveAt(0); // ลบการ์ดที่ตำแหน่งแรกของ deck
-                 // ลดขนาดของ deck ลง
-            }
-            else
-            {
-                Debug.Log("No more cards in the deck.");
-                break;
-            }
-        }
-    }
-
- 
-
 
 }

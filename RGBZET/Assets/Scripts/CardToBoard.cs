@@ -24,7 +24,7 @@ public class CardToBoard : MonoBehaviour
 
     public void MoveCardToBoard()
     {
-        if (!Button1.isZetActive)
+        if (!ZETbutton.isZetActive)
         {
             Debug.Log("ZET is not active. Cannot move card to board.");
             return;

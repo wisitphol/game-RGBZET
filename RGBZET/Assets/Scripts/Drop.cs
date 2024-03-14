@@ -24,6 +24,12 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
     }
 
+    public void Update()
+    {
+        CheckAndReturnCardsToBoardZone();
+    }
+
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -35,9 +41,10 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     public void OnDrop(PointerEventData eventData)
     {
-         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
-        if (!Button1.isZetActive)
+        // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
+        if (!ZETbutton.isZetActive)
         {
+            
             //Debug.Log("Cannot drop. ZET button has not been pressed.");
             return; // ยกเลิกการ drop ถ้าปุ่ม ZET ยังไม่ถูกกด
         }
@@ -54,6 +61,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             Debug.Log("Cannot drop. Maximum number of cards reached.");
             return;
         }
+       
 
         // ตรวจสอบว่ามี object ที่ลากมาวางลงหรือไม่
         if (eventData.pointerDrag != null)
@@ -128,11 +136,12 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 ReturnCardsToOriginalPosition();
                 
             }
-            FindObjectOfType<Button1>().CheckSetConditionsCompleted();
+            //FindObjectOfType<ZETbutton>().CheckSetConditionsCompleted();
             
         }
         else
         {
+            
             //Debug.Log("Unexpected number of cards: " + droppedCards.Count); // Debug Log เมื่อมีจำนวนการ์ดไม่ถูกต้อง
         }
 
@@ -175,30 +184,33 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     public void ReturnCardsToOriginalPosition()
     {
-        // เก็บ parent และ local position ของการ์ดที่ต้องการย้ายกลับไปยัง boardzone
-        List<Transform> cardsToReturn = new List<Transform>();
-
-        foreach (Transform cardTransform in transform)
+        if (transform.childCount > 0)
         {
-            cardsToReturn.Add(cardTransform);
-        }
+            // เก็บ parent และ local position ของการ์ดที่ต้องการย้ายกลับไปยัง boardzone
+            List<Transform> cardsToReturn = new List<Transform>();
 
-        Debug.Log("Number of cards to return: " + cardsToReturn.Count);
-
-        // ย้ายการ์ดทั้งหมดกลับไปยัง boardzone
-        foreach (Transform cardTransform in cardsToReturn)
-        {
-            cardTransform.SetParent(GameObject.Find("Boardzone").transform);
-            cardTransform.localPosition = Vector3.zero;
-
-            DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
-            if (displayCardComponent != null)
+            foreach (Transform cardTransform in transform)
             {
-                displayCardComponent.SetBlocksRaycasts(true);
+                cardsToReturn.Add(cardTransform);
             }
-        }
 
-        droppedCards.Clear();
+            Debug.Log("Number of cards to return: " + cardsToReturn.Count);
+
+            // ย้ายการ์ดทั้งหมดกลับไปยัง boardzone
+            foreach (Transform cardTransform in cardsToReturn)
+            {
+                cardTransform.SetParent(GameObject.Find("Boardzone").transform);
+                cardTransform.localPosition = Vector3.zero;
+
+                DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                if (displayCardComponent != null)
+                {
+                    displayCardComponent.SetBlocksRaycasts(true);
+                }
+            }
+
+            droppedCards.Clear();
+        }
     }
 
     public void RemoveCardsFromGame()
@@ -252,6 +264,41 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         scoreText.text = "Score: " + currentScore.ToString();
     }
 
+    public void CheckAndReturnCardsToBoardZone()
+    {
+        // ตรวจสอบว่าปุ่ม ZET ไม่ได้ถูกกด
+        if (!ZETbutton.isZetActive)
+        {
+            // ตรวจสอบจำนวนการ์ดใน Checkzone
+            int numberOfCardsInCheckZone = transform.childCount;
+
+            // ถ้ามีการ์ดใน Checkzone
+            if (numberOfCardsInCheckZone > 0 && numberOfCardsInCheckZone < 3)
+            {
+                // นำการ์ดทั้งหมดใน Checkzone กลับไปยัง Boardzone
+                for (int i = 0; i < numberOfCardsInCheckZone; i++)
+                {
+                    Transform cardTransform = transform.GetChild(i);
+                    if (cardTransform != null)
+                    {
+                        cardTransform.SetParent(GameObject.Find("Boardzone").transform);
+                        cardTransform.localPosition = Vector3.zero;
+
+                        DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                        if (displayCardComponent != null)
+                        {
+                            displayCardComponent.SetBlocksRaycasts(true);
+                        }
+                    }
+                }
+
+                // ล้างรายการการ์ดใน Checkzone
+                droppedCards.Clear();
+
+                Debug.Log("Returned cards to Boardzone because ZET button was not pressed.");
+            }
+        }
+    }
 
 
 
