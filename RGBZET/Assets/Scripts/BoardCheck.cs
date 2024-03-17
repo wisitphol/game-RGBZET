@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
-public class BoardCheck: MonoBehaviour
+public class BoardCheck : MonoBehaviour
 {
     [HideInInspector]
     public Drop dropScript;
@@ -25,7 +23,7 @@ public class BoardCheck: MonoBehaviour
     {
         List<Card> cardsOnBoard = new List<Card>();
 
-        // เช็คการ์ดใน Boardzone
+        // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
             DisplayCard displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard>();
@@ -36,7 +34,7 @@ public class BoardCheck: MonoBehaviour
             }
         }
 
-        // นับเฉพาะการ์ดทีโชว์อยู่ใน boardzoneเวลารัน
+        // Count only the cards that are shown on the board when running
         if (cardsOnBoard.Count == 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
@@ -55,11 +53,52 @@ public class BoardCheck: MonoBehaviour
         {
             Debug.Log("Not enough cards on the board to check for a set.");
         }
+
+
+        
+    }
+
+    public void CheckBoardEnd()
+    {
+        List<Card> cardsOnBoard = new List<Card>();
+
+        // Check cards in Boardzone
+        for (int i = 0; i < Board.transform.childCount; i++)
+        {
+            DisplayCard displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard>();
+            if (displayCard != null && displayCard.displayCard.Count > 0)
+            {
+                Card card = displayCard.displayCard[0];
+                cardsOnBoard.Add(card);
+            }
+        }
+
+        // Count only the cards that are shown on the board when running
+
+
+        if(Deck.deckSize == 0)
+        {
+            bool isSet = CheckSetForAllCards(cardsOnBoard);
+
+            if (isSet)
+            {
+                Debug.Log("The cards on the board form a set!");
+            }
+            else
+            {
+                Debug.Log("GAME END");
+                
+            }
+        }
+        else
+        {
+            
+        }
     }
 
     private bool CheckSetForAllCards(List<Card> cards)
     {
-        // ตรวจสอบเซตของการ์ดทั้ง 12 ใบ
+        // Check for sets of cards across all 12 cards
         for (int i = 0; i < cards.Count - 2; i++)
         {
             for (int j = i + 1; j < cards.Count - 1; j++)
@@ -69,12 +108,11 @@ public class BoardCheck: MonoBehaviour
                     bool isSet = dropScript.CheckCardsAreSet(cards[i], cards[j], cards[k]);
                     if (isSet)
                     {
-                        return true; // เมื่อพบเซต ให้ส่งค่า true กลับ
+                        return true; // Return true when a set is found
                     }
                 }
             }
         }
-        return false; // หากไม่พบเซตใดๆ ให้ส่งค่า false กลับ
+        return false; // Return false if no set is found
     }
-
 }

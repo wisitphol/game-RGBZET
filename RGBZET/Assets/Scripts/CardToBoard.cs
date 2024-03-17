@@ -7,6 +7,7 @@ public class CardToBoard : MonoBehaviour
     public GameObject Board;
     public GameObject BoardCard;
     private BoardCheck boardCheckScript;
+    private Deck deck;
 
 
     // Start is called before the first frame update
@@ -20,6 +21,12 @@ public class CardToBoard : MonoBehaviour
         {
              boardCheckScript.CheckBoard();
         }
+
+        if(Deck.deckSize <= 0)
+        {
+            boardCheckScript.CheckBoardEnd();
+        }
+        
     }
 
     public void MoveCardToBoard()

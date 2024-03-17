@@ -242,7 +242,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         // ตรวจสอบว่าทุกการ์ดที่ต้องการลบออกไปได้หรือไม่
         if (droppedCards.Count == 0)
         {
-            Debug.Log("All cards removed successfully.");
+            //Debug.Log("All cards removed successfully.");
         }
         else
         {

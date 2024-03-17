@@ -15,6 +15,7 @@ public class Deck : MonoBehaviour
     public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
+    private BoardCheck boardCheck;
 
    
    
@@ -40,6 +41,7 @@ public class Deck : MonoBehaviour
         if(deckSize <= 0)
         {
             CardInDeck.SetActive(false);
+           
         }
 
         
@@ -87,7 +89,7 @@ public class Deck : MonoBehaviour
             }
             else
             {
-                Debug.Log("No more cards in the deck. Cannot draw.");
+                //Debug.Log("No more cards in the deck. Cannot draw.");
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
             } 
             
