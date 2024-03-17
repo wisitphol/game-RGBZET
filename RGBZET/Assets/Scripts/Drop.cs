@@ -22,6 +22,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     {
         deck = FindObjectOfType<Deck>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
+        
     }
 
     public void Update()
@@ -273,10 +274,10 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             int numberOfCardsInCheckZone = transform.childCount;
 
             // ถ้ามีการ์ดใน Checkzone
-            if (numberOfCardsInCheckZone > 0 && numberOfCardsInCheckZone < 3)
+            if (numberOfCardsInCheckZone > 0)
             {
-                // นำการ์ดทั้งหมดใน Checkzone กลับไปยัง Boardzone
-                for (int i = 0; i < numberOfCardsInCheckZone; i++)
+                // วนลูปเพื่อนำการ์ดทั้งหมดใน Checkzone กลับไปยัง Boardzone
+                for (int i = numberOfCardsInCheckZone - 1; i >= 0; i--) // เริ่มจากตัวสุดท้าย
                 {
                     Transform cardTransform = transform.GetChild(i);
                     if (cardTransform != null)
@@ -299,6 +300,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             }
         }
     }
+
 
 
 
