@@ -76,7 +76,7 @@ public class BoardCheck : MonoBehaviour
         // Count only the cards that are shown on the board when running
 
 
-        if(Deck.deckSize == 0)
+        if(Deck.deckSize <= 0)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
 

@@ -77,8 +77,8 @@ public class Deck : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
 
-           if (deckSize > 0)
-           {
+            if (deckSize > 0)
+            {
                 // สร้างการ์ดและเพิ่มลงบอร์ด
                 GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
                 newCard.transform.SetParent(Board.transform, false);

@@ -274,7 +274,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
             int numberOfCardsInCheckZone = transform.childCount;
 
             // ถ้ามีการ์ดใน Checkzone
-            if (numberOfCardsInCheckZone > 0)
+            if (numberOfCardsInCheckZone > 0 && numberOfCardsInCheckZone < 3)
             {
                 // วนลูปเพื่อนำการ์ดทั้งหมดใน Checkzone กลับไปยัง Boardzone
                 for (int i = numberOfCardsInCheckZone - 1; i >= 0; i--) // เริ่มจากตัวสุดท้าย
