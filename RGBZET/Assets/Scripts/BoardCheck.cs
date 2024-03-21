@@ -52,10 +52,8 @@ public class BoardCheck : MonoBehaviour
         else
         {
             Debug.Log("Not enough cards on the board to check for a set.");
-        }
+        }     
 
-
-        
     }
 
     public void CheckBoardEnd()
@@ -73,13 +71,12 @@ public class BoardCheck : MonoBehaviour
             }
         }
 
-        // Count only the cards that are shown on the board when running
-
-
-        if(Deck.deckSize <= 0)
+        // Check if there are less than 12 cards on the board
+        if(cardsOnBoard.Count < 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
 
+            // If there are less than 12 cards and they form a set, the game continues
             if (isSet)
             {
                 Debug.Log("The cards on the board form a set!");
@@ -87,14 +84,16 @@ public class BoardCheck : MonoBehaviour
             else
             {
                 Debug.Log("GAME END");
-                
             }
         }
         else
         {
-            
+        // If there are 12 cards on the board, the game continues
         }
+        
     }
+
+    
 
     private bool CheckSetForAllCards(List<Card> cards)
     {

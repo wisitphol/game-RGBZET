@@ -15,7 +15,7 @@ public class Deck : MonoBehaviour
     public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
-    private BoardCheck boardCheck;
+     private BoardCheck boardCheckScript;
 
    
    
@@ -29,6 +29,11 @@ public class Deck : MonoBehaviour
 
         // Now deck is shuffled and ready to use
         StartCoroutine(StartGame());
+
+        boardCheckScript = FindObjectOfType<BoardCheck>();
+
+         
+        
     }
 
     // Update is called once per frame
@@ -36,15 +41,12 @@ public class Deck : MonoBehaviour
     {
         staticDeck = deck;
 
-        
-        
         if(deckSize <= 0)
         {
             CardInDeck.SetActive(false);
+           // boardCheckScript.CheckBoardEnd();
            
         }
-
-        
        
     }
 
@@ -93,6 +95,11 @@ public class Deck : MonoBehaviour
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
             } 
             
+        }
+
+        if(deckSize <= 0)
+        {
+            boardCheckScript.CheckBoardEnd();
         }
         
         

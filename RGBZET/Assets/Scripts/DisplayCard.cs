@@ -17,8 +17,8 @@ public class DisplayCard : MonoBehaviour
     public int Id;
     public string LetterType; 
     public string ColorType; 
-    public string SizeType ;    
-    public string TextureType; 
+    public string AmountType ;    
+    public string FontType; 
     public int Point;
     public Sprite Spriteimg;
 
@@ -61,8 +61,8 @@ public class DisplayCard : MonoBehaviour
             Id = displayCard[0].Id;
             LetterType = displayCard[0].LetterType;
             ColorType = displayCard[0].ColorType;
-            SizeType = displayCard[0].SizeType;
-            TextureType = displayCard[0].TextureType;
+            AmountType = displayCard[0].AmountType;
+            FontType = displayCard[0].FontType;
             Point = displayCard[0].Point;
             Spriteimg = displayCard[0].Spriteimg;
 

@@ -81,10 +81,10 @@ public class Dropnew : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPoint
     {
         bool letterSet = ArePropertiesEqual(card1.LetterType, card2.LetterType, card3.LetterType);
         bool colorSet = ArePropertiesEqual(card1.ColorType, card2.ColorType, card3.ColorType);
-        bool sizeSet = ArePropertiesEqual(card1.SizeType, card2.SizeType, card3.SizeType);
-        bool textureSet = ArePropertiesEqual(card1.TextureType, card2.TextureType, card3.TextureType);
+        bool amountSet = ArePropertiesEqual(card1.AmountType, card2.AmountType, card3.AmountType);
+        bool fontSet = ArePropertiesEqual(card1.FontType, card2.FontType, card3.FontType);
 
-        return (letterSet && colorSet && sizeSet && textureSet);
+        return (letterSet && colorSet && amountSet && fontSet);
     }
 
     private bool ArePropertiesEqual(string property1, string property2, string property3)

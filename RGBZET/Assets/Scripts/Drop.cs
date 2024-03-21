@@ -27,8 +27,41 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     public void Update()
     {
-        CheckAndReturnCardsToBoardZone();
+        // เมื่อปุ่ม ZET ไม่ได้ถูกกด
+        if (!ZETbutton.isZetActive)
+        {
+            // ตรวจสอบจำนวนการ์ดใน Checkzone
+            int numberOfCardsInCheckZone = transform.childCount;
+
+            // ถ้ามีการ์ดใน Checkzone และไม่ได้ถูกกด ZET
+            if (numberOfCardsInCheckZone > 0 && numberOfCardsInCheckZone < 3)
+            {
+                // วนลูปเพื่อนำการ์ดทั้งหมดใน Checkzone กลับไปยัง Boardzone
+                for (int i = numberOfCardsInCheckZone - 1; i >= 0; i--) // เริ่มจากตัวสุดท้าย
+                {
+                    Transform cardTransform = transform.GetChild(i);
+                    if (cardTransform != null)
+                    {
+                        cardTransform.SetParent(GameObject.Find("Boardzone").transform);
+                        cardTransform.localPosition = Vector3.zero;
+
+                        DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                        if (displayCardComponent != null)
+                        {
+                            displayCardComponent.SetBlocksRaycasts(true);
+                        }
+                    }
+                }
+
+                // ล้างรายการการ์ดใน Checkzone
+                droppedCards.Clear();
+
+                Debug.Log("Returned cards to Boardzone because ZET button was not pressed.");
+            }
+        }
     }
+
+
 
 
 
@@ -119,7 +152,6 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 // คำนวณคะแนนรวมของการ์ด 3 ใบ
                 int TotalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
             
-
                 UpdateScore(TotalScore);
                 
                 //scoreText.text =  totalScore.ToString();
@@ -127,14 +159,14 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 RemoveCardsFromGame();
 
                 deck.DrawCards(3);
-                
-                
             }
             else
             {
                 //Debug.Log("Not a valid Set. Return the cards to their original position.");
                 // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
                 ReturnCardsToOriginalPosition();
+
+                UpdateScore(-1);
                 
             }
             //FindObjectOfType<ZETbutton>().CheckSetConditionsCompleted();
@@ -142,11 +174,9 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         }
         else
         {
-            
             //Debug.Log("Unexpected number of cards: " + droppedCards.Count); // Debug Log เมื่อมีจำนวนการ์ดไม่ถูกต้อง
         }
 
-        
     }
 
     public bool CheckCardsAreSet(Card card1, Card card2, Card card3)
@@ -154,11 +184,11 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         // ตรวจสอบคุณสมบัติของการ์ดทั้งสามใบ
         bool letterSet = ArePropertiesEqual(card1.LetterType, card2.LetterType, card3.LetterType);
         bool colorSet = ArePropertiesEqual(card1.ColorType, card2.ColorType, card3.ColorType);
-        bool sizeSet = ArePropertiesEqual(card1.SizeType, card2.SizeType, card3.SizeType);
-        bool textureSet = ArePropertiesEqual(card1.TextureType, card2.TextureType, card3.TextureType);
+        bool amountSet = ArePropertiesEqual(card1.AmountType, card2.AmountType, card3.AmountType);
+        bool fontSet = ArePropertiesEqual(card1.FontType, card2.FontType, card3.FontType);
 
         // ตรวจสอบว่ามีการ์ดทั้งสามใบมีคุณสมบัติเหมือนหรือต่างกันทั้งหมดหรือไม่
-        return (letterSet && colorSet && sizeSet && textureSet);
+        return (letterSet && colorSet && amountSet && fontSet);
     }
 
     // ตรวจสอบว่าคุณสมบัติของการ์ดทั้งสามใบเหมือนหรือต่างกันทั้งหมดหรือไม่
@@ -229,12 +259,9 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
                 // ลบการ์ดที่ถูก drop ออกจากเกม
                 Destroy(cardTransform.gameObject);
 
-              
-
                  // ลบการ์ดออกจากลิสต์ droppedCards
                 droppedCards.Remove(displayCard.displayCard[0]);
 
-                
             }
         }
 
@@ -262,6 +289,10 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
         currentScore += addScore;
         // Update the score text UI with the total score
+        if (currentScore < 0)
+        {
+            currentScore = 0; // เซ็ตคะแนนใหม่เป็น 0 ถ้าค่าลบ
+        }
         scoreText.text = "Score: " + currentScore.ToString();
     }
 

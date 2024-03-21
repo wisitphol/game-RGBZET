@@ -8,8 +8,8 @@ public class Card
     public int Id;
     public string LetterType;   
     public string ColorType;    
-    public string SizeType ;    
-    public string TextureType;  
+    public string AmountType ;    
+    public string FontType;  
     public int Point;
     public Sprite Spriteimg;
     public Transform originalParent;
@@ -19,13 +19,13 @@ public class Card
 
     }
 
-    public Card (int id,string letter,string color,string size,string texture,int point,Sprite spriteimg)
+    public Card (int id,string letter,string color,string amount,string font,int point,Sprite spriteimg)
     {
         Id = id;
         LetterType = letter;
         ColorType = color;
-        SizeType = size;
-        TextureType = texture;
+        AmountType = amount;
+        FontType = font;
         Point = point;
         Spriteimg = spriteimg;
     }
