@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 75686d149004586409de133cbcf69a30
+guid: a381d0e8d3b08b041a72f55452cae3fb
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -113,26 +113,38 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: s17_0
+      name: back_0
       rect:
         serializedVersion: 2
         x: 559
         y: 289
         width: 802
-        height: 502
+        height: 501
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 35ca6bc6d0ddd8949a22062fd4a7186c
-      internalID: 1213549778
+      spriteID: 82783051f0c247e4a8d9301e78b1ada8
+      internalID: 1960603674
       vertices: []
       indices: 
       edges: []
@@ -148,7 +160,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      s17_0: 1213549778
+      back_0: 1960603674
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
