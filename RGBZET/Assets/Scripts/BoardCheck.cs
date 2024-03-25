@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BoardCheck : MonoBehaviour
 {
@@ -83,7 +84,7 @@ public class BoardCheck : MonoBehaviour
             }
             else
             {
-                Debug.Log("GAME END");
+                SceneManager.LoadScene("Endscene");
             }
         }
         else

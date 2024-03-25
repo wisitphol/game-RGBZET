@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8590561
 RectTransform:
   m_ObjectHideFlags: 0
@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -845.9739, y: -279.6}
+  m_AnchoredPosition: {x: -602, y: -301}
   m_SizeDelta: {x: 171.5235, y: 126.26}
   m_Pivot: {x: 0.44380587, y: 0.465562}
 --- !u!114 &8590562
@@ -238,7 +238,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 830, y: -386}
+  m_AnchoredPosition: {x: 757, y: -415}
   m_SizeDelta: {x: 259.1216, y: 155.2063}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &17220321
@@ -309,7 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1964792925}
+  m_Material: {fileID: 1444873311}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -843,216 +843,216 @@ MonoBehaviour:
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
@@ -1061,6 +1061,42 @@ MonoBehaviour:
   CardPrefab: {fileID: 148383362}
   Clones: []
   Board: {fileID: 1729317774}
+--- !u!21 &210058015
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1 &228142277
 GameObject:
   m_ObjectHideFlags: 0
@@ -1098,7 +1134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1070, y: 0.0000076293945}
+  m_AnchoredPosition: {x: -857.36, y: -8}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &228142279
@@ -1379,6 +1415,42 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 90, g: 60, b: 20, a: 0}
   m_BuildTextureStacks: []
+--- !u!21 &339345339
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1 &415199235 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3695626017689113206, guid: 07f000db9f5432f40b63145364468296, type: 3}
@@ -1424,42 +1496,6 @@ Material:
     - _UseUIAlphaClip: 0
     m_Colors:
     - _WidthHeightRadius: {r: 90, g: 60, b: 20, a: 0}
-  m_BuildTextureStacks: []
---- !u!21 &483381782
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
   m_BuildTextureStacks: []
 --- !u!1 &506411180
 GameObject:
@@ -1654,8 +1690,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 167, y: 3.21}
-  m_SizeDelta: {x: 177.5531, y: 106.42}
+  m_AnchoredPosition: {x: -0.0010114, y: -128}
+  m_SizeDelta: {x: 156.65, y: 71.8208}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &612761699
 MonoBehaviour:
@@ -1678,7 +1714,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -1734,7 +1770,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.10431, y: -100.67}
+  m_AnchoredPosition: {x: 0.000075378, y: -81}
   m_SizeDelta: {x: 156.6555, y: 88.5079}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &617596282
@@ -1758,7 +1794,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -1903,8 +1939,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 156, y: 0}
-  m_SizeDelta: {x: 148.9911, y: 106.42}
+  m_AnchoredPosition: {x: 3.2406, y: -123}
+  m_SizeDelta: {x: 148.9911, y: 72.4733}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &644027569
 MonoBehaviour:
@@ -1927,7 +1963,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -1983,8 +2019,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 159.46, y: 0}
-  m_SizeDelta: {x: 164.6874, y: 106.42}
+  m_AnchoredPosition: {x: -0.00001238, y: -111}
+  m_SizeDelta: {x: 154.23, y: 73.0564}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &746036645
 MonoBehaviour:
@@ -2007,7 +2043,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -2028,6 +2064,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 746036643}
   m_CullTransparentMesh: 1
+--- !u!21 &788689411
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 200, g: 150, b: 40, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1 &856473213
 GameObject:
   m_ObjectHideFlags: 0
@@ -2209,8 +2281,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000015259, y: -92.032}
-  m_SizeDelta: {x: 142.51, y: 77.6435}
+  m_AnchoredPosition: {x: -0.000015259, y: -79.584854}
+  m_SizeDelta: {x: 142.51, y: 52.7493}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &921243463
 MonoBehaviour:
@@ -2233,7 +2305,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -2289,7 +2361,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000015259, y: -93.34}
+  m_AnchoredPosition: {x: 0.004715, y: -75}
   m_SizeDelta: {x: 154.2232, y: 80.2595}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &946210118
@@ -2313,7 +2385,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
@@ -2408,7 +2480,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 830.0001, y: -20}
+  m_AnchoredPosition: {x: 757.0001, y: -85.06299}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &1014741773
@@ -2524,7 +2596,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1070, y: 403}
+  m_AnchoredPosition: {x: -857.36, y: 421}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1051549947
@@ -2783,7 +2855,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1073, y: 441}
+  m_AnchoredPosition: {x: 843, y: 441}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1204166436
@@ -2862,8 +2934,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1212, y: -360}
-  m_SizeDelta: {x: 720, y: 350}
+  m_AnchoredPosition: {x: 961.01, y: -239}
+  m_SizeDelta: {x: 750, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1282008652
 MonoBehaviour:
@@ -2900,7 +2972,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 180, y: 130}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 5
 --- !u!114 &1282008654
@@ -2994,42 +3066,6 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 200, g: 140, b: 80, a: 0}
   m_BuildTextureStacks: []
---- !u!21 &1368858473
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
-  m_BuildTextureStacks: []
 --- !u!21 &1403773004
 Material:
   serializedVersion: 8
@@ -3071,6 +3107,42 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6499056158272429241, guid: 78268dec2c21e164bade8e481ffd515e, type: 3}
   m_PrefabInstance: {fileID: 148383360}
   m_PrefabAsset: {fileID: 0}
+--- !u!21 &1444873311
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 259.1216, g: 155.2063, b: 40, a: 0}
+  m_BuildTextureStacks: []
 --- !u!21 &1501282848
 Material:
   serializedVersion: 8
@@ -3144,7 +3216,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1070, y: -339.81}
+  m_AnchoredPosition: {x: -809, y: -277.13}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1594854394
@@ -3222,7 +3294,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1070, y: 197}
+  m_AnchoredPosition: {x: -857.36, y: 201}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1658381111
@@ -3298,7 +3370,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 244, y: -34.77}
+  m_AnchoredPosition: {x: 0.000015259, y: -184}
   m_SizeDelta: {x: 285.0255, y: 106.42}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &1687864297
@@ -3322,7 +3394,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
@@ -3382,7 +3454,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -54, y: -207.12549}
+  m_AnchoredPosition: {x: 1.0119629, y: -85.06299}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1729317778
@@ -3458,7 +3530,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 180, y: 130}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 5, y: 5}
   m_Constraint: 1
   m_ConstraintCount: 4
 --- !u!114 &1729317782
@@ -3510,7 +3582,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 881.27, y: 441}
+  m_AnchoredPosition: {x: 642, y: 436}
   m_SizeDelta: {x: 140, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1753487911
@@ -3630,7 +3702,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -141.19}
+  m_AnchoredPosition: {x: 0.000015259, y: -120}
   m_SizeDelta: {x: 285.0255, y: 106.42}
   m_Pivot: {x: 0.49999994, y: 0.5}
 --- !u!114 &1844209904
@@ -3654,7 +3726,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 5d8d229aadaaebc4db6addedec2686f7, type: 3}
     m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
@@ -3675,42 +3747,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1844209902}
   m_CullTransparentMesh: 1
---- !u!21 &1964792925
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 259.1216, g: 155.2063, b: 40, a: 0}
-  m_BuildTextureStacks: []
 --- !u!21 &2066705755
 Material:
   serializedVersion: 8
@@ -3746,40 +3782,4 @@ Material:
     - _UseUIAlphaClip: 0
     m_Colors:
     - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
-  m_BuildTextureStacks: []
---- !u!21 &2146832077
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 200, g: 150, b: 40, a: 0}
   m_BuildTextureStacks: []
