@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 
 public class DisplayCard : MonoBehaviour
@@ -22,7 +23,7 @@ public class DisplayCard : MonoBehaviour
     public int Point;
     public Sprite Spriteimg;
 
-    public Text IdText;
+    private Text IdText;
     public Image ArtImage;
 
     public bool cardBack;

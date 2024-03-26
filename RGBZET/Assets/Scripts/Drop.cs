@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
+    public TMP_Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
     
     [HideInInspector]
     public List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
