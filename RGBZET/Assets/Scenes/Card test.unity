@@ -209,7 +209,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 856473216}
-        m_TargetAssemblyTypeName: Button1, Assembly-CSharp
+        m_TargetAssemblyTypeName: ZETbutton, Assembly-CSharp
         m_MethodName: OnZetButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -823,272 +823,218 @@ MonoBehaviour:
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   - Id: 0
     LetterType: 
     ColorType: 
-    SizeType: 
-    TextureType: 
+    AmountType: 
+    FontType: 
     Point: 0
     Spriteimg: {fileID: 0}
-    originalPosition: {x: 0, y: 0, z: 0}
-    originalRotation: {x: 0, y: 0, z: 0, w: 0}
     originalParent: {fileID: 0}
   x: 0
   CardInDeck: {fileID: 415199235}
@@ -1137,7 +1083,7 @@ PrefabInstance:
     - target: {fileID: 3695626017689113202, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: IdText
       value: 
-      objectReference: {fileID: 622421329}
+      objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113202, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: displayId
       value: 0
@@ -1795,13 +1741,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045faa8f2ca90234c9c56e5e4691364d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isYourTurn: 0
-  yourTurn: 0
-  isOpponentTurn: 0
-  turnText: {fileID: 303722353}
-  maxMana: 0
-  currentMana: 0
-  manaText: {fileID: 715204284}
 --- !u!1 &506411180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1992,17 +1931,6 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
---- !u!114 &622421329 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2570393122120611667, guid: 07f000db9f5432f40b63145364468296, type: 3}
-  m_PrefabInstance: {fileID: 296803005}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!21 &680046643
 Material:
   serializedVersion: 8
@@ -2390,10 +2318,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 856473213}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fa1e0fa49a77b847b4c8873218f3395, type: 3}
+  m_Script: {fileID: 11500000, guid: e82395beb2af1674c903b50b17d3d936, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   zetButton: {fileID: 17220321}
+  cooldownTime: 7
+  ZetText: {fileID: 0}
 --- !u!1 &911434894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3340,7 +3270,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa919a08c10b2143bd588b95acd348b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreText: {fileID: 1687864297}
+  scoreText: {fileID: 0}
+  droppedCards: []
+  parentToReturnTo: {fileID: 0}
+  deck: {fileID: 0}
+  currentScore: 0
 --- !u!21 &1359808740
 Material:
   serializedVersion: 8
@@ -4053,42 +3987,6 @@ RectTransform:
   m_AnchoredPosition: {x: 665, y: 221}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!21 &1847959395
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 150, g: 110, b: 20, a: 0}
-  m_BuildTextureStacks: []
 --- !u!1 &1860142236
 GameObject:
   m_ObjectHideFlags: 0
@@ -4140,9 +4038,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78e440e4e548aa9409d4faf80fc34b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 0
-  Health: {fileID: 1860142239}
-  hpText: {fileID: 1192996522}
 --- !u!114 &1860142239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4258,78 +4153,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1992890477}
   m_CullTransparentMesh: 1
---- !u!21 &2039717117
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 200, g: 150, b: 20, a: 0}
-  m_BuildTextureStacks: []
---- !u!21 &2061359457
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 200, g: 150, b: 40, a: 0}
-  m_BuildTextureStacks: []
 --- !u!1 &2068021421
 GameObject:
   m_ObjectHideFlags: 0
@@ -4381,9 +4204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d283b7609eba3884386cfd04f742297a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 0
-  Health: {fileID: 2068021424}
-  hpText: {fileID: 1652832395}
 --- !u!114 &2068021424
 MonoBehaviour:
   m_ObjectHideFlags: 0
