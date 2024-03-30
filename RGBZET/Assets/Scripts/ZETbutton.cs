@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ZETbutton : MonoBehaviour
+public class ZETButton : MonoBehaviour
 {
     
     public static bool isZetActive = false;
