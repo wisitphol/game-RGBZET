@@ -7,6 +7,7 @@ using Firebase.Auth;
 using Firebase.Extensions;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 
 public class AuthManager : MonoBehaviour
