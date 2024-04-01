@@ -6,9 +6,6 @@ using System.Collections.Generic;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
-    public GameObject playerIconPrefab; // โปรแกรมที่ใช้สร้างไอคอนผู้เล่นในหน้า UI
-    public Transform playerIconContainer; // โปรแกรมที่ใช้เก็บไอคอนผู้เล่น
-
     public GameObject player1; // อ็อบเจกต์ของผู้เล่นคนที่ 1
     public GameObject player2; // อ็อบเจกต์ของผู้เล่นคนที่ 2
     public GameObject player3; // อ็อบเจกต์ของผู้เล่นคนที่ 3
@@ -20,6 +17,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room: " + PhotonNetwork.CurrentRoom.Name);
+        Debug.Log("Successfully joined the room."); // เพิ่ม Debug.Log() เพื่อตรวจสอบว่าเข้าร่วมห้องเกมสำเร็จ
         // ตรวจสอบและสร้างไอคอนผู้เล่นสำหรับผู้เล่นที่เข้าร่วมห้องเกม
         foreach (Player player in PhotonNetwork.PlayerList)
         {
@@ -45,20 +43,20 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             GameObject playerIcon;
             if (player.ActorNumber == 1)
             {
-                playerIcon = Instantiate(playerIconPrefab, player1.transform);
+                playerIcon = Instantiate(player1);
             }
             else if (player.ActorNumber == 2)
             {
-                playerIcon = Instantiate(playerIconPrefab, player2.transform);
+                playerIcon = Instantiate(player2);
             }
             else if (player.ActorNumber == 3)
             {
-                playerIcon = Instantiate(playerIconPrefab, player3.transform);
+                playerIcon = Instantiate(player3);
             }
             else if (player.ActorNumber == 4)
             {
-                playerIcon = Instantiate(playerIconPrefab, player4.transform);
-            }
+                playerIcon = Instantiate(player4);
+            }   
             else
             {
                 Debug.LogWarning("Cannot create player icon for player " + player.ActorNumber + ": Too many players.");
@@ -74,6 +72,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             playerIcons[player.ActorNumber].SetActive(true);
         }
     }
+
 
     // เมื่อมีการลบผู้เล่นออกจากห้องเกม
     public override void OnPlayerLeftRoom(Player otherPlayer)

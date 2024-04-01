@@ -58,7 +58,14 @@ public class MainMenu : MonoBehaviourPunCallbacks
     // เข้าร่วมห้องเกมสำเร็จ
     public override void OnJoinedRoom()
     {
-        // โหลดหน้าเล่นเกม
-        PhotonNetwork.LoadLevel("Card sample");
+        if (!string.IsNullOrEmpty(playerNameInput.text))
+        {
+            // โหลดหน้าเล่นเกม
+            PhotonNetwork.LoadLevel("Card sample");
+        }
+        else
+        {
+            Debug.Log("Please enter your name before starting the game.");
+        }
     }
 }
