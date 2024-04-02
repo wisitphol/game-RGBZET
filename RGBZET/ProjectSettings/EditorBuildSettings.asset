@@ -39,6 +39,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Profile.unity
     guid: ec494ff17800773469b9365a0d2f9b18
   - enabled: 1
+    path: Assets/Scenes/LoginandRegister.unity
+    guid: 9a24ae7a9aeb4f248b396600f7982f26
+  - enabled: 1
     path: Assets/Scenes/play.unity
     guid: 31e6c4b7187cb37438ac3bb0e87fb234
   - enabled: 1
