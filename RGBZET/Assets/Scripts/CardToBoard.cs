@@ -21,10 +21,6 @@ public class CardToBoard : MonoBehaviour
         {
              boardCheckScript.CheckBoard();
         }
-        //else if(Board.transform.childCount < 12)
-       // {
-       //     boardCheckScript.CheckBoardEnd();
-       // }
         
     }
 

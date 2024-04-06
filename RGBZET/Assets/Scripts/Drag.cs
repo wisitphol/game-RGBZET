@@ -59,6 +59,8 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
         
         GetComponent<CanvasGroup>().blocksRaycasts = true;
         //Debug.Log("Returning to original position.");
+
+       
     }
 
 }

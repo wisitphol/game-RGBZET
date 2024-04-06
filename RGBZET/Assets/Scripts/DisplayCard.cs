@@ -16,10 +16,10 @@ public class DisplayCard : MonoBehaviour
     public Transform originalParent;
 
     public int Id;
-    public string LetterType; 
-    public string ColorType; 
-    public string AmountType ;    
-    public string FontType; 
+    public string LetterType;
+    public string ColorType;
+    public string AmountType;
+    public string FontType;
     public int Point;
     public Sprite Spriteimg;
 
@@ -38,7 +38,7 @@ public class DisplayCard : MonoBehaviour
     void Start()
     {
         numberOfCardInDeck = Deck.deckSize;
-        
+
         //Debug.Log("CardList Count: " + CardData.cardList.Count);
         //Debug.Log("DisplayId: " + displayId);
 
@@ -46,7 +46,7 @@ public class DisplayCard : MonoBehaviour
         {
             displayCard.Add(CardData.cardList[displayId]);
             //displayCard[0] = CardData.cardList[displayId];
-            
+
         }
         else
         {
@@ -57,53 +57,56 @@ public class DisplayCard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(displayCard.Count > 0)
+        if (displayCard.Count > 0)
         {
-            Id = displayCard[0].Id;
-            LetterType = displayCard[0].LetterType;
-            ColorType = displayCard[0].ColorType;
-            AmountType = displayCard[0].AmountType;
-            FontType = displayCard[0].FontType;
-            Point = displayCard[0].Point;
-            Spriteimg = displayCard[0].Spriteimg;
+            DisplayCardData(displayCard[0]);
 
-            //IdText.text = " " + Id;
-            ArtImage.sprite = Spriteimg; 
-        
+            if (Board == null)
+            {
+                Board = GameObject.Find("Boardzone");
+            }
 
-        if(Board == null)
-        {
-            Board = GameObject.Find("Boardzone");
+            if (this.transform.parent == Board.transform.parent)
+            {
+                cardBack = false;
+            }
+
+            staticCardBack = cardBack;
+
+            if (this.tag == "Clone" && numberOfCardInDeck > 0)
+            {
+                displayCard[0] = Deck.staticDeck[numberOfCardInDeck - 1];
+                numberOfCardInDeck -= 1;
+                Deck.deckSize -= 1;
+                cardBack = false;
+                this.tag = "Untagged";
+            }
+
         }
-        
-        if(this.transform.parent == Board.transform.parent)
-        {
-            cardBack = false;
-        }
-
-        staticCardBack = cardBack;
-
-        if(this.tag == "Clone" && numberOfCardInDeck > 0)
-        {
-            displayCard[0] = Deck.staticDeck[numberOfCardInDeck - 1];
-            numberOfCardInDeck -= 1;
-            Deck.deckSize -= 1;
-            cardBack = false;
-            this.tag = "Untagged";
-        }
-        
-            
-        }
-
         else
         {
             Debug.LogError("displayCard is empty.");
         }
     }
 
+    public void DisplayCardData(Card card)
+    {
+
+        Id = displayCard[0].Id;
+        LetterType = displayCard[0].LetterType;
+        ColorType = displayCard[0].ColorType;
+        AmountType = displayCard[0].AmountType;
+        FontType = displayCard[0].FontType;
+        Point = displayCard[0].Point;
+        Spriteimg = displayCard[0].Spriteimg;
+
+        //IdText.text = " " + Id;
+        ArtImage.sprite = Spriteimg;
+    }
+
     public void HighlightCard(bool highlight)
     {
-        if(highlight)
+        if (highlight)
         {
             // เปลี่ยนขอบหรือสีของการ์ดเพื่อบ่งบอกว่ามันถูกเลือก
             // นี่เป็นเพียงตัวอย่าง: คุณจะต้องอ้างอิงถึงองค์ประกอบ UI จริง
@@ -121,7 +124,7 @@ public class DisplayCard : MonoBehaviour
         originalPosition = transform.position;
         originalRotation = transform.rotation;
         originalParent = transform.parent;
-        
+
     }
 
     // เมื่อต้องการคืนการ์ดกลับไปที่ตำแหน่งเดิม
@@ -137,5 +140,5 @@ public class DisplayCard : MonoBehaviour
     {
         GetComponent<CanvasGroup>().blocksRaycasts = blocksRaycasts;
     }
-  
+
 }

@@ -12,6 +12,8 @@ public class ZETButton : MonoBehaviour
     public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     public GameObject ZetText; // เพิ่มตัวแปรเก็บ GameObject ของข้อความ ZET
+
+
     private void Start()
     {
         zetButton.interactable = true;
@@ -23,6 +25,8 @@ public class ZETButton : MonoBehaviour
         if (!isZetActive)
         {
             StartCoroutine(ActivateZetWithCooldown());
+
+           
         }
     }
 
