@@ -32,8 +32,6 @@ public class Deck : MonoBehaviour
 
         boardCheckScript = FindObjectOfType<BoardCheck>();
 
-         
-        
     }
 
     // Update is called once per frame
@@ -45,7 +43,6 @@ public class Deck : MonoBehaviour
         {
             CardInDeck.SetActive(false);
            // boardCheckScript.CheckBoardEnd();
-           
         }
        
     }
@@ -101,7 +98,6 @@ public class Deck : MonoBehaviour
         {
             boardCheckScript.CheckBoardEnd();
         }
-        
         
     }
 

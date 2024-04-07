@@ -8,12 +8,13 @@ using TMPro;
 
 public class MutiManager : MonoBehaviourPunCallbacks
 {
-   public GameObject cardPrefab; // Prefab ของการ์ด
+    public GameObject cardPrefab; // Prefab ของการ์ด
     public Transform boardTransform; // ตำแหน่งที่จะสร้างการ์ด
     public int numberOfCards = 12; // จำนวนการ์ดที่จะสร้าง
     private List<Card> cardList; // รายการข้อมูลของการ์ด
 
-   void Start()
+
+    void Start()
     {
         if (!PhotonNetwork.IsConnected)
         {
@@ -27,6 +28,8 @@ public class MutiManager : MonoBehaviourPunCallbacks
             {
                 // ถ้าเป็น Master Client ให้สร้างการ์ดและส่งข้อมูลไปยังผู้เล่นอื่น
                 CreateCards();
+
+
             }
         }
     }
@@ -46,26 +49,54 @@ public class MutiManager : MonoBehaviourPunCallbacks
         // สุ่มการ์ดและส่งข้อมูลไปยังผู้เล่นอื่น
         cardList = new List<Card>(CardData.cardList);
         Shuffle(cardList);
-        photonView.RPC("RPC_CreateCards", RpcTarget.AllBuffered, cardList.ToArray());
+
+        // สร้างการ์ดโดยใช้ Instantiate() และนำเข้า PhotonNetwork
+        foreach (Card cardData in cardList)
+        {
+            PhotonNetwork.Instantiate(cardPrefab.name, boardTransform.position, boardTransform.rotation, 0, new object[] { cardData.Id });
+        }
     }
 
-    [PunRPC]
-    void RPC_CreateCards(Card[] cards)
+    private Dictionary<int, PhotonView> photonViewDictionary = new Dictionary<int, PhotonView>(); // สร้าง Dictionary เพื่อเก็บ PhotonView ที่สร้างขึ้น
+
+    int GenerateUniqueViewID()
     {
-        foreach (Card cardData in cards)
+        int newViewID = 0;
+        bool isUnique = false;
+
+        // Loop จนกว่าจะพบ ID ที่ไม่ซ้ำซ้อน
+        while (!isUnique)
         {
-            GameObject newCard = Instantiate(cardPrefab, boardTransform);
+            newViewID = Random.Range(1000, 1000000); // สร้างเลขสุ่ม
+            isUnique = !photonViewDictionary.ContainsKey(newViewID); // ตรวจสอบว่าเลขนี้ซ้ำหรือไม่
+        }
 
-            // กำหนด PhotonView ID ใหม่
-            PhotonView photonView = newCard.GetComponent<PhotonView>();
+        return newViewID;
+    }
+    [PunRPC]
+    void RPC_SetupCard(int cardId)
+    {
+        GameObject newCardObject = Instantiate(cardPrefab, boardTransform.position, Quaternion.identity);
+        PhotonView photonView = newCardObject.GetComponent<PhotonView>();
 
-            photonView.ViewID = PhotonNetwork.AllocateViewID(PhotonNetwork.LocalPlayer.ActorNumber);
+        // สร้าง ViewID ใหม่และกำหนดให้กับ PhotonView
+        //photonView.ViewID = PhotonNetwork.AllocateViewID();
 
-            
-            // ส่ง RPC เพื่อขอเป็นเจ้าของของ PhotonView
-            photonView.TransferOwnership(PhotonNetwork.LocalPlayer);
+        // กำหนดเจ้าของของ PhotonView เป็นผู้เล่นที่เชื่อมต่ออยู่ในปัจจุบัน
+        photonView.TransferOwnership(PhotonNetwork.LocalPlayer);
 
-            newCard.GetComponent<DisplayCard>().DisplayCardData(cardData);
+        // แสดงข้อมูลของการ์ด
+        Card cardData = CardData.cardList[cardId];
+        newCardObject.GetComponent<DisplayCard>().DisplayCardData(cardData);
+    }
+
+
+    void OnDestroy()
+    {
+        // คืนทรัพยากรการ์ดที่ถูกทำลายกลับไปยัง Pool เพื่อให้สามารถใช้งานได้ใหม่
+        foreach (var kvp in photonViewDictionary)
+        {
+            PhotonNetwork.Destroy(kvp.Value);
         }
     }
 

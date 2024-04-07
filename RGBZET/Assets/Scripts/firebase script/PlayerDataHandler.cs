@@ -43,7 +43,7 @@ public class PlayerDataHandler : MonoBehaviour
             Debug.Log("Firebase connected successfully!");
         });
 
-         Debug.Log("PlayerDataHandler script has been called.");
+         //Debug.Log("PlayerDataHandler script has been called.");
     }
 
     void RetrievePlayerData()
