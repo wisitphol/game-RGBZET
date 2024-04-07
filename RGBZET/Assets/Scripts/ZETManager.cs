@@ -5,24 +5,24 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ZETButton : MonoBehaviour
+public class ZETManager : MonoBehaviour
 {
     
-    public static bool isZetActive = false;
+    public static bool isZETActive = false;
     public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
-    public GameObject ZetText; // เพิ่มตัวแปรเก็บ GameObject ของข้อความ ZET
+    public GameObject ZETText; // เพิ่มตัวแปรเก็บ GameObject ของข้อความ ZET
 
 
     private void Start()
     {
         zetButton.interactable = true;
-        ZetText.SetActive(false); // เริ่มต้นปิดการแสดงข้อความ ZET
+        ZETText.SetActive(false); // เริ่มต้นปิดการแสดงข้อความ ZET
     }
 
     public void OnZetButtonPressed()
     {
-        if (!isZetActive)
+        if (!isZETActive)
         {
             StartCoroutine(ActivateZetWithCooldown());
 
@@ -32,16 +32,16 @@ public class ZETButton : MonoBehaviour
 
     private IEnumerator ActivateZetWithCooldown()
     {
-        isZetActive = true;
+        isZETActive = true;
         zetButton.interactable = false;
-        ZetText.SetActive(true); // เปิดการแสดงข้อความ ZET เมื่อกดปุ่ม
+        ZETText.SetActive(true); // เปิดการแสดงข้อความ ZET เมื่อกดปุ่ม
         Debug.Log("ZET activated by a player.");
 
         yield return new WaitForSeconds(cooldownTime);
 
-        isZetActive = false;
+        isZETActive = false;
         zetButton.interactable = true;
-        ZetText.SetActive(false); // เปิดการแสดงข้อความ ZET เมื่อกดปุ่ม
+        ZETText.SetActive(false); // เปิดการแสดงข้อความ ZET เมื่อกดปุ่ม
         Debug.Log("ZET is now available again after cooldown.");
     }
 }

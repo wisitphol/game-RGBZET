@@ -1206,6 +1206,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
   m_PrefabInstance: {fileID: 296803005}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &415199246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415199235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 8
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!21 &437371499
 Material:
   serializedVersion: 8
@@ -1419,7 +1441,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zetButton: {fileID: 1768828118}
   cooldownTime: 7
-  ZetText: {fileID: 406492153}
+  ZETText: {fileID: 406492153}
 --- !u!4 &573109494
 Transform:
   m_ObjectHideFlags: 0
@@ -1607,6 +1629,7 @@ GameObject:
   m_Component:
   - component: {fileID: 712308429}
   - component: {fileID: 712308430}
+  - component: {fileID: 712308431}
   m_Layer: 0
   m_Name: Mutiplayer
   m_TagString: Untagged
@@ -1645,6 +1668,29 @@ MonoBehaviour:
   player2: {fileID: 139448501}
   player3: {fileID: 1569378956}
   player4: {fileID: 1236191390}
+  photonView: {fileID: 712308431}
+--- !u!114 &712308431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712308427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 1
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 9
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &911434894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3088,6 +3134,7 @@ GameObject:
   - component: {fileID: 1768828116}
   - component: {fileID: 1768828118}
   - component: {fileID: 1768828115}
+  - component: {fileID: 1768828119}
   m_Layer: 5
   m_Name: ZETbutton
   m_TagString: Untagged
@@ -3224,8 +3271,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 573109493}
-        m_TargetAssemblyTypeName: ZETbutton, Assembly-CSharp
+      - m_Target: {fileID: 712308430}
+        m_TargetAssemblyTypeName: MutiManager2, Assembly-CSharp
         m_MethodName: OnZetButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -3236,6 +3283,28 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1768828119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768828113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 1
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 7
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1787753252
 GameObject:
   m_ObjectHideFlags: 0

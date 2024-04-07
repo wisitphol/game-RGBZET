@@ -29,7 +29,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void Update()
     {
         // เมื่อปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETButton.isZetActive)
+        if (!ZETManager.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;
@@ -77,7 +77,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void OnDrop(PointerEventData eventData)
     {
         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
-        if (!ZETButton.isZetActive)
+        if (!ZETManager.isZETActive)
         {
             
             //Debug.Log("Cannot drop. ZET button has not been pressed.");
@@ -300,7 +300,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void CheckAndReturnCardsToBoardZone()
     {
         // ตรวจสอบว่าปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETButton.isZetActive)
+        if (!ZETManager.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;

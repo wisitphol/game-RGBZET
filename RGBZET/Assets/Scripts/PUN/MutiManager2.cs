@@ -12,7 +12,8 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     public GameObject player2;
     public GameObject player3;
     public GameObject player4;
-
+    private ZETManager zetManager;
+    public PhotonView photonView;
     void Start()
     {
         if (!PhotonNetwork.IsConnected)
@@ -26,6 +27,7 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
             JoinOrCreateRoom();
         }
         
+        zetManager = GameObject.FindObjectOfType<ZETManager>();
     }
 
     public override void OnConnectedToMaster()
@@ -97,5 +99,23 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
                 player4.SetActive(false);
                 break;
         }
+    }
+
+    // เพิ่มเมธอดสำหรับการส่ง RPC เมื่อกดปุ่ม zet
+    public void OnZetButtonPressed()
+    {
+        if (zetManager != null && !ZETManager.isZETActive && PhotonNetwork.IsConnected)
+        {
+            // ส่ง RPC ไปยังผู้เล่นอื่นๆ
+            photonView.RPC("RPC_ZetButtonPressed", RpcTarget.AllBuffered);
+        }
+    }
+
+    // เพิ่มเมธอด RPC สำหรับการรับ RPC เมื่อผู้เล่นคนใดคนหนึ่งกดปุ่ม zet
+    [PunRPC]
+    void RPC_ZetButtonPressed()
+    {
+        // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
+        zetManager.OnZetButtonPressed();
     }
 }
