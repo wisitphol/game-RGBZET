@@ -13,12 +13,12 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     public GameObject player3;
     public GameObject player4;
     private ZETManager zetManager;
-    public PhotonView photonView;
+    private PhotonView myPhotonView;
+
     void Start()
     {
         if (!PhotonNetwork.IsConnected)
         {
-            // ตรวจสอบสถานะการเชื่อมต่อก่อนเรียกใช้ ConnectUsingSettings
             PhotonNetwork.ConnectUsingSettings();
         }
         else
@@ -27,7 +27,8 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
             JoinOrCreateRoom();
         }
         
-        zetManager = GameObject.FindObjectOfType<ZETManager>();
+        zetManager = FindObjectOfType<ZETManager>();
+        myPhotonView = GetComponent<PhotonView>();
     }
 
     public override void OnConnectedToMaster()
@@ -39,7 +40,7 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     void JoinOrCreateRoom()
     {
         RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = 4; // จำนวนผู้เล่นสูงสุดในห้อง
+        roomOptions.MaxPlayers = 4;
 
         PhotonNetwork.JoinOrCreateRoom("cardsample", roomOptions, TypedLobby.Default);
     }
@@ -106,16 +107,16 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     {
         if (zetManager != null && !ZETManager.isZETActive && PhotonNetwork.IsConnected)
         {
-            // ส่ง RPC ไปยังผู้เล่นอื่นๆ
-            photonView.RPC("RPC_ZetButtonPressed", RpcTarget.AllBuffered);
+            myPhotonView.RPC("RPC_ZetButtonPressed_MutiManager2", RpcTarget.All, transform.position);
         }
     }
 
     // เพิ่มเมธอด RPC สำหรับการรับ RPC เมื่อผู้เล่นคนใดคนหนึ่งกดปุ่ม zet
     [PunRPC]
-    void RPC_ZetButtonPressed()
+    void RPC_ZetButtonPressed_MutiManager2(Vector3 playerPosition) // Add Vector3 playerPosition parameter
     {
-        // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
+        // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager และ PlayerScript โดยตรง
         zetManager.OnZetButtonPressed();
+        FindObjectOfType<PlayerScript>().OnZetButtonPressed(); // Pass the playerPosition parameter
     }
 }

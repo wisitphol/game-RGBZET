@@ -1441,7 +1441,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zetButton: {fileID: 1768828118}
   cooldownTime: 7
-  ZETText: {fileID: 406492153}
 --- !u!4 &573109494
 Transform:
   m_ObjectHideFlags: 0
@@ -1668,7 +1667,6 @@ MonoBehaviour:
   player2: {fileID: 139448501}
   player3: {fileID: 1569378956}
   player4: {fileID: 1236191390}
-  photonView: {fileID: 712308431}
 --- !u!114 &712308431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3560,3 +3558,16 @@ MonoBehaviour:
   sceneViewId: 2
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &4012695862991642547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012695862991642545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53b8435aec3cd2840a40c07b5f3675d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zetText: {fileID: 406492153}

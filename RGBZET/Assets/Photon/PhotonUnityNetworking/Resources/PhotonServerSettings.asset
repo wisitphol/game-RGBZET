@@ -43,6 +43,8 @@ MonoBehaviour:
   - RPC_CreateCards
   - RPC_SetupCard
   - RPC_ZetButtonPressed
+  - RPC_ZetButtonPressed_MutiManager2
+  - RPC_ZetButtonPressed_PlayerScript
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
