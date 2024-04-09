@@ -13,7 +13,8 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     public GameObject player3;
     public GameObject player4;
     private ZETManager zetManager;
-    private PhotonView myPhotonView;
+    private ZETManager2 zetManager2;
+    public PhotonView myPhotonView;
 
     void Start()
     {
@@ -26,8 +27,8 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
             Debug.Log("Connected!");
             JoinOrCreateRoom();
         }
-        
-        zetManager = FindObjectOfType<ZETManager>();
+
+        zetManager2 = FindObjectOfType<ZETManager2>();
         myPhotonView = GetComponent<PhotonView>();
     }
 
@@ -105,18 +106,22 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     // เพิ่มเมธอดสำหรับการส่ง RPC เมื่อกดปุ่ม zet
     public void OnZetButtonPressed()
     {
-        if (zetManager != null && !ZETManager.isZETActive && PhotonNetwork.IsConnected)
+        if (zetManager2 != null && !ZETManager2.isZETActive && PhotonNetwork.IsConnected)
         {
-            myPhotonView.RPC("RPC_ZetButtonPressed_MutiManager2", RpcTarget.All, transform.position);
+            myPhotonView.RPC("RPC_ZetButtonPressed_MutiManager2", RpcTarget.All);
         }
     }
 
     // เพิ่มเมธอด RPC สำหรับการรับ RPC เมื่อผู้เล่นคนใดคนหนึ่งกดปุ่ม zet
     [PunRPC]
-    void RPC_ZetButtonPressed_MutiManager2(Vector3 playerPosition) // Add Vector3 playerPosition parameter
+    void RPC_ZetButtonPressed_MutiManager2() // Add Vector3 playerPosition parameter
     {
         // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager และ PlayerScript โดยตรง
-        zetManager.OnZetButtonPressed();
+        zetManager2.OnZetButtonPressed();
         FindObjectOfType<PlayerScript>().OnZetButtonPressed(); // Pass the playerPosition parameter
+
+        // เรียกใช้งานเมธอด ToggleZetText และส่ง photonId ด้วย
+        int photonId = PhotonNetwork.LocalPlayer.ActorNumber; // หา photonId ของผู้เล่นที่เกี่ยวข้อง
+        myPhotonView.RPC("ToggleZetText", RpcTarget.All, true, photonId);
     }
 }
