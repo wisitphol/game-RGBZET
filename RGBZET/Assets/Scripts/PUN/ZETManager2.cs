@@ -8,13 +8,17 @@ using Photon.Pun;
 
 public class ZETManager2 : MonoBehaviourPunCallbacks
 {
-    
+
     public static bool isZETActive = false;
     public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
-    
+
     public static ZETManager2 instance; // ตัวแทนสำหรับ ZETManager เพื่อให้สามารถเรียกใช้ฟังก์ชั่นจากที่อื่นได้
+
     private Dictionary<int, GameObject> zetTexts = new Dictionary<int, GameObject>(); // เก็บ zetText ของแต่ละผู้เล่น
+
+    int photonId = PhotonNetwork.LocalPlayer.ActorNumber;
+
     private void Awake()
     {
         instance = this;
@@ -22,7 +26,7 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
     private void Start()
     {
         zetButton.interactable = true;
-        
+
     }
 
     public void OnZetButtonPressed()
@@ -31,7 +35,7 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
         {
             StartCoroutine(ActivateZetWithCooldown());
 
-           
+
         }
     }
 
@@ -47,7 +51,8 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
         zetButton.interactable = true;
         Debug.Log("ZET is now available again after cooldown.");
 
-        GetComponent<PhotonView>().RPC("ToggleZetText", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, false);
+        int photonId = PhotonNetwork.LocalPlayer.ActorNumber; // หา photonId ของผู้เล่นที่เกี่ยวข้อง
+        GetComponent<PhotonView>().RPC("ToggleZetText", RpcTarget.All, photonId, false);
     }
 
     public void RegisterZetText(int photonId, GameObject zetText)
@@ -57,12 +62,35 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
             zetTexts.Add(photonId, zetText);
         }
     }
+
     [PunRPC]
     public void ToggleZetText(int photonId, bool show)
     {
-        if (zetTexts.ContainsKey(photonId))
+        // ค้นหา PhotonView ของผู้เล่นที่มี photonId ที่ระบุ
+        PhotonView targetPhotonView = PhotonView.Find(photonId);
+        if (targetPhotonView != null)
         {
-            zetTexts[photonId].SetActive(show);
+            // หากพบ PhotonView ให้เรียกใช้เมทอด GetZetText เพื่อหา GameObject ของ ZETText
+            GameObject zetTextObject = GetZetText(targetPhotonView.ViewID);
+            if (zetTextObject != null)
+            {
+                // เปิดหรือปิด ZETText ตามค่า show
+                zetTextObject.SetActive(show);
+            }
+        }
+    }
+
+
+    public GameObject GetZetText(int photonViewID)
+    {
+        if (zetTexts.ContainsKey(photonViewID))
+        {
+            return zetTexts[photonViewID];
+        }
+        else
+        {
+            Debug.LogError("ZetText not found for PhotonViewID: " + photonViewID);
+            return null;
         }
     }
 }

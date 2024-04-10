@@ -20,7 +20,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (ZETManager.isZETActive) // ให้เริ่มลากเฉพาะเมื่อ ZET ถูก activate
+        if (ZETManager2.isZETActive) // ให้เริ่มลากเฉพาะเมื่อ ZET ถูก activate
         {
             //Debug.Log("Dragging enabled.");
             parentToReturnTo = this.transform.parent;
@@ -44,7 +44,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (ZETManager.isZETActive)
+        if (ZETManager2.isZETActive)
         {
             this.transform.position = eventData.position;
         }

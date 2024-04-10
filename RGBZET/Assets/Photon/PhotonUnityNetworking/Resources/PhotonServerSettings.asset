@@ -47,6 +47,8 @@ MonoBehaviour:
   - RPC_ZetButtonPressed_PlayerScript
   - RPC_ShowZetText
   - ToggleZetText
+  - SetPlayerName
+  - SetPlayerNameOnCardSample
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -120,8 +120,7 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
         zetManager2.OnZetButtonPressed();
         FindObjectOfType<PlayerScript>().OnZetButtonPressed(); // Pass the playerPosition parameter
 
-        // เรียกใช้งานเมธอด ToggleZetText และส่ง photonId ด้วย
-        int photonId = PhotonNetwork.LocalPlayer.ActorNumber; // หา photonId ของผู้เล่นที่เกี่ยวข้อง
-        myPhotonView.RPC("ToggleZetText", RpcTarget.All, true, photonId);
+        
+        
     }
 }

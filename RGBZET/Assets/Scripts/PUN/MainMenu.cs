@@ -27,6 +27,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
         {
             Debug.Log("Already connected to PUN.");
         }
+
     }
 
     // เชื่อมต่อสำเร็จ
@@ -42,8 +43,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         string playerName = playerNameInput.text;
 
-        // ตรวจสอบว่ามีชื่อผู้เล่นที่กรอกหรือไม่
-        if (!string.IsNullOrEmpty(playerName))
+         if (!string.IsNullOrEmpty(playerName))
         {
             // สร้างห้องเกมใหม่และเข้าร่วม
             PhotonNetwork.NickName = playerName;
@@ -53,6 +53,8 @@ public class MainMenu : MonoBehaviourPunCallbacks
         {
             Debug.Log("Please enter your name.");
         }
+
+        
     }
 
     // เข้าร่วมห้องเกมสำเร็จ
@@ -60,12 +62,27 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         if (!string.IsNullOrEmpty(playerNameInput.text))
         {
+            // ส่งชื่อผู้เล่นไปยังหน้า Card Sample โดยใช้ RPC
+            PlayerPrefs.SetString("PlayerName", playerNameInput.text);
+
             // โหลดหน้าเล่นเกม
             PhotonNetwork.LoadLevel("Card sample");
         }
         else
         {
             Debug.Log("Please enter your name before starting the game.");
+        }
+    }
+
+    // RPC เพื่อเซ็ตชื่อผู้เล่นในหน้า Card Sample
+    [PunRPC]
+    private void SetPlayerNameOnCardSample(string playerName)
+    {
+        PlayerScript playerScript = FindObjectOfType<PlayerScript>();
+        if (playerScript != null)
+        {
+            playerScript.SetPlayerName(playerName);
+            Debug.Log("Player name set to: " + playerName);
         }
     }
 }
