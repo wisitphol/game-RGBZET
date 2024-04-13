@@ -43,18 +43,25 @@ public class MainMenu : MonoBehaviourPunCallbacks
     {
         string playerName = playerNameInput.text;
 
-         if (!string.IsNullOrEmpty(playerName))
+        if (!string.IsNullOrEmpty(playerName))
         {
-            // สร้างห้องเกมใหม่และเข้าร่วม
-            PhotonNetwork.NickName = playerName;
-            PhotonNetwork.JoinOrCreateRoom("Room", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
+            // ตรวจสอบว่าชื่อผู้เล่นที่กรอกเป็นชื่อที่ไม่ซ้ำกันหรือไม่
+            if (!PlayerPrefs.HasKey("PlayerName") || PlayerPrefs.GetString("PlayerName") != playerName)
+            {
+                // ชื่อผู้เล่นไม่ซ้ำกับชื่อผู้เล่นอื่น ๆ ที่มีอยู่แล้ว
+                PlayerPrefs.SetString("PlayerName", playerName);
+                PhotonNetwork.NickName = playerName;
+               // PhotonNetwork.JoinOrCreateRoom("Room", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
+            }
+            else
+            {
+                Debug.Log("Player name already exists. Please choose another name.");
+            }
         }
         else
         {
             Debug.Log("Please enter your name.");
         }
-
-        
     }
 
     // เข้าร่วมห้องเกมสำเร็จ

@@ -12,10 +12,14 @@ public class PlayerScript : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        // ตั้งค่าชื่อผู้เล่นเมื่อการเชื่อมต่อสำเร็จ
-        string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName"); // ดึงชื่อผู้เล่นจาก PlayerPrefs โดยใช้ค่าเริ่มต้นเป็น "DefaultName" หากไม่พบชื่อผู้เล่น
+        // ตรวจสอบว่ามีชื่อผู้เล่นที่ถูกเก็บไว้หรือไม่
+        if (PlayerPrefs.HasKey("PlayerName"))
+        {
+            string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName");
+            SetPlayerName(playerName);
+        }
 
-        SetPlayerName(playerName); // เรียกเมธอด SetPlayerName() เพื่อแสดงชื่อผู้เล่น
+
 
         if (photonView.IsMine)
         {
@@ -29,13 +33,14 @@ public class PlayerScript : MonoBehaviourPunCallbacks
     public void SetPlayerName(string playerName)
     {
         nameText.text = playerName;
-        playerNameHasBeenSet = true; 
+        playerNameHasBeenSet = true;
         Debug.Log("SetPlayerName has been called. Player name: " + playerName);
     }
 
     // เมื่อกดปุ่ม ZET
     public void OnZetButtonPressed()
     {
+        
         // เปิด/ปิดการแสดงข้อความ ZET ตามสถานะของ isZETActive ที่เก็บไว้ใน ZETManager2
         zetText.SetActive(ZETManager2.isZETActive);
 
@@ -45,9 +50,9 @@ public class PlayerScript : MonoBehaviourPunCallbacks
 
     // RPC เพื่อเปิด/ปิดการแสดงข้อความ ZET
     [PunRPC]
-    private void ToggleZetText(int viewID, bool show)
+    private void ToggleZetText(int photonId, bool show)
     {
-        PhotonView targetPhotonView = PhotonView.Find(viewID);
+        PhotonView targetPhotonView = PhotonView.Find(photonId);
         if (targetPhotonView != null)
         {
             GameObject zetTextObject = ZETManager2.instance.GetZetText(targetPhotonView.ViewID);
@@ -55,6 +60,14 @@ public class PlayerScript : MonoBehaviourPunCallbacks
             {
                 zetTextObject.SetActive(show);
             }
+            else
+            {
+                Debug.LogWarning("ZetText not found for PhotonViewID: " + photonId);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("PhotonView not found for photonId: " + photonId);
         }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public TMP_Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
     
@@ -29,7 +29,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void Update()
     {
         // เมื่อปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETManager.isZETActive)
+        if (!ZETManager3.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;
@@ -77,7 +77,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void OnDrop(PointerEventData eventData)
     {
         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
-        if (!ZETManager.isZETActive)
+        if (!ZETManager3.isZETActive)
         {
             
             //Debug.Log("Cannot drop. ZET button has not been pressed.");
@@ -102,7 +102,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         if (eventData.pointerDrag != null)
         {
             // เรียกใช้สคริปต์ Drag ของ object ที่ลากมา
-            Drag draggable = eventData.pointerDrag.GetComponent<Drag>();
+            Drag3 draggable = eventData.pointerDrag.GetComponent<Drag3>();
             if (draggable != null)
             {
                 // กำหนด parent ใหม่ให้กับ object ที่ลากมา เพื่อให้วางลงใน panel นี้
@@ -300,7 +300,7 @@ public class Drop : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     public void CheckAndReturnCardsToBoardZone()
     {
         // ตรวจสอบว่าปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETManager.isZETActive)
+        if (!ZETManager3.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;

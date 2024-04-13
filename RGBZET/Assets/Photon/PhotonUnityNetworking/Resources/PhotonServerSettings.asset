@@ -49,6 +49,11 @@ MonoBehaviour:
   - ToggleZetText
   - SetPlayerName
   - SetPlayerNameOnCardSample
+  - ToggleZetText_1
+  - ToggleZetText_2
+  - ToggleZet
+  - RPC_ZetButtonPressed_MutiManager3
+  - RPC_OnBeginDrag
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -34,8 +34,6 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
         if (!isZETActive)
         {
             StartCoroutine(ActivateZetWithCooldown());
-
-
         }
     }
 
@@ -60,8 +58,14 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
         if (!zetTexts.ContainsKey(photonId))
         {
             zetTexts.Add(photonId, zetText);
+            Debug.Log("ZETText registered for PhotonViewID: " + photonId);
+        }
+        else
+        {
+            Debug.LogWarning("ZETText already registered for PhotonViewID: " + photonId);
         }
     }
+
 
     [PunRPC]
     public void ToggleZetText(int photonId, bool show)
@@ -76,7 +80,16 @@ public class ZETManager2 : MonoBehaviourPunCallbacks
             {
                 // เปิดหรือปิด ZETText ตามค่า show
                 zetTextObject.SetActive(show);
+                Debug.Log("ZETText toggled for PhotonViewID: " + photonId + ". Show: " + show);
             }
+            else
+            {
+                Debug.LogWarning("ZetText not found for PhotonViewID: " + photonId);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("PhotonView not found for photonId: " + photonId);
         }
     }
 

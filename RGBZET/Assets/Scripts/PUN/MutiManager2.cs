@@ -14,6 +14,7 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
     public GameObject player4;
     private ZETManager zetManager;
     private ZETManager2 zetManager2;
+    private PlayerScript playerScript;
     public PhotonView myPhotonView;
 
     void Start()
@@ -120,7 +121,8 @@ public class MutiManager2 : MonoBehaviourPunCallbacks
         zetManager2.OnZetButtonPressed();
         FindObjectOfType<PlayerScript>().OnZetButtonPressed(); // Pass the playerPosition parameter
 
-        
+        //int photonId = PhotonNetwork.LocalPlayer.ActorNumber;
+        //myPhotonView.RPC("ToggleZetText", RpcTarget.All, photonId , true);
         
     }
 }
