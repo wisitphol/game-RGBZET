@@ -1,63 +1,80 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Deck : MonoBehaviour
+public class Deck3 : MonoBehaviourPunCallbacks
 {
-    public List<Card> container = new List<Card>();
     public List<Card> deck = new List<Card>();
-    public int x;
     public static int deckSize;
     public static List<Card> staticDeck = new List<Card>();
-
     public GameObject CardInDeck;
-
     public GameObject CardPrefab;
-    public GameObject[] Clones;
     public GameObject Board;
-    private BoardCheck boardCheckScript;
+    private BoardCheck3 boardCheckScript;
 
-   
-   
-    // Start is called before the first frame update
     void Start()
     {
-        // Initialize deckSize and cardList if not already done
+        if (PhotonNetwork.IsConnected)
+        {
+            // Check if already in a room
+            if (PhotonNetwork.InRoom)
+            {
+                InitializeDeck();
+            }
+            else
+            {
+                // Wait until the client joins or creates a room
+                PhotonNetwork.AddCallbackTarget(this);
+            }
+        }
+        else
+        {
+            InitializeDeckLocally();
+        }
+    }
+
+    [PunRPC]
+    void InitializeDeck()
+    {
         deck = new List<Card>(CardData.cardList);
         deckSize = deck.Count;
         Shuffle(deck);
 
-        // Now deck is shuffled and ready to use
         StartCoroutine(StartGame());
-
-        boardCheckScript = FindObjectOfType<BoardCheck>();
-
+        boardCheckScript = FindObjectOfType<BoardCheck3>();
     }
 
-    // Update is called once per frame
+    void InitializeDeckLocally()
+    {
+        deck = new List<Card>(CardData.cardList);
+        deckSize = deck.Count;
+        Shuffle(deck);
+
+        StartCoroutine(StartGame());
+        boardCheckScript = FindObjectOfType<BoardCheck3>();
+    }
+
     void Update()
     {
-        staticDeck = deck;
-
-        if(deckSize <= 0)
+        if (deckSize <= 0)
         {
+            // Disable the card object if no more cards in the deck
             CardInDeck.SetActive(false);
-           // boardCheckScript.CheckBoardEnd();
         }
-       
     }
 
     IEnumerator StartGame()
     {
-        for(int i = 0; i < 12; i++)
+        for (int i = 0; i < 12; i++)
         {
+            Debug.Log("CardPrefab: " + CardPrefab);
             yield return new WaitForSeconds(0.5f);
-            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation) as GameObject;
+            GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
         }
     }
-
 
     private void Shuffle(List<Card> list)
     {
@@ -70,46 +87,58 @@ public class Deck : MonoBehaviour
         }
     }
 
+    public int RemainingCardsCount()
+    {
+        return deckSize;
+    }
+
+    public override void OnJoinedRoom()
+    {
+        InitializeDeck();
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
+    public override void OnCreatedRoom()
+    {
+        InitializeDeck();
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
     public IEnumerator Draw(int x)
     {
-        for(int i = 0; i < x; i++)
+        for (int i = 0; i < x; i++)
         {
             yield return new WaitForSeconds(1);
 
             if (deckSize > 0)
             {
                 // สร้างการ์ดและเพิ่มลงบอร์ด
-                GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
+                GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
                 newCard.transform.SetParent(Board.transform, false);
                 newCard.SetActive(true);
 
 
-                Debug.Log("Number of cards in deck: " + RemainingCardsCount()); 
+                Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
             else
             {
                 //Debug.Log("No more cards in the deck. Cannot draw.");
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
-            } 
-            
+            }
+
         }
 
-        if(deckSize <= 0)
+        if (deckSize <= 0)
         {
             boardCheckScript.CheckBoardEnd();
         }
-        
+
     }
 
     public void DrawCards(int numberOfCards)
     {
         StartCoroutine(Draw(numberOfCards));
     }
+
     
-    public int RemainingCardsCount()
-    {
-        return deckSize;
-    }
-
-
 }

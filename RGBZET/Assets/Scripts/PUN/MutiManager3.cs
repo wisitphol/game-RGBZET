@@ -18,6 +18,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
     public GameObject Cardboard;
     public GameObject Board;
+    private Dictionary<int, Vector3> playerPositions = new Dictionary<int, Vector3>();
 
     void Start()
     {
@@ -34,6 +35,19 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         zetManager3 = FindObjectOfType<ZETManager3>();
         playerController = FindObjectOfType<PlayerController>();
         myPhotonView = GetComponent<PhotonView>();
+    }
+
+    private void AddPlayerPosition(int actorNumber, Vector3 position)
+    {
+        // เพิ่มหรืออัปเดตตำแหน่งของผู้เล่น
+        if (playerPositions.ContainsKey(actorNumber))
+        {
+            playerPositions[actorNumber] = position;
+        }
+        else
+        {
+            playerPositions.Add(actorNumber, position);
+        }
     }
 
     public override void OnConnectedToMaster()
@@ -54,18 +68,22 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     {
         Debug.Log("Joined Room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjects();
+
+
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjects();
+
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("Player left room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjects();
+
     }
 
     void UpdatePlayerObjects()
@@ -105,6 +123,52 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
                 player4.SetActive(false);
                 break;
         }
+
+        // เก็บตำแหน่งของผู้เล่นทุกคน
+         foreach (Player player in PhotonNetwork.PlayerList)
+    {
+        if (playerPositions.ContainsKey(player.ActorNumber))
+        {
+            // หาก Dictionary มีหมายเลขผู้เล่นนี้อยู่แล้ว ให้เรียกใช้เมธอด UpdatePlayerPosition
+            // เพื่ออัปเดตตำแหน่งของผู้เล่น
+            UpdatePlayerPosition(player.ActorNumber, playerPositions[player.ActorNumber]);
+        }
+        else
+        {
+            // หาก Dictionary ยังไม่มีหมายเลขผู้เล่นนี้ ให้เรียกใช้เมธอด SetPlayerPosition
+            // เพื่อเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
+            //SetPlayerPosition(player.ActorNumber, player.Position); // ใช้ Position ของ Player แทน
+        }
+    }
+    }
+
+    // เมธอดสำหรับการอัปเดตตำแหน่งของผู้เล่น
+    void UpdatePlayerPosition(int actorNumber, Vector3 position)
+    {
+        switch (actorNumber)
+        {
+            case 1:
+                player1.transform.position = position;
+                break;
+            case 2:
+                player2.transform.position = position;
+                break;
+            case 3:
+                player3.transform.position = position;
+                break;
+            case 4:
+                player4.transform.position = position;
+                break;
+        }
+    }
+
+    // เมธอดสำหรับเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
+    void SetPlayerPosition(int actorNumber, Vector3 position)
+    {
+        if (!playerPositions.ContainsKey(actorNumber))
+        {
+            playerPositions.Add(actorNumber, position);
+        }
     }
 
     // เพิ่มเมธอดสำหรับการส่ง RPC เมื่อกดปุ่ม zet
@@ -131,6 +195,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
                 // แสดง zettext สำหรับผู้เล่นที่มีหมายเลข Actor เท่ากับ 1
                 player1.GetComponent<PlayerController>().OnZetButtonPressed();
+
             }
             // หากผู้เล่นที่กดปุ่ม ZET เป็นผู้เล่นที่มีหมายเลข Actor เท่ากับ 2
             else if (playerActorNumber == 2 && player2 != null && player2.GetComponent<PlayerController>() != null)

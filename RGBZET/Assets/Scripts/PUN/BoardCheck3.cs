@@ -8,7 +8,7 @@ public class BoardCheck3 : MonoBehaviour
     [HideInInspector]
     public Drop3 dropScript;
     [HideInInspector]
-    public Deck deck;
+    public Deck3 deck;
     [HideInInspector]
    
     private GameObject Board;
@@ -16,7 +16,7 @@ public class BoardCheck3 : MonoBehaviour
     public void Start()
     {
         dropScript = FindObjectOfType<Drop3>();
-        deck = FindObjectOfType<Deck>();
+        deck = FindObjectOfType<Deck3>();
         Board = GameObject.Find("Boardzone");
     }
 

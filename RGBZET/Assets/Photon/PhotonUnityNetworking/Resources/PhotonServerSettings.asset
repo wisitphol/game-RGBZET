@@ -54,6 +54,7 @@ MonoBehaviour:
   - ToggleZet
   - RPC_ZetButtonPressed_MutiManager3
   - RPC_OnBeginDrag
+  - InitializeDeck
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
