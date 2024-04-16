@@ -183,9 +183,6 @@ MonoBehaviour:
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   displayId: 10
-  originalPosition: {x: 0, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: 0, w: 0}
-  originalParent: {fileID: 0}
   Id: 0
   LetterType: 
   ColorType: 
@@ -405,6 +402,10 @@ PrefabInstance:
     - target: {fileID: 3695626017434308013, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 7.6767
+      objectReference: {fileID: 0}
+    - target: {fileID: 3695626017689113204, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113204, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
       propertyPath: m_Material

@@ -201,9 +201,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayCard: []
   displayId: 0
-  originalPosition: {x: 0, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: 0, w: 0}
-  originalParent: {fileID: 0}
   Id: 0
   LetterType: 
   ColorType: 
@@ -211,7 +208,7 @@ MonoBehaviour:
   FontType: 
   Point: 0
   Spriteimg: {fileID: 0}
-  ArtImage: {fileID: 0}
+  ArtImage: {fileID: 3695626016985913965}
   cardBack: 0
   Board: {fileID: 0}
   numberOfCardInDeck: 0
@@ -227,7 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 020b73ea8e1d3de41ac16e9f3e5accd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardBack: {fileID: 0}
+  cardBack: {fileID: 6499056158272429241}
 --- !u!114 &493304516406147695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,7 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Board: {fileID: 0}
-  BoardCard: {fileID: 0}
+  BoardCard: {fileID: 3695626017689113206}
 --- !u!114 &3884370149845831622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -500,5 +497,10 @@ PrefabInstance:
 --- !u!224 &6499056158272429240 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3695626017689113207, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
+  m_PrefabInstance: {fileID: 7600045837387402959}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6499056158272429241 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
   m_PrefabInstance: {fileID: 7600045837387402959}
   m_PrefabAsset: {fileID: 0}

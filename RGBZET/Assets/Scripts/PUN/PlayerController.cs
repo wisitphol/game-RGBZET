@@ -5,7 +5,7 @@ using Photon.Pun;
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     public GameObject zettext; // อ้างอิงไปยัง object zet ใน player
-    private bool isZetActive = false; // สถานะการแสดง zet
+    //private bool isZetActive = false; // สถานะการแสดง zet
 
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     private float cooldownTimer = 0f; // เวลาที่เหลือจากการ cooldown

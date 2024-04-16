@@ -52,7 +52,7 @@ public class Deck : MonoBehaviour
         for(int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation) as GameObject;
+            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation); //as GameObject;
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
         }

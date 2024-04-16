@@ -41,28 +41,13 @@ public class DeckFire : MonoBehaviour
 
 
             // ตัวอย่างการดึงข้อมูล Deck จาก Firebase Realtime Database
-            reference.Child("deck").GetValueAsync().ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Failed to read deck data from Firebase: " + task.Exception);
-                    return;
-                }
 
-                if (task.IsCompleted)
-                {
-                    DataSnapshot snapshot = task.Result;
-                    // ดึงข้อมูล Deck จาก snapshot และนำมาใช้ตามต้องการ
-                    // เช่น สร้าง List<Card> deck จากข้อมูลใน snapshot
-                    // ทำการ Shuffle deck หากต้องการ
-                    // อื่น ๆ ตามความต้องการของโปรเจกต์
-                }
-            });
 
             // Initialize deckSize and cardList if not already done
             deck = new List<Card>(CardData.cardList);
             deckSize = deck.Count;
             Shuffle(deck);
+            SaveDeckToDatabase(deck);
 
             // Now deck is shuffled and ready to use
             StartCoroutine(StartGame());
@@ -144,42 +129,34 @@ public class DeckFire : MonoBehaviour
         return deckSize;
     }
 
-    void WriteDeckToFirebase()
-    {
-        // แปลง List<Card> deck เป็น JSON โดยใช้ JsonUtility.ToJson
-        string deckJson = JsonUtility.ToJson(deck);
 
-        // บันทึกข้อมูล Deck ลงใน Firebase Realtime Database ที่โหนด "deck"
-        reference.Child("deck").SetRawJsonValueAsync(deckJson)
-            .ContinueWith(task =>
+
+    public void SaveDeckToDatabase(List<Card> deck)
+    {
+        int cardIndex = 0;
+        foreach (Card card in deck)
+        {
+            string json = JsonUtility.ToJson(card);
+            var dbTask = reference.Child("decks").Child("deck1").Child(cardIndex.ToString()).SetRawJsonValueAsync(json);
+
+            // Handle the completion of the database task
+            dbTask.ContinueWith(task =>
             {
-                if (task.IsFaulted)
+                if (task.IsFaulted || task.IsCanceled)
                 {
-                    Debug.LogError("Failed to write deck data to Firebase: " + task.Exception);
-                    return;
+                    Debug.LogError("SaveDeckToDatabase failed: " + task.Exception.ToString()); // Log error if the task fails
                 }
-
-                Debug.Log("Deck data was written to Firebase successfully!");
+                else
+                {
+                    Debug.Log("Card saved successfully: " + card.Id); // Log success
+                }
             });
+
+            cardIndex++;
+        }
     }
 
 
-    void CreateNewCard()
-    {
-        // สร้างการ์ดใหม่
-        // ...
 
-        // อัปเดตข้อมูล Deck ใน Firebase
-        WriteDeckToFirebase();
-    }
 
-    // เมื่อมีการลบการ์ด
-    void DeleteCard()
-    {
-        // ลบการ์ด
-        // ...
-
-        // อัปเดตข้อมูล Deck ใน Firebase
-        WriteDeckToFirebase();
-    }
 }

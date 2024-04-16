@@ -8,7 +8,7 @@ public class PlayerScript : MonoBehaviourPunCallbacks
 {
     public TMP_Text nameText;
     public GameObject zetText;
-    private bool playerNameHasBeenSet = false;
+    //private bool playerNameHasBeenSet = false;
 
     private void Start()
     {
@@ -33,7 +33,7 @@ public class PlayerScript : MonoBehaviourPunCallbacks
     public void SetPlayerName(string playerName)
     {
         nameText.text = playerName;
-        playerNameHasBeenSet = true;
+        //playerNameHasBeenSet = true;
         Debug.Log("SetPlayerName has been called. Player name: " + playerName);
     }
 

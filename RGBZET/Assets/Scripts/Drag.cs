@@ -22,7 +22,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     {
         if (ZETManager.isZETActive) // ให้เริ่มลากเฉพาะเมื่อ ZET ถูก activate
         {
-            //Debug.Log("Dragging enabled.");
+            Debug.Log("Dragging enabled.");
             parentToReturnTo = this.transform.parent;
             startPosition = this.transform.localPosition; // จัดเก็บตำแหน่งเริ่มต้น
             startRotation = this.transform.localRotation; // จัดเก็บการหมุนเริ่มต้น
@@ -58,7 +58,7 @@ public class Drag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
         this.transform.localRotation = startRotation;
         
         GetComponent<CanvasGroup>().blocksRaycasts = true;
-        //Debug.Log("Returning to original position.");
+        Debug.Log("Returning to original position.");
 
        
     }
