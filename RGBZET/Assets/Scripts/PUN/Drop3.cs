@@ -14,14 +14,14 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
     [HideInInspector]
     public Transform parentToReturnTo;
     [HideInInspector]
-    public Deck deck;
+    public DeckFire deck;
     [HideInInspector]
     public int currentScore;
 
 
     public void Start() 
     {
-        deck = FindObjectOfType<Deck>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
+        deck = FindObjectOfType<DeckFire>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
         
     }
@@ -46,7 +46,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                         cardTransform.SetParent(GameObject.Find("Boardzone").transform);
                         cardTransform.localPosition = Vector3.zero;
 
-                        DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                        DisplayCard3 displayCardComponent = cardTransform.GetComponent<DisplayCard3>();
                         if (displayCardComponent != null)
                         {
                             displayCardComponent.SetBlocksRaycasts(true);
@@ -109,7 +109,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                 draggable.parentToReturnTo = this.transform;
             }
 
-            DisplayCard displayCardComponent = eventData.pointerDrag.GetComponent<DisplayCard>();
+            DisplayCard3 displayCardComponent = eventData.pointerDrag.GetComponent<DisplayCard3>();
             if (displayCardComponent != null)
             {
                 
@@ -234,7 +234,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                 cardTransform.SetParent(GameObject.Find("Boardzone").transform);
                 cardTransform.localPosition = Vector3.zero;
 
-                DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                DisplayCard3 displayCardComponent = cardTransform.GetComponent<DisplayCard3>();
                 if (displayCardComponent != null)
                 {
                     displayCardComponent.SetBlocksRaycasts(true);
@@ -254,7 +254,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         for (int i = 0; i < numberOfCards; i++)
         {
             Transform cardTransform = transform.GetChild(i);
-            DisplayCard displayCard = cardTransform.GetComponent<DisplayCard>();
+            DisplayCard3 displayCard = cardTransform.GetComponent<DisplayCard3>();
             if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
             {
                 // ลบการ์ดที่ถูก drop ออกจากเกม
@@ -317,7 +317,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                         cardTransform.SetParent(GameObject.Find("Boardzone").transform);
                         cardTransform.localPosition = Vector3.zero;
 
-                        DisplayCard displayCardComponent = cardTransform.GetComponent<DisplayCard>();
+                        DisplayCard3 displayCardComponent = cardTransform.GetComponent<DisplayCard3>();
                         if (displayCardComponent != null)
                         {
                             displayCardComponent.SetBlocksRaycasts(true);

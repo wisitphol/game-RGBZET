@@ -13,11 +13,13 @@ public class DeckPanelCard : MonoBehaviour
         {
             // มีการ์ดอยู่ในพาเนล ให้เปิดการแสดงของ cardBack
             cardBack.SetActive(true);
+            //Debug.Log("Card(s) detected in the panel. Activating cardBack.");
         }
         else
         {
             // ไม่มีการ์ดอยู่ในพาเนล ให้ปิดการแสดงของ cardBack
             cardBack.SetActive(false);
+           // Debug.Log("No card detected in the panel. Deactivating cardBack.");
         }
     }
 }

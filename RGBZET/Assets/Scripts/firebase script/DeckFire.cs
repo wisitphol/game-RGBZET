@@ -18,13 +18,24 @@ public class DeckFire : MonoBehaviour
     public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
-    private BoardCheck boardCheckScript;
+    private BoardCheck3 boardCheckScript;
 
     DatabaseReference reference; // ประกาศตัวแปร DatabaseReference เพื่อเชื่อมต่อ Firebase Realtime Database
 
     // Start is called before the first frame update
     void Start()
     {
+        deck = new List<Card>(CardData.cardList);
+        deckSize = deck.Count;
+        Shuffle(deck);
+
+        // Now deck is shuffled and ready to use
+        StartCoroutine(StartGame());
+
+
+
+        boardCheckScript = FindObjectOfType<BoardCheck3>();
+
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             if (task.Exception != null)
@@ -34,27 +45,24 @@ public class DeckFire : MonoBehaviour
             }
 
             // หากเชื่อมต่อสำเร็จ จะได้รับอินสแตนซ์ FirebaseApp และเปิดใช้งาน Realtime Database
-            FirebaseApp app = FirebaseApp.DefaultInstance;
-            reference = FirebaseDatabase.DefaultInstance.RootReference;
-
-            Debug.Log("Firebase Realtime Database connected successfully!");
 
 
             // ตัวอย่างการดึงข้อมูล Deck จาก Firebase Realtime Database
 
 
             // Initialize deckSize and cardList if not already done
-            deck = new List<Card>(CardData.cardList);
-            deckSize = deck.Count;
-            Shuffle(deck);
-            SaveDeckToDatabase(deck);
 
-            // Now deck is shuffled and ready to use
-            StartCoroutine(StartGame());
-
-            boardCheckScript = FindObjectOfType<BoardCheck>();
-
+            FirebaseApp app = FirebaseApp.DefaultInstance;
         });
+
+
+
+        reference = FirebaseDatabase.DefaultInstance.RootReference;
+
+        Debug.Log("Firebase Realtime Database connected successfully!");
+
+        SaveDeckToDatabase(deck);
+
     }
 
     // Update is called once per frame
@@ -65,7 +73,7 @@ public class DeckFire : MonoBehaviour
         if (deckSize <= 0)
         {
             CardInDeck.SetActive(false);
-            // boardCheckScript.CheckBoardEnd();
+
         }
     }
 
@@ -74,7 +82,7 @@ public class DeckFire : MonoBehaviour
         for (int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation) as GameObject;
+            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);// as GameObject;
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
         }
@@ -133,11 +141,17 @@ public class DeckFire : MonoBehaviour
 
     public void SaveDeckToDatabase(List<Card> deck)
     {
-        int cardIndex = 0;
-        foreach (Card card in deck)
+        if (reference == null)
         {
-            string json = JsonUtility.ToJson(card);
-            var dbTask = reference.Child("decks").Child("deck1").Child(cardIndex.ToString()).SetRawJsonValueAsync(json);
+            Debug.LogError("Firebase Realtime Database reference is not set!");
+            return;
+        }
+        
+
+        for (int i = 0; i < deck.Count; i++)
+        {
+            string json = JsonUtility.ToJson(deck[i]);
+            var dbTask = reference.Child("decks/deck1").Child(i.ToString()).SetRawJsonValueAsync(json);
 
             // Handle the completion of the database task
             dbTask.ContinueWith(task =>
@@ -148,13 +162,29 @@ public class DeckFire : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Card saved successfully: " + card.Id); // Log success
+                    Debug.Log("Card saved successfully: " + deck[i].Id); // Log success
                 }
             });
-
-            cardIndex++;
         }
     }
+
+    public void DeleteDeckFromDatabase()
+    {
+        DatabaseReference deckRef = reference.Child("decks/deck1");
+
+        deckRef.RemoveValueAsync().ContinueWith(task =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Failed to delete deck data: " + task.Exception);
+            }
+            else
+            {
+                Debug.Log("Deck data deleted successfully");
+            }
+        });
+    }
+
 
 
 

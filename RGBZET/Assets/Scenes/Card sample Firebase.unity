@@ -789,6 +789,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 3695626017689113206, guid: 07f000db9f5432f40b63145364468296, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_Pivot.x
       value: 0.49999994
@@ -999,6 +1003,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardBack: {fileID: 1186305604}
+--- !u!225 &415199260
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 415199235}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &451692730 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
@@ -1316,7 +1332,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &684407960 stripped
 MonoBehaviour:
@@ -1717,7 +1733,7 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 200, y: 150}
+  m_CellSize: {x: 180, y: 130}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -2865,8 +2881,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eb042c1587196748a7dca7ea52d4541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropScript: {fileID: 0}
-  deck: {fileID: 0}
 --- !u!1 &1753487909
 GameObject:
   m_ObjectHideFlags: 0
@@ -3371,7 +3385,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!21 &2066705755
 Material:

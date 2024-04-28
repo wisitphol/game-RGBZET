@@ -929,7 +929,7 @@ MonoBehaviour:
     Spriteimg: {fileID: 0}
     originalParent: {fileID: 0}
   x: 0
-  CardInDeck: {fileID: 879476069}
+  CardInDeck: {fileID: 1308664868}
   CardPrefab: {fileID: 148383362}
   Clones: []
   Board: {fileID: 1729317774}
@@ -1030,11 +1030,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 200
+      value: 180
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 150
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1066,11 +1066,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 300
+      value: 89.99999
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -75
+      value: -65
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1539,11 +1539,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &879476069 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3695626017689113206, guid: 07f000db9f5432f40b63145364468296, type: 3}
-  m_PrefabInstance: {fileID: 296803005}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &911434894
 GameObject:
   m_ObjectHideFlags: 0
@@ -2163,6 +2158,10 @@ PrefabInstance:
     - target: {fileID: 3695626017689113206, guid: 78268dec2c21e164bade8e481ffd515e, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3695626017689113206, guid: 78268dec2c21e164bade8e481ffd515e, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 3695626017689113207, guid: 78268dec2c21e164bade8e481ffd515e, type: 3}
       propertyPath: m_Pivot.x

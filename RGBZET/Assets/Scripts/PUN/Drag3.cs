@@ -11,12 +11,12 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;
     private Quaternion startRotation;
-    private DisplayCard displayCard;
+    private DisplayCard3 displayCard;
     private PhotonView photonView; // เพิ่มตัวแปร PhotonView สำหรับการสื่อสารผ่านเครือข่าย
 
     void Start()
     {
-        displayCard = GetComponent<DisplayCard>();
+        displayCard = GetComponent<DisplayCard3>();
 
         photonView = GetComponent<PhotonView>(); // กำหนดค่าให้กับ photonView
     }
@@ -39,7 +39,7 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
             startRotation = this.transform.localRotation;
 
             // เรียกใช้งาน RPC เพื่อส่งข้อมูลการย้ายการ์ดไปยังผู้เล่นอื่น ๆ ผ่านทางเครือข่าย Photon
-            photonView.RPC("RPC_OnBeginDrag", RpcTarget.All, startPosition, startRotation);
+            //photonView.RPC("RPC_OnBeginDrag", RpcTarget.All, startPosition, startRotation);
         }
         else
         {

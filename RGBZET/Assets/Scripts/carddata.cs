@@ -42,7 +42,7 @@ public class CardData : MonoBehaviour
       cardList.Add(new Card(25 ,"B" ,"Blue"  ,"One" ,"Game",1 ,Resources.Load<Sprite>("o26") ));
       cardList.Add(new Card(26 ,"B" ,"Blue"  ,"One" ,"Tic" ,1 ,Resources.Load<Sprite>("o27") ));
     
-    //Debug.Log("CardList Count after adding: " + cardList.Count);
+    Debug.Log("CardList Count after adding: " + cardList.Count);
 
     
   }

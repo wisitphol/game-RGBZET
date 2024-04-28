@@ -119,22 +119,6 @@ public class DisplayCard3 : MonoBehaviour
         }
     }
 
-    public void StoreOriginalPositionAndRotation()
-    {
-        originalPosition = transform.position;
-        originalRotation = transform.rotation;
-        originalParent = transform.parent;
-
-    }
-
-    // เมื่อต้องการคืนการ์ดกลับไปที่ตำแหน่งเดิม
-    public void ReturnToOriginalPosition()
-    {
-        originalParent = transform.parent;
-        transform.position = originalPosition;
-        transform.rotation = originalRotation;
-
-    }
 
     public void SetBlocksRaycasts(bool blocksRaycasts)
     {

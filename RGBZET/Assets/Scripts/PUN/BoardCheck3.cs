@@ -5,18 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class BoardCheck3 : MonoBehaviour
 {
-    [HideInInspector]
-    public Drop3 dropScript;
-    [HideInInspector]
-    public Deck3 deck;
-    [HideInInspector]
+    
+    private Drop3 dropScript;
+    
+    private DeckFire deck;
    
     private GameObject Board;
     
     public void Start()
     {
         dropScript = FindObjectOfType<Drop3>();
-        deck = FindObjectOfType<Deck3>();
+        deck = FindObjectOfType<DeckFire>();
         Board = GameObject.Find("Boardzone");
     }
 
@@ -27,7 +26,7 @@ public class BoardCheck3 : MonoBehaviour
         // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
-            DisplayCard displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard>();
+            DisplayCard3 displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard3>();
             if (displayCard != null && displayCard.displayCard.Count > 0)
             {
                 Card card = displayCard.displayCard[0];
@@ -64,7 +63,7 @@ public class BoardCheck3 : MonoBehaviour
         // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
-            DisplayCard displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard>();
+            DisplayCard3 displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard3>();
             if (displayCard != null && displayCard.displayCard.Count > 0)
             {
                 Card card = displayCard.displayCard[0];
@@ -85,6 +84,7 @@ public class BoardCheck3 : MonoBehaviour
             else
             {
                 SceneManager.LoadScene("Endscene");
+                deck.DeleteDeckFromDatabase();
             }
         }
         else
@@ -115,4 +115,6 @@ public class BoardCheck3 : MonoBehaviour
         }
         return false; // Return false if no set is found
     }
+
+
 }
