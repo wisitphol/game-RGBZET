@@ -25,6 +25,23 @@ public class DeckFire : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
+            if (task.Exception != null)
+            {
+                Debug.LogError("Failed to initialize Firebase: " + task.Exception);
+                return;
+            }
+
+            // หากเชื่อมต่อสำเร็จ จะได้รับอินสแตนซ์ FirebaseApp และเปิดใช้งาน Realtime Database
+            // ตัวอย่างการดึงข้อมูล Deck จาก Firebase Realtime Database
+            // Initialize deckSize and cardList if not already done
+            Debug.Log("Firebase Realtime Database connected successfully!");
+            
+            
+        });
+
         deck = new List<Card>(CardData.cardList);
         deckSize = deck.Count;
         Shuffle(deck);
@@ -36,30 +53,9 @@ public class DeckFire : MonoBehaviour
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
 
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
-        {
-            if (task.Exception != null)
-            {
-                Debug.LogError("Failed to initialize Firebase: " + task.Exception);
-                return;
-            }
-
-            // หากเชื่อมต่อสำเร็จ จะได้รับอินสแตนซ์ FirebaseApp และเปิดใช้งาน Realtime Database
-
-
-            // ตัวอย่างการดึงข้อมูล Deck จาก Firebase Realtime Database
-
-
-            // Initialize deckSize and cardList if not already done
-
-            FirebaseApp app = FirebaseApp.DefaultInstance;
-        });
-
-
+        FirebaseApp app = FirebaseApp.DefaultInstance;
 
         reference = FirebaseDatabase.DefaultInstance.RootReference;
-
-        Debug.Log("Firebase Realtime Database connected successfully!");
 
         SaveDeckToDatabase(deck);
 
@@ -146,27 +142,47 @@ public class DeckFire : MonoBehaviour
             Debug.LogError("Firebase Realtime Database reference is not set!");
             return;
         }
-        
 
-        for (int i = 0; i < deck.Count; i++)
+        reference.Child("decks").GetValueAsync().ContinueWith(task =>
         {
-            string json = JsonUtility.ToJson(deck[i]);
-            var dbTask = reference.Child("decks/deck1").Child(i.ToString()).SetRawJsonValueAsync(json);
-
-            // Handle the completion of the database task
-            dbTask.ContinueWith(task =>
+            if (task.IsFaulted || task.IsCanceled)
             {
-                if (task.IsFaulted || task.IsCanceled)
+                Debug.LogError("Failed to retrieve deck count: " + task.Exception);
+                return;
+            }
+
+            DataSnapshot snapshot = task.Result;
+            int deckCount = (int)snapshot.ChildrenCount; // Get the number of existing decks
+
+            Debug.Log("Current deck count: " + deckCount);
+
+            string deckName = "deck" + (deckCount + 1); // Generate a new deck name
+            
+            Debug.Log("New deck name: " + deckName);
+
+            for (int i = 0; i < deck.Count; i++)
+            {
+                string json = JsonUtility.ToJson(deck[i]);
+                var dbTask = reference.Child("decks").Child(deckName).Child(i.ToString()).SetRawJsonValueAsync(json);
+
+                // Handle the completion of the database task
+                dbTask.ContinueWith(innerTask =>
                 {
-                    Debug.LogError("SaveDeckToDatabase failed: " + task.Exception.ToString()); // Log error if the task fails
-                }
-                else
-                {
-                    Debug.Log("Card saved successfully: " + deck[i].Id); // Log success
-                }
-            });
-        }
+                    if (innerTask.IsFaulted || innerTask.IsCanceled)
+                    {
+                        Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception); // Log error if the task fails
+                    }
+                    else
+                    {
+                        Debug.Log("Card saved successfully: " + deck[i].Id); // Log success
+                    }
+                });
+            }
+        });
     }
+
+
+
 
     public void DeleteDeckFromDatabase()
     {
