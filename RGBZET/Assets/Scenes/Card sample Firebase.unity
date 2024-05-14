@@ -905,6 +905,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5135999837607053618, guid: 07f000db9f5432f40b63145364468296, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1960603674, guid: a381d0e8d3b08b041a72f55452cae3fb, type: 3}
     - target: {fileID: 5135999837607053619, guid: 07f000db9f5432f40b63145364468296, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
