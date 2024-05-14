@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Firebase;
 using Firebase.Database;
-
+using System.Threading.Tasks;
+using TMPro;
 
 public class DeckFire : MonoBehaviour
 {
@@ -20,13 +21,13 @@ public class DeckFire : MonoBehaviour
     public GameObject Board;
     private BoardCheck3 boardCheckScript;
 
-    DatabaseReference reference; // ประกาศตัวแปร DatabaseReference เพื่อเชื่อมต่อ Firebase Realtime Database
+    DatabaseReference reference; 
 
     // Start is called before the first frame update
     void Start()
     {
 
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        /*FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             if (task.Exception != null)
             {
@@ -57,8 +58,36 @@ public class DeckFire : MonoBehaviour
 
         reference = FirebaseDatabase.DefaultInstance.RootReference;
 
-        SaveDeckToDatabase(deck);
+        SaveDeckToDatabase(deck);*/
+         StartCoroutine(InitializeFirebase());
 
+    }
+    public IEnumerator InitializeFirebase()
+    {
+        var task = FirebaseApp.CheckAndFixDependenciesAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError("Failed to initialize Firebase: " + task.Exception);
+            yield break;
+        }
+
+        FirebaseApp app = FirebaseApp.DefaultInstance;
+        reference = FirebaseDatabase.DefaultInstance.RootReference;
+        Debug.Log("Firebase Realtime Database connected successfully!");
+
+        deck = new List<Card>(CardData.cardList);
+        deckSize = deck.Count;
+        Shuffle(deck);
+
+        StartCoroutine(StartGame());
+
+        boardCheckScript = FindObjectOfType<BoardCheck3>();
+
+        
+
+        SaveDeckToDatabase(deck);
     }
 
     // Update is called once per frame
@@ -69,7 +98,6 @@ public class DeckFire : MonoBehaviour
         if (deckSize <= 0)
         {
             CardInDeck.SetActive(false);
-
         }
     }
 
@@ -78,7 +106,7 @@ public class DeckFire : MonoBehaviour
         for (int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);// as GameObject;
+            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
         }
@@ -103,7 +131,6 @@ public class DeckFire : MonoBehaviour
 
             if (deckSize > 0)
             {
-                // สร้างการ์ดและเพิ่มลงบอร์ด
                 GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
                 newCard.transform.SetParent(Board.transform, false);
                 newCard.SetActive(true);
@@ -112,8 +139,7 @@ public class DeckFire : MonoBehaviour
             }
             else
             {
-                //Debug.Log("No more cards in the deck. Cannot draw.");
-                break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
+                break;
             }
         }
 
@@ -133,8 +159,6 @@ public class DeckFire : MonoBehaviour
         return deckSize;
     }
 
-
-
     public void SaveDeckToDatabase(List<Card> deck)
     {
         if (reference == null)
@@ -152,37 +176,34 @@ public class DeckFire : MonoBehaviour
             }
 
             DataSnapshot snapshot = task.Result;
-            int deckCount = (int)snapshot.ChildrenCount; // Get the number of existing decks
+            int deckCount = (int)snapshot.ChildrenCount;
 
             Debug.Log("Current deck count: " + deckCount);
 
-            string deckName = "deck" + (deckCount + 1); // Generate a new deck name
-            
+            string deckName = "deck" + (deckCount + 1);
+
             Debug.Log("New deck name: " + deckName);
 
             for (int i = 0; i < deck.Count; i++)
             {
                 string json = JsonUtility.ToJson(deck[i]);
+                
                 var dbTask = reference.Child("decks").Child(deckName).Child(i.ToString()).SetRawJsonValueAsync(json);
 
-                // Handle the completion of the database task
                 dbTask.ContinueWith(innerTask =>
                 {
                     if (innerTask.IsFaulted || innerTask.IsCanceled)
                     {
-                        Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception); // Log error if the task fails
+                        Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception);
                     }
                     else
                     {
-                        Debug.Log("Card saved successfully: " + deck[i].Id); // Log success
+                        //Debug.Log("Card saved successfully: " + deck[i].Id);
                     }
                 });
             }
         });
     }
-
-
-
 
     public void DeleteDeckFromDatabase()
     {
@@ -200,9 +221,4 @@ public class DeckFire : MonoBehaviour
             }
         });
     }
-
-
-
-
-
 }
