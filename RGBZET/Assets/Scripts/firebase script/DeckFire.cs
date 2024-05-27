@@ -21,7 +21,7 @@ public class DeckFire : MonoBehaviour
     public GameObject Board;
     private BoardCheck3 boardCheckScript;
 
-    DatabaseReference reference; 
+    DatabaseReference reference;
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +59,7 @@ public class DeckFire : MonoBehaviour
         reference = FirebaseDatabase.DefaultInstance.RootReference;
 
         SaveDeckToDatabase(deck);*/
-         StartCoroutine(InitializeFirebase());
+        StartCoroutine(InitializeFirebase());
 
     }
     public IEnumerator InitializeFirebase()
@@ -85,7 +85,7 @@ public class DeckFire : MonoBehaviour
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
 
-        
+
 
         SaveDeckToDatabase(deck);
     }
@@ -186,24 +186,30 @@ public class DeckFire : MonoBehaviour
 
             for (int i = 0; i < deck.Count; i++)
             {
-                string json = JsonUtility.ToJson(deck[i]);
-                
-                var dbTask = reference.Child("decks").Child(deckName).Child(i.ToString()).SetRawJsonValueAsync(json);
+                int cardIndex = i;  // Use a local variable to capture the index
 
-                dbTask.ContinueWith(innerTask =>
+                UnityMainThreadDispatcher.Instance().Enqueue(() =>
                 {
-                    if (innerTask.IsFaulted || innerTask.IsCanceled)
+                    string json = JsonUtility.ToJson(deck[cardIndex]);
+
+                    var dbTask = reference.Child("decks").Child(deckName).Child(cardIndex.ToString()).SetRawJsonValueAsync(json);
+
+                    dbTask.ContinueWith(innerTask =>
                     {
-                        Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception);
-                    }
-                    else
-                    {
-                        //Debug.Log("Card saved successfully: " + deck[i].Id);
-                    }
+                        if (innerTask.IsFaulted || innerTask.IsCanceled)
+                        {
+                            Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception);
+                        }
+                        else
+                        {
+                            // Debug.Log("Card saved successfully: " + deck[cardIndex].Id);
+                        }
+                    });
                 });
             }
         });
     }
+
 
     public void DeleteDeckFromDatabase()
     {

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Firebase;
 using Firebase.Database;
+using Firebase.Extensions;
 
-public class FirebaseCardWriter : MonoBehaviour
+public class FirebaseCardSaver : MonoBehaviour
 {
     DatabaseReference reference;
 
     void Start()
     {
         // เชื่อมต่อ Firebase Realtime Database
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
             if (task.Exception != null)
             {
@@ -24,10 +25,13 @@ public class FirebaseCardWriter : MonoBehaviour
             reference = FirebaseDatabase.DefaultInstance.RootReference;
 
             Debug.Log("Firebase Realtime Database connected successfully!");
-            
+
             // ตรวจสอบความยาวของข้อมูลการ์ด
+            Debug.Log("CardList Count in FirebaseCardSaver: " + CardData.cardList.Count);
+
             if (CardData.cardList.Count > 0)
             {
+                Debug.Log("Card data found. Starting to write cards to Firebase.");
                 StartCoroutine(WriteCardsToFirebaseCoroutine());
             }
             else
@@ -37,7 +41,7 @@ public class FirebaseCardWriter : MonoBehaviour
         });
     }
 
-   IEnumerator WriteCardsToFirebaseCoroutine()
+    IEnumerator WriteCardsToFirebaseCoroutine()
     {
         // รอจนกว่าเฟรมถัดไปจะเริ่ม
         yield return new WaitForEndOfFrame();
@@ -46,7 +50,7 @@ public class FirebaseCardWriter : MonoBehaviour
         foreach (Card card in CardData.cardList)
         {
             string cardJson = JsonUtility.ToJson(card); // แปลงข้อมูลการ์ดเป็น JSON
-            Debug.Log("Writing card to Firebase: " + cardJson);
+            //Debug.Log("Writing card to Firebase: " + cardJson);
 
             var writeTask = reference.Child("cardsdeck").Child(card.Id.ToString()).SetRawJsonValueAsync(cardJson);
             yield return new WaitUntil(() => writeTask.IsCompleted);
@@ -64,7 +68,4 @@ public class FirebaseCardWriter : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
     }
-
-
-
 }
