@@ -5,10 +5,8 @@ using Firebase;
 using Firebase.Database;
 using System.Threading.Tasks;
 using TMPro;
-using Photon.Pun;
-using Photon.Realtime;
 
-public class DeckFire : MonoBehaviourPunCallbacks
+public class DeckFire2 : MonoBehaviour
 {
     public List<Card> container = new List<Card>();
     public List<Card> deck = new List<Card>();
@@ -29,11 +27,15 @@ public class DeckFire : MonoBehaviourPunCallbacks
     void Start()
     {
         //StartCoroutine(InitializeFirebase());
-        PhotonNetwork.PrefabPool = new CustomPrefabPool(); // กำหนดค่า CustomPrefabPool
-        PhotonNetwork.ConnectUsingSettings();
+
+        deck = new List<Card>(CardData.cardList);
+        deckSize = deck.Count;
+        Shuffle(deck);
+
+        // Now deck is shuffled and ready to use
+        StartCoroutine(StartGame());
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
-
 
     }
     public IEnumerator InitializeFirebase()
@@ -64,35 +66,6 @@ public class DeckFire : MonoBehaviourPunCallbacks
         SaveDeckToDatabase(deck);
     }
 
-    public override void OnConnectedToMaster()
-    {
-        Debug.Log("Connected to Master");
-        StartCoroutine(JoinLobbyWhenReady());
-    }
-
-    private IEnumerator JoinLobbyWhenReady()
-    {
-        while (!PhotonNetwork.IsConnectedAndReady)
-        {
-            yield return null; // Wait until the client is connected and ready
-        }
-        PhotonNetwork.JoinLobby();
-    }
-    public override void OnJoinedLobby()
-    {
-        Debug.Log("Joined Lobby");
-        PhotonNetwork.JoinOrCreateRoom("RoomName", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
-    }
-
-    public override void OnJoinedRoom()
-    {
-        Debug.Log("Joined Room");
-        deck = new List<Card>(CardData.cardList);
-        deckSize = deck.Count;
-        Shuffle(deck);
-        StartCoroutine(StartGame());
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -109,7 +82,9 @@ public class DeckFire : MonoBehaviourPunCallbacks
         for (int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            CreateCard();
+            GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
+            newCard.transform.SetParent(Board.transform, false);
+            newCard.SetActive(true);
         }
     }
 
@@ -132,7 +107,10 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
             if (deckSize > 0)
             {
-                CreateCard();
+                GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation);
+                newCard.transform.SetParent(Board.transform, false);
+                newCard.SetActive(true);
+
                 Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
             else
@@ -144,22 +122,6 @@ public class DeckFire : MonoBehaviourPunCallbacks
         if (deckSize <= 0)
         {
             boardCheckScript.CheckBoardEnd();
-        }
-    }
-
-    private void CreateCard()
-    {
-        if (!PhotonNetwork.InRoom)
-        {
-            Debug.LogError("Cannot Instantiate before the client joined/created a room.");
-            return;
-        }
-
-        GameObject newCard = PhotonNetwork.Instantiate("CardBoardOn1", transform.position, transform.rotation, 0);
-         if (newCard != null)
-        {
-            newCard.transform.SetParent(Board.transform, false);
-            newCard.SetActive(true);
         }
     }
 

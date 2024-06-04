@@ -84,7 +84,7 @@ public class BoardCheck3 : MonoBehaviour
             else
             {
                 SceneManager.LoadScene("Endscene");
-                deck.DeleteDeckFromDatabase();
+                //deck.DeleteDeckFromDatabase();
             }
         }
         else

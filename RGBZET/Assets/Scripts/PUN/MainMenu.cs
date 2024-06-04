@@ -73,7 +73,7 @@ public class MainMenu : MonoBehaviourPunCallbacks
             PlayerPrefs.SetString("PlayerName", playerNameInput.text);
 
             // โหลดหน้าเล่นเกม
-            PhotonNetwork.LoadLevel("Card sample online");
+            PhotonNetwork.LoadLevel("Card sample Firebase");
         }
         else
         {
