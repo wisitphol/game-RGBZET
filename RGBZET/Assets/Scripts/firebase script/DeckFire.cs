@@ -22,20 +22,24 @@ public class DeckFire : MonoBehaviourPunCallbacks
     public GameObject[] Clones;
     public GameObject Board;
     private BoardCheck3 boardCheckScript;
+    private List<GameObject> cardList = new List<GameObject>();
+    private PhotonView photonView;
 
     DatabaseReference reference;
 
-    // Start is called before the first frame update
+    void Awake()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
+
     void Start()
     {
-        //StartCoroutine(InitializeFirebase());
         PhotonNetwork.PrefabPool = new CustomPrefabPool(); // กำหนดค่า CustomPrefabPool
         PhotonNetwork.ConnectUsingSettings();
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
-
-
     }
+
     public IEnumerator InitializeFirebase()
     {
         var task = FirebaseApp.CheckAndFixDependenciesAsync();
@@ -59,8 +63,6 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
 
-
-
         SaveDeckToDatabase(deck);
     }
 
@@ -78,6 +80,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
         PhotonNetwork.JoinLobby();
     }
+
     public override void OnJoinedLobby()
     {
         Debug.Log("Joined Lobby");
@@ -91,9 +94,22 @@ public class DeckFire : MonoBehaviourPunCallbacks
         deckSize = deck.Count;
         Shuffle(deck);
         StartCoroutine(StartGame());
+
+        base.OnJoinedRoom();
+
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            if (photonView != null)
+            {
+                SyncCardsWithMasterClient();
+            }
+            else
+            {
+                Debug.LogError("photonView is null in OnJoinedRoom");
+            }
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
         staticDeck = deck;
@@ -106,10 +122,13 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
     IEnumerator StartGame()
     {
-        for (int i = 0; i < 12; i++)
+        if (PhotonNetwork.IsMasterClient)
         {
-            yield return new WaitForSeconds(0.5f);
-            CreateCard();
+            for (int i = 0; i < 12; i++)
+            {
+                yield return new WaitForSeconds(0.5f);
+                CreateCard();
+            }
         }
     }
 
@@ -156,11 +175,46 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
 
         GameObject newCard = PhotonNetwork.Instantiate("CardBoardOn1", transform.position, transform.rotation, 0);
-         if (newCard != null)
+        if (newCard != null)
         {
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
+            cardList.Add(newCard); // เพิ่มการ์ดที่สร้างใหม่ใน cardList
         }
+    }
+
+    private void SyncCardsWithMasterClient()
+    {
+        if (photonView != null)
+        {
+            photonView.RPC("RequestCardSync", RpcTarget.MasterClient);
+        }
+        else
+        {
+            Debug.LogError("photonView is null in SyncCardsWithMasterClient");
+        }
+    }
+
+    [PunRPC]
+    private void RequestCardSync()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            foreach (GameObject card in cardList)
+            {
+                photonView.RPC("ReceiveCard", RpcTarget.Others, card.GetPhotonView().ViewID);
+            }
+        }
+    }
+
+    [PunRPC]
+    private void ReceiveCard(int viewID)
+    {
+        GameObject card = PhotonView.Find(viewID).gameObject;
+        cardList.Add(card);
+        card.transform.SetParent(Board.transform, false);
+        card.SetActive(true);
+        Debug.Log("Card Received: " + card.name);
     }
 
     public void DrawCards(int numberOfCards)
@@ -223,7 +277,6 @@ public class DeckFire : MonoBehaviourPunCallbacks
             }
         });
     }
-
 
     public void DeleteDeckFromDatabase()
     {

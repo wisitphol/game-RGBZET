@@ -55,6 +55,8 @@ MonoBehaviour:
   - RPC_ZetButtonPressed_MutiManager3
   - RPC_OnBeginDrag
   - InitializeDeck
+  - ReceiveCard
+  - RequestCardSync
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
