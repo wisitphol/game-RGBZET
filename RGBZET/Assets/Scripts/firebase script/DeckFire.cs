@@ -23,13 +23,13 @@ public class DeckFire : MonoBehaviourPunCallbacks
     public GameObject Board;
     private BoardCheck3 boardCheckScript;
     private List<GameObject> cardList = new List<GameObject>();
-    private PhotonView photonView;
+    private PhotonView localphotonView;
 
     DatabaseReference reference;
 
     void Awake()
     {
-        photonView = GetComponent<PhotonView>();
+        localphotonView = GetComponent<PhotonView>();
     }
 
     void Start()
@@ -99,7 +99,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
         if (!PhotonNetwork.IsMasterClient)
         {
-            if (photonView != null)
+            if (localphotonView != null)
             {
                 SyncCardsWithMasterClient();
             }
@@ -129,6 +129,10 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 yield return new WaitForSeconds(0.5f);
                 CreateCard();
             }
+        }
+        else
+        {
+            SyncCardsWithMasterClient();
         }
     }
 
@@ -179,21 +183,45 @@ public class DeckFire : MonoBehaviourPunCallbacks
         {
             newCard.transform.SetParent(Board.transform, false);
             newCard.SetActive(true);
-            cardList.Add(newCard); // เพิ่มการ์ดที่สร้างใหม่ใน cardList
+            cardList.Add(newCard);
+
+            PhotonView cardPhotonView = newCard.GetComponent<PhotonView>();
+            if (cardPhotonView != null)
+            {
+                photonView.RPC("SyncCardState", RpcTarget.AllBuffered, cardPhotonView.ViewID, newCard.transform.position, newCard.transform.rotation);
+            }
+            else
+            {
+                Debug.LogError("PhotonView component not found on the instantiated card.");
+            }
         }
     }
 
+
+    [PunRPC]
+    public void SyncCardState(int viewID, Vector3 position, Quaternion rotation)
+    {
+        GameObject card = PhotonView.Find(viewID).gameObject;
+        if (card != null)
+        {
+            card.transform.position = position;
+            card.transform.rotation = rotation;
+        }
+    }
+
+
     private void SyncCardsWithMasterClient()
     {
-        if (photonView != null)
+        if (localphotonView != null)
         {
-            photonView.RPC("RequestCardSync", RpcTarget.MasterClient);
+            localphotonView.RPC("RequestCardSync", RpcTarget.MasterClient);
         }
         else
         {
             Debug.LogError("photonView is null in SyncCardsWithMasterClient");
         }
     }
+
 
     [PunRPC]
     private void RequestCardSync()
@@ -202,17 +230,23 @@ public class DeckFire : MonoBehaviourPunCallbacks
         {
             foreach (GameObject card in cardList)
             {
-                photonView.RPC("ReceiveCard", RpcTarget.Others, card.GetPhotonView().ViewID);
+                PhotonView cardPhotonView = card.GetComponent<PhotonView>();
+                if (cardPhotonView != null)
+                {
+                    photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, card.transform.position, card.transform.rotation);
+                }
             }
         }
     }
 
     [PunRPC]
-    private void ReceiveCard(int viewID)
+    private void ReceiveCard(int viewID, Vector3 position, Quaternion rotation)
     {
         GameObject card = PhotonView.Find(viewID).gameObject;
         cardList.Add(card);
         card.transform.SetParent(Board.transform, false);
+        card.transform.position = position;
+        card.transform.rotation = rotation;
         card.SetActive(true);
         Debug.Log("Card Received: " + card.name);
     }

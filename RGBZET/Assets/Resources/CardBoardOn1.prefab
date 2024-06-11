@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 2946009656275745986}
   - component: {fileID: 6041232801653359286}
   - component: {fileID: -4974160227712106003}
+  - component: {fileID: 8545180101054311101}
   m_Layer: 5
   m_Name: CardBoardOn1
   m_TagString: Clone
@@ -211,6 +212,22 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &8545180101054311101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3333748350357053810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
 --- !u!1 &3333748351332886891
 GameObject:
   m_ObjectHideFlags: 0
