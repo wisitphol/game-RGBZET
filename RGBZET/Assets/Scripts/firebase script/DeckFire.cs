@@ -90,23 +90,18 @@ public class DeckFire : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room");
-        deck = new List<Card>(CardData.cardList);
-        deckSize = deck.Count;
-        Shuffle(deck);
-        StartCoroutine(StartGame());
-
         base.OnJoinedRoom();
 
-        if (!PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
-            if (localphotonView != null)
-            {
-                SyncCardsWithMasterClient();
-            }
-            else
-            {
-                Debug.LogError("photonView is null in OnJoinedRoom");
-            }
+            deck = new List<Card>(CardData.cardList);
+            deckSize = deck.Count;
+            Shuffle(deck);
+            StartCoroutine(StartGame());
+        }
+        else
+        {
+            SyncCardsWithMasterClient();
         }
     }
 
@@ -188,6 +183,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
             PhotonView cardPhotonView = newCard.GetComponent<PhotonView>();
             if (cardPhotonView != null)
             {
+                Debug.Log("Creating card with ViewID: " + cardPhotonView.ViewID);
                 photonView.RPC("SyncCardState", RpcTarget.AllBuffered, cardPhotonView.ViewID, newCard.transform.position, newCard.transform.rotation);
             }
             else
@@ -236,19 +232,49 @@ public class DeckFire : MonoBehaviourPunCallbacks
                     photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, card.transform.position, card.transform.rotation);
                 }
             }
+
+            // Send deck information to other players
+            List<int> cardIds = new List<int>();
+            foreach (Card card in deck)
+            {
+                cardIds.Add(card.Id); // Assuming each card has a unique Id
+            }
+            photonView.RPC("ReceiveDeck", RpcTarget.OthersBuffered, cardIds.ToArray());
         }
+    }
+
+    [PunRPC]
+    private void ReceiveDeck(int[] cardIds)
+    {
+        deck.Clear();
+        foreach (int id in cardIds)
+        {
+            Card card = CardData.cardList.Find(c => c.Id == id);
+            if (card != null)
+            {
+                deck.Add(card);
+            }
+        }
+        deckSize = deck.Count;
     }
 
     [PunRPC]
     private void ReceiveCard(int viewID, Vector3 position, Quaternion rotation)
     {
-        GameObject card = PhotonView.Find(viewID).gameObject;
-        cardList.Add(card);
-        card.transform.SetParent(Board.transform, false);
-        card.transform.position = position;
-        card.transform.rotation = rotation;
-        card.SetActive(true);
-        Debug.Log("Card Received: " + card.name);
+        GameObject card = PhotonView.Find(viewID)?.gameObject;
+        if (card != null)
+        {
+            cardList.Add(card);
+            card.transform.SetParent(Board.transform, false);
+            card.transform.position = position;
+            card.transform.rotation = rotation;
+            card.SetActive(true);
+            Debug.Log("Card Received: " + card.name);
+        }
+        else
+        {
+            Debug.LogError("Could not find card with ViewID: " + viewID);
+        }
     }
 
     public void DrawCards(int numberOfCards)
