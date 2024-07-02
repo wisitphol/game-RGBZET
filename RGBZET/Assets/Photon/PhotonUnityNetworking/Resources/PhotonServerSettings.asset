@@ -59,6 +59,32 @@ MonoBehaviour:
   - RequestCardSync
   - SyncCardState
   - ReceiveDeck
+  - RPC_MoveCardToBoard
+  - RPC_OnDrag
+  - RPC_OnEndDrag
+  - UpdateCardParent
+  - RemoveCardsFromGameRPC
+  - ReturnCardsToOriginalPositionRPC
+  - ClearDroppedCards
+  - RemoveCardFromDeck
+  - DrawCard
+  - DrawMultipleCards
+  - DrawCardForAllPlayers
+  - ReceiveCards
+  - UpdateDeckSize
+  - SyncDeckSize
+  - RequestDeckSync
+  - ReceiveInitialCards
+  - RequestInitialCards
+  - RequestCardCreation
+  - CreateCardRPC
+  - StartGameRPC
+  - AddCardToBoard
+  - InstantiateCardOnBoard
+  - ReceiveDeckData
+  - RequestInitialDeckData
+  - SendCardDataToOthers
+  - SendCardDataToPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

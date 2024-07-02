@@ -8,14 +8,15 @@ public class BoardCheck3 : MonoBehaviour
     
     private Drop3 dropScript;
     
-    private DeckFire deck;
+    //private DeckFire deck;
+    private Deckfree deck;
    
     private GameObject Board;
     
     public void Start()
     {
         dropScript = FindObjectOfType<Drop3>();
-        deck = FindObjectOfType<DeckFire>();
+        deck = FindObjectOfType<Deckfree>();
         Board = GameObject.Find("Boardzone");
     }
 

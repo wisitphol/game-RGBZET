@@ -4,26 +4,28 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public TMP_Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
-    
+
     [HideInInspector]
     public List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
     [HideInInspector]
     public Transform parentToReturnTo;
     [HideInInspector]
-    public DeckFire deck;
+    public Deckfree deck;
     [HideInInspector]
     public int currentScore;
+    private PhotonView photonView;
 
-
-    public void Start() 
+    public void Start()
     {
-        deck = FindObjectOfType<DeckFire>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
+        deck = FindObjectOfType<Deckfree>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
-        
+        photonView = GetComponent<PhotonView>();
     }
 
     public void Update()
@@ -70,7 +72,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
     {
         // เมื่อมี pointer เข้ามาในระยะ
         if (eventData.pointerDrag == null)
-        return;
+            return;
 
     }
 
@@ -79,24 +81,24 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
         if (!ZETManager3.isZETActive)
         {
-            
+
             //Debug.Log("Cannot drop. ZET button has not been pressed.");
             return; // ยกเลิกการ drop ถ้าปุ่ม ZET ยังไม่ถูกกด
         }
 
         parentToReturnTo = transform.parent;
 
-       
+
 
         int numberOfCardsOnDropZone = CheckNumberOfCardsOnDropZone();
 
-       
+
         if (numberOfCardsOnDropZone == 3)
         {
             Debug.Log("Cannot drop. Maximum number of cards reached.");
             return;
         }
-       
+
 
         // ตรวจสอบว่ามี object ที่ลากมาวางลงหรือไม่
         if (eventData.pointerDrag != null)
@@ -107,27 +109,28 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
             {
                 // กำหนด parent ใหม่ให้กับ object ที่ลากมา เพื่อให้วางลงใน panel นี้
                 draggable.parentToReturnTo = this.transform;
+                photonView.RPC("UpdateCardParent", RpcTarget.AllBuffered, draggable.GetComponent<PhotonView>().ViewID, photonView.ViewID);
             }
 
             DisplayCard3 displayCardComponent = eventData.pointerDrag.GetComponent<DisplayCard3>();
             if (displayCardComponent != null)
             {
-                
+
                 droppedCards.Add(displayCardComponent.displayCard[0]);
             }
-            
+
         }
 
         StartCoroutine(CheckSetWithDelay());
-        
-        
+
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         // เมื่อ pointer ออกจากระยะ
         if (eventData.pointerDrag == null)
-        return;
+            return;
 
     }
 
@@ -139,25 +142,25 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
 
     public void CheckSetConditions()
     {
-        
+
         // เรียกเมธอดหรือทำงานเพิ่มเติมที่ต้องการเมื่อมีการ์ดทั้ง 3 ใบในพื้นที่ drop
         // ตรวจสอบว่าการ์ดทั้งสามใบตรงเงื่อนไขหรือไม่ ตามกฎของเกม Set
-         //Debug.Log("number of cards: " + droppedCards.Count);
-        if(droppedCards.Count == 3)
+        //Debug.Log("number of cards: " + droppedCards.Count);
+        if (droppedCards.Count == 3)
         {
-           
+
             bool isSet = CheckCardsAreSet(droppedCards[0], droppedCards[1], droppedCards[2]);
 
             if (isSet)
             {
                 // คำนวณคะแนนรวมของการ์ด 3 ใบ
                 int TotalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
-            
+
                 UpdateScore(TotalScore);
-                
+
                 //scoreText.text =  totalScore.ToString();
-               
-                RemoveCardsFromGame();
+
+                photonView.RPC("RemoveCardsFromGameRPC", RpcTarget.AllBuffered);
 
                 deck.DrawCards(3);
             }
@@ -165,13 +168,13 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
             {
                 //Debug.Log("Not a valid Set. Return the cards to their original position.");
                 // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
-                ReturnCardsToOriginalPosition();
+                photonView.RPC("ReturnCardsToOriginalPositionRPC", RpcTarget.AllBuffered);
 
                 UpdateScore(-1);
-                
+
             }
             //FindObjectOfType<ZETbutton>().CheckSetConditionsCompleted();
-            
+
         }
         else
         {
@@ -179,6 +182,7 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         }
 
     }
+
 
     public bool CheckCardsAreSet(Card card1, Card card2, Card card3)
     {
@@ -214,22 +218,15 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         CheckSetConditions();
     }
 
-    public void ReturnCardsToOriginalPosition()
+    [PunRPC]
+    public void ReturnCardsToOriginalPositionRPC()
     {
-        if (transform.childCount > 0)
+        int numberOfCards = transform.childCount;
+
+        for (int i = numberOfCards - 1; i >= 0; i--)
         {
-            // เก็บ parent และ local position ของการ์ดที่ต้องการย้ายกลับไปยัง boardzone
-            List<Transform> cardsToReturn = new List<Transform>();
-
-            foreach (Transform cardTransform in transform)
-            {
-                cardsToReturn.Add(cardTransform);
-            }
-
-            Debug.Log("Number of cards to return: " + cardsToReturn.Count);
-
-            // ย้ายการ์ดทั้งหมดกลับไปยัง boardzone
-            foreach (Transform cardTransform in cardsToReturn)
+            Transform cardTransform = transform.GetChild(i);
+            if (cardTransform != null)
             {
                 cardTransform.SetParent(GameObject.Find("Boardzone").transform);
                 cardTransform.localPosition = Vector3.zero;
@@ -239,50 +236,48 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                 {
                     displayCardComponent.SetBlocksRaycasts(true);
                 }
-            }
 
-            droppedCards.Clear();
+                Card card = displayCardComponent.displayCard[0];
+                if (droppedCards.Contains(card))
+                {
+                    droppedCards.Remove(card);
+                }
+            }
         }
+
+        photonView.RPC("ClearDroppedCards", RpcTarget.AllBuffered);
     }
 
-    public void RemoveCardsFromGame()
+
+
+
+
+    [PunRPC]
+    public void RemoveCardsFromGameRPC()
     {
-        // ตรวจสอบจำนวนการ์ดที่อยู่ในพื้นที่ drop
         int numberOfCards = transform.childCount;
 
-        // ลูปเพื่อลบการ์ดที่อยู่ในพื้นที่ drop ทั้งหมด
-        for (int i = 0; i < numberOfCards; i++)
+        for (int i = numberOfCards - 1; i >= 0; i--)
         {
             Transform cardTransform = transform.GetChild(i);
-            DisplayCard3 displayCard = cardTransform.GetComponent<DisplayCard3>();
-            if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
+            if (cardTransform != null)
             {
-                // ลบการ์ดที่ถูก drop ออกจากเกม
-                Destroy(cardTransform.gameObject);
-
-                 // ลบการ์ดออกจากลิสต์ droppedCards
-                droppedCards.Remove(displayCard.displayCard[0]);
-
+                DisplayCard3 displayCard = cardTransform.GetComponent<DisplayCard3>();
+                if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
+                {
+                    PhotonNetwork.Destroy(cardTransform.gameObject);
+                    droppedCards.Remove(displayCard.displayCard[0]);
+                }
             }
         }
 
+        photonView.RPC("ClearDroppedCards", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    public void ClearDroppedCards()
+    {
         droppedCards.Clear();
-
-        // ตรวจสอบว่าทุกการ์ดที่ต้องการลบออกไปได้หรือไม่
-        if (droppedCards.Count == 0)
-        {
-            //Debug.Log("All cards removed successfully.");
-        }
-        else
-        {
-            Debug.Log("Error: Not all cards were removed.");
-
-            // Debug สำหรับตรวจสอบ droppedCards ที่ยังคงอยู่หลังจากลบ
-            foreach (var card in droppedCards)
-            {
-                Debug.Log("Remaining card in droppedCards: " + card);
-            }
-        }
     }
 
     public void UpdateScore(int addScore)
@@ -333,7 +328,18 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         }
     }
 
+    [PunRPC]
+    public void UpdateCardParent(int cardViewID, int parentViewID)
+    {
+        PhotonView cardPhotonView = PhotonView.Find(cardViewID);
+        PhotonView parentPhotonView = PhotonView.Find(parentViewID);
 
+        if (cardPhotonView != null && parentPhotonView != null)
+        {
+            cardPhotonView.transform.SetParent(parentPhotonView.transform);
+            cardPhotonView.transform.localPosition = Vector3.zero;
+        }
+    }
 
 
 }

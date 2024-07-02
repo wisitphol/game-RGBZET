@@ -1,10 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Firebase;
-using Firebase.Database;
-using System.Threading.Tasks;
-using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -17,53 +13,24 @@ public class DeckFire : MonoBehaviourPunCallbacks
     public static List<Card> staticDeck = new List<Card>();
 
     public GameObject CardInDeck;
-
     public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
     private BoardCheck3 boardCheckScript;
     private List<GameObject> cardList = new List<GameObject>();
-    private PhotonView localphotonView;
-
-    DatabaseReference reference;
+    private PhotonView localPhotonView;
 
     void Awake()
     {
-        localphotonView = GetComponent<PhotonView>();
+        localPhotonView = GetComponent<PhotonView>();
     }
 
     void Start()
     {
-        PhotonNetwork.PrefabPool = new CustomPrefabPool(); // กำหนดค่า CustomPrefabPool
+        PhotonNetwork.PrefabPool = new CustomPrefabPool();
         PhotonNetwork.ConnectUsingSettings();
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
-    }
-
-    public IEnumerator InitializeFirebase()
-    {
-        var task = FirebaseApp.CheckAndFixDependenciesAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.Exception != null)
-        {
-            Debug.LogError("Failed to initialize Firebase: " + task.Exception);
-            yield break;
-        }
-
-        FirebaseApp app = FirebaseApp.DefaultInstance;
-        reference = FirebaseDatabase.DefaultInstance.RootReference;
-        Debug.Log("Firebase Realtime Database connected successfully!");
-
-        deck = new List<Card>(CardData.cardList);
-        deckSize = deck.Count;
-        Shuffle(deck);
-
-        StartCoroutine(StartGame());
-
-        boardCheckScript = FindObjectOfType<BoardCheck3>();
-
-        SaveDeckToDatabase(deck);
     }
 
     public override void OnConnectedToMaster()
@@ -76,7 +43,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
     {
         while (!PhotonNetwork.IsConnectedAndReady)
         {
-            yield return null; // Wait until the client is connected and ready
+            yield return null;
         }
         PhotonNetwork.JoinLobby();
     }
@@ -94,14 +61,16 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-            deck = new List<Card>(CardData.cardList);
+            deck = new List<Card>(CardData.cardList); // ดึงข้อมูลจาก CardData
             deckSize = deck.Count;
             Shuffle(deck);
-            StartCoroutine(StartGame());
+            photonView.RPC("StartGameRPC", RpcTarget.AllBuffered);
+            //SyncDeckWithAllClients();
         }
         else
         {
-            SyncCardsWithMasterClient();
+            // ซิงค์เด็คการ์ดจาก MasterClient
+            SyncDeckWithAllClients();
         }
     }
 
@@ -115,6 +84,15 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    private void StartGameRPC()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(StartGame());
+        }
+    }
+
     IEnumerator StartGame()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -122,12 +100,14 @@ public class DeckFire : MonoBehaviourPunCallbacks
             for (int i = 0; i < 12; i++)
             {
                 yield return new WaitForSeconds(0.5f);
-                CreateCard();
+                CreateCard(i);
             }
+            SyncDeckWithAllClients();
         }
         else
         {
-            SyncCardsWithMasterClient();
+            // ซิงค์เด็คการ์ดจาก MasterClient
+
         }
     }
 
@@ -150,7 +130,8 @@ public class DeckFire : MonoBehaviourPunCallbacks
 
             if (deckSize > 0)
             {
-                CreateCard();
+                CreateCard(deckSize - 1);
+                SyncDeckSizeWithAllClients();
                 Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
             else
@@ -165,7 +146,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
     }
 
-    private void CreateCard()
+    private void CreateCard(int cardIndex)
     {
         if (!PhotonNetwork.InRoom)
         {
@@ -176,15 +157,16 @@ public class DeckFire : MonoBehaviourPunCallbacks
         GameObject newCard = PhotonNetwork.Instantiate("CardBoardOn1", transform.position, transform.rotation, 0);
         if (newCard != null)
         {
-            newCard.transform.SetParent(Board.transform, false);
+            newCard.transform.SetParent(Board.transform, false);  // Set the parent to Board with worldPositionStays set to false
+            newCard.transform.localPosition = Vector3.zero;      // Reset the local position of the card
             newCard.SetActive(true);
             cardList.Add(newCard);
 
+            Card card = deck[cardIndex];
             PhotonView cardPhotonView = newCard.GetComponent<PhotonView>();
             if (cardPhotonView != null)
             {
-                Debug.Log("Creating card with ViewID: " + cardPhotonView.ViewID);
-                photonView.RPC("SyncCardState", RpcTarget.AllBuffered, cardPhotonView.ViewID, newCard.transform.position, newCard.transform.rotation);
+                photonView.RPC("SyncCardState", RpcTarget.AllBuffered, cardPhotonView.ViewID, card.Id, card.LetterType, card.ColorType, card.AmountType, card.FontType, card.Point, card.Spriteimg.name);
             }
             else
             {
@@ -193,54 +175,46 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
     }
 
-
     [PunRPC]
-    public void SyncCardState(int viewID, Vector3 position, Quaternion rotation)
+    public void SyncCardState(int viewID, int cardId, string letterType, string colorType, string amountType, string fontType, int point, string spriteName)
     {
-        GameObject card = PhotonView.Find(viewID).gameObject;
-        if (card != null)
+        GameObject cardObj = PhotonView.Find(viewID)?.gameObject;
+        if (cardObj != null)
         {
-            card.transform.position = position;
-            card.transform.rotation = rotation;
+            Card card = new Card(cardId, letterType, colorType, amountType, fontType, point, Resources.Load<Sprite>(spriteName));
+            DisplayCard3 displayCard = cardObj.GetComponent<DisplayCard3>();
+            if (displayCard != null)
+            {
+                displayCard.Initialize(card);
+            }
+
+            cardObj.transform.SetParent(Board.transform, false);  // Set the parent to Board with worldPositionStays set to false
+            cardObj.transform.localPosition = Vector3.zero;      // Reset the local position of the card
+            cardObj.SetActive(true);
+            cardList.Add(cardObj);
         }
     }
 
 
-    private void SyncCardsWithMasterClient()
+    public void DrawCards(int numberOfCards)
     {
-        if (localphotonView != null)
-        {
-            localphotonView.RPC("RequestCardSync", RpcTarget.MasterClient);
-        }
-        else
-        {
-            Debug.LogError("photonView is null in SyncCardsWithMasterClient");
-        }
+        photonView.RPC("DrawMultipleCards", RpcTarget.All, numberOfCards);
     }
 
-
     [PunRPC]
-    private void RequestCardSync()
+    private void DrawMultipleCards(int numberOfCards)
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            foreach (GameObject card in cardList)
-            {
-                PhotonView cardPhotonView = card.GetComponent<PhotonView>();
-                if (cardPhotonView != null)
-                {
-                    photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, card.transform.position, card.transform.rotation);
-                }
-            }
+        StartCoroutine(Draw(numberOfCards));
+    }
 
-            // Send deck information to other players
-            List<int> cardIds = new List<int>();
-            foreach (Card card in deck)
-            {
-                cardIds.Add(card.Id); // Assuming each card has a unique Id
-            }
-            photonView.RPC("ReceiveDeck", RpcTarget.OthersBuffered, cardIds.ToArray());
+    private void SyncDeckWithAllClients()
+    {
+        List<int> cardIds = new List<int>();
+        foreach (Card card in deck)
+        {
+            cardIds.Add(card.Id);
         }
+        photonView.RPC("ReceiveDeck", RpcTarget.All, cardIds.ToArray());
     }
 
     [PunRPC]
@@ -253,105 +227,29 @@ public class DeckFire : MonoBehaviourPunCallbacks
             if (card != null)
             {
                 deck.Add(card);
+                //Debug.Log("Added card to deck with ID: " + id);
             }
         }
         deckSize = deck.Count;
+        Debug.Log("Deck synchronized with " + deckSize + " cards.");
+    }
+
+    public void SyncDeckSizeWithAllClients()
+    {
+        photonView.RPC("SyncDeckSize", RpcTarget.AllBuffered, deckSize);
     }
 
     [PunRPC]
-    private void ReceiveCard(int viewID, Vector3 position, Quaternion rotation)
+    public void SyncDeckSize(int newSize)
     {
-        GameObject card = PhotonView.Find(viewID)?.gameObject;
-        if (card != null)
-        {
-            cardList.Add(card);
-            card.transform.SetParent(Board.transform, false);
-            card.transform.position = position;
-            card.transform.rotation = rotation;
-            card.SetActive(true);
-            Debug.Log("Card Received: " + card.name);
-        }
-        else
-        {
-            Debug.LogError("Could not find card with ViewID: " + viewID);
-        }
+        deckSize = newSize;
     }
 
-    public void DrawCards(int numberOfCards)
-    {
-        StartCoroutine(Draw(numberOfCards));
-    }
-
-    public int RemainingCardsCount()
+    private int RemainingCardsCount()
     {
         return deckSize;
     }
 
-    public void SaveDeckToDatabase(List<Card> deck)
-    {
-        if (reference == null)
-        {
-            Debug.LogError("Firebase Realtime Database reference is not set!");
-            return;
-        }
-
-        reference.Child("decks").GetValueAsync().ContinueWith(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Failed to retrieve deck count: " + task.Exception);
-                return;
-            }
-
-            DataSnapshot snapshot = task.Result;
-            int deckCount = (int)snapshot.ChildrenCount;
-
-            Debug.Log("Current deck count: " + deckCount);
-
-            string deckName = "deck" + (deckCount + 1);
-
-            Debug.Log("New deck name: " + deckName);
-
-            for (int i = 0; i < deck.Count; i++)
-            {
-                int cardIndex = i;  // Use a local variable to capture the index
-
-                UnityMainThreadDispatcher.Instance().Enqueue(() =>
-                {
-                    string json = JsonUtility.ToJson(deck[cardIndex]);
-
-                    var dbTask = reference.Child("decks").Child(deckName).Child(cardIndex.ToString()).SetRawJsonValueAsync(json);
-
-                    dbTask.ContinueWith(innerTask =>
-                    {
-                        if (innerTask.IsFaulted || innerTask.IsCanceled)
-                        {
-                            Debug.LogError("SaveDeckToDatabase failed: " + innerTask.Exception);
-                        }
-                        else
-                        {
-                            // Debug.Log("Card saved successfully: " + deck[cardIndex].Id);
-                        }
-                    });
-                });
-            }
-        });
-    }
-
-    public void DeleteDeckFromDatabase()
-    {
-        DatabaseReference deckRef = reference.Child("decks/deck1");
-
-        deckRef.RemoveValueAsync().ContinueWith(task =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.LogError("Failed to delete deck data: " + task.Exception);
-            }
-            else
-            {
-                Debug.Log("Deck data deleted successfully");
-            }
-        });
-    }
+    
+   
 }

@@ -39,7 +39,7 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
             startRotation = this.transform.localRotation;
 
             // เรียกใช้งาน RPC เพื่อส่งข้อมูลการย้ายการ์ดไปยังผู้เล่นอื่น ๆ ผ่านทางเครือข่าย Photon
-            //photonView.RPC("RPC_OnBeginDrag", RpcTarget.All, startPosition, startRotation);
+            photonView.RPC("RPC_OnBeginDrag", RpcTarget.All, startPosition, startRotation);
         }
         else
         {
@@ -53,6 +53,9 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
         if (ZETManager3.isZETActive)
         {
             this.transform.position = eventData.position;
+
+            // เรียกใช้งาน RPC เพื่ออัปเดตการเคลื่อนย้ายของการ์ดไปยังผู้เล่นอื่น ๆ ผ่านทางเครือข่าย Photon
+           photonView.RPC("RPC_OnDrag", RpcTarget.AllBuffered, (Vector2)eventData.position);
         }
     }
 
@@ -65,6 +68,9 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
         GetComponent<CanvasGroup>().blocksRaycasts = true;
         //Debug.Log("Returning to original position.");
+
+         // เรียกใช้งาน RPC เพื่ออัปเดตการย้ายกลับของการ์ดไปยังผู้เล่นอื่น ๆ ผ่านทางเครือข่าย Photon
+        photonView.RPC("RPC_OnEndDrag", RpcTarget.AllBuffered, startPosition, startRotation);
     }
 
     // RPC สำหรับการย้ายการ์ด
@@ -74,5 +80,22 @@ public class Drag3 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
         // กำหนดตำแหน่งและการหมุนเริ่มต้นของการ์ดตามข้อมูลที่ได้รับผ่านทางเครือข่าย
         this.startPosition = startPosition;
         this.startRotation = startRotation;
+    }
+
+    // RPC สำหรับการอัปเดตการลากการ์ด
+    [PunRPC]
+    private void RPC_OnDrag(Vector2 position)
+    {
+        this.transform.position = position;
+    }
+
+    // RPC สำหรับการย้ายกลับการ์ด
+    [PunRPC]
+    private void RPC_OnEndDrag(Vector3 startPosition, Quaternion startRotation)
+    {
+        this.startPosition = startPosition;
+        this.startRotation = startRotation;
+        this.transform.localPosition = startPosition;
+        this.transform.localRotation = startRotation;
     }
 }

@@ -67,7 +67,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
-        UpdatePlayerObjects();
+        UpdatePlayerObjectsIN();
 
 
     }
@@ -75,19 +75,20 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
-        UpdatePlayerObjects();
+        UpdatePlayerObjectsIN();
 
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("Player left room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
-        UpdatePlayerObjects();
+        UpdatePlayerObjectsOUT(otherPlayer);
 
     }
 
-    void UpdatePlayerObjects()
+    void UpdatePlayerObjectsIN()
     {
+        
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
 
         switch (playerCount)
@@ -125,21 +126,43 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         }
 
         // เก็บตำแหน่งของผู้เล่นทุกคน
-         foreach (Player player in PhotonNetwork.PlayerList)
-    {
-        if (playerPositions.ContainsKey(player.ActorNumber))
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
-            // หาก Dictionary มีหมายเลขผู้เล่นนี้อยู่แล้ว ให้เรียกใช้เมธอด UpdatePlayerPosition
-            // เพื่ออัปเดตตำแหน่งของผู้เล่น
-            UpdatePlayerPosition(player.ActorNumber, playerPositions[player.ActorNumber]);
-        }
-        else
-        {
-            // หาก Dictionary ยังไม่มีหมายเลขผู้เล่นนี้ ให้เรียกใช้เมธอด SetPlayerPosition
-            // เพื่อเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
-            //SetPlayerPosition(player.ActorNumber, player.Position); // ใช้ Position ของ Player แทน
+            if (playerPositions.ContainsKey(player.ActorNumber))
+            {
+                // หาก Dictionary มีหมายเลขผู้เล่นนี้อยู่แล้ว ให้เรียกใช้เมธอด UpdatePlayerPosition
+                // เพื่ออัปเดตตำแหน่งของผู้เล่น
+                UpdatePlayerPosition(player.ActorNumber, playerPositions[player.ActorNumber]);
+            }
+            else
+            {
+                // หาก Dictionary ยังไม่มีหมายเลขผู้เล่นนี้ ให้เรียกใช้เมธอด SetPlayerPosition
+                // เพื่อเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
+                //SetPlayerPosition(player.ActorNumber, player.Position); // ใช้ Position ของ Player แทน
+            }
         }
     }
+
+    void UpdatePlayerObjectsOUT(Player leftPlayer)
+    {
+        int actorNumber = leftPlayer.ActorNumber;
+
+        // ปิดการแสดงผลผู้เล่นที่ออกจากห้อง
+        switch (actorNumber)
+        {
+            case 1:
+                player1.SetActive(false);
+                break;
+            case 2:
+                player2.SetActive(false);
+                break;
+            case 3:
+                player3.SetActive(false);
+                break;
+            case 4:
+                player4.SetActive(false);
+                break;
+        }
     }
 
     // เมธอดสำหรับการอัปเดตตำแหน่งของผู้เล่น
@@ -159,15 +182,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
             case 4:
                 player4.transform.position = position;
                 break;
-        }
-    }
-
-    // เมธอดสำหรับเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
-    void SetPlayerPosition(int actorNumber, Vector3 position)
-    {
-        if (!playerPositions.ContainsKey(actorNumber))
-        {
-            playerPositions.Add(actorNumber, position);
         }
     }
 
@@ -230,10 +244,5 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Player " + playerActorNumber + " pressed the zet button.");
     }
 
-    /*[PunRPC]
-    void RPC_OnBeginDrag(Vector3 startPosition, Quaternion startRotation)
-    {
-        // สามารถดำเนินการต่อได้ตามต้องการ เช่น แสดงการกระทำการลากในหน้าจอผู้เล่น
-        Debug.Log("Player started dragging card at position: " + startPosition + " with rotation: " + startRotation);
-    }*/
+    
 }

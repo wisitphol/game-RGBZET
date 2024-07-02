@@ -37,7 +37,8 @@ public class DisplayCard3 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        numberOfCardInDeck = DeckFire.deckSize;
+        //numberOfCardInDeck = DeckFire.deckSize;
+        numberOfCardInDeck = Deckfree.deckSize;
 
         //Debug.Log("CardList Count: " + CardData.cardList.Count);
         //Debug.Log("DisplayId: " + displayId);
@@ -75,9 +76,9 @@ public class DisplayCard3 : MonoBehaviour
 
             if (this.tag == "Clone" && numberOfCardInDeck > 0)
             {
-                displayCard[0] = DeckFire.staticDeck[numberOfCardInDeck - 1];
+                displayCard[0] = Deckfree.staticDeck[numberOfCardInDeck - 1];
                 numberOfCardInDeck -= 1;
-                DeckFire.deckSize -= 1;
+                Deckfree.deckSize -= 1;
                 cardBack = false;
                 this.tag = "Untagged";
             }
@@ -104,19 +105,10 @@ public class DisplayCard3 : MonoBehaviour
         ArtImage.sprite = Spriteimg;
     }
 
-    public void HighlightCard(bool highlight)
+    public void Initialize(Card card)
     {
-        if (highlight)
-        {
-            // เปลี่ยนขอบหรือสีของการ์ดเพื่อบ่งบอกว่ามันถูกเลือก
-            // นี่เป็นเพียงตัวอย่าง: คุณจะต้องอ้างอิงถึงองค์ประกอบ UI จริง
-            this.GetComponent<Image>().color = Color.yellow; // สีเน้น
-        }
-        else
-        {
-            // คืนค่าการเปลี่ยนแปลงทางภาพถ้าการ์ดไม่ถูกเลือกอีกต่อไป
-            this.GetComponent<Image>().color = Color.white; // สีปกติ
-        }
+        displayCard.Add(card);
+        DisplayCardData(card);
     }
 
 
