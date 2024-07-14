@@ -5,6 +5,9 @@ using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
+using Firebase.Auth;
+using Firebase.Database;
+using Firebase.Extensions;
 
 public class MutiManager3 : MonoBehaviourPunCallbacks
 {
@@ -19,9 +22,15 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     public GameObject Cardboard;
     public GameObject Board;
     private Dictionary<int, Vector3> playerPositions = new Dictionary<int, Vector3>();
+    private FirebaseAuth auth;
+    private DatabaseReference userRef;
+
+
 
     void Start()
     {
+        auth = FirebaseAuth.DefaultInstance;
+
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
@@ -35,6 +44,8 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         zetManager3 = FindObjectOfType<ZETManager3>();
         playerController = FindObjectOfType<PlayerController>();
         myPhotonView = GetComponent<PhotonView>();
+
+        Debug.Log("Firebase Initialized: " + (auth != null ? "Yes" : "No"));
     }
 
     private void AddPlayerPosition(int actorNumber, Vector3 position)
@@ -76,6 +87,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
+        LoadUserData(newPlayer);
 
     }
 
@@ -88,7 +100,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
     void UpdatePlayerObjectsIN()
     {
-        
+
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
 
         switch (playerCount)
@@ -244,5 +256,45 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Player " + playerActorNumber + " pressed the zet button.");
     }
 
-    
+    private void LoadUserData(Player player)
+    {
+        string userId = player.UserId;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
+            userRef.GetValueAsync().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompleted)
+                {
+                    DataSnapshot snapshot = task.Result;
+                    if (snapshot.Exists)
+                    {
+                        string playerName = snapshot.Child("username").Value.ToString();
+
+                        // เรียกฟังก์ชัน SetPlayerName ใน PlayerController เพื่อแสดงชื่อผู้เล่น
+                        if (playerController != null)
+                        {
+                            playerController.SetPlayerName(playerName);
+                            Debug.Log("Player name loaded successfully: " + playerName); // เพิ่ม Debug Log นี้
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("No data exists for user: " + userId); // เพิ่ม Debug Log นี้
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Failed to fetch user data for user: " + userId); // เพิ่ม Debug Log นี้
+                }
+            });
+        }
+        else
+        {
+            Debug.LogWarning("Player's user ID is null or empty."); // เพิ่ม Debug Log นี้
+        }
+    }
+
+
+
 }

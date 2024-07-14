@@ -1,96 +1,119 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using Firebase;
 using Firebase.Auth;
-using Firebase.Extensions;
-using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
-using TMPro;
-
+using Firebase.Database;
+using System.Collections;
+using System.Threading.Tasks;
 
 public class AuthManager : MonoBehaviour
 {
-    public InputField loginEmailField;
-    public InputField loginPasswordField;
-    public InputField registerEmailField;
-    public InputField registerPasswordField;
-    public InputField confirmPasswordField;
+    public static AuthManager Instance { get; private set; }
 
     private FirebaseAuth auth;
+    private FirebaseUser user;
 
-    private void Awake()
+    void Awake()
     {
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        if (Instance == null)
         {
-            FirebaseApp app = FirebaseApp.DefaultInstance;
-            auth = FirebaseAuth.GetAuth(app);
-        });
-    }
-
-    public async void Register()
-    {
-        await FirebaseApp.CheckAndFixDependenciesAsync();
-
-        string email = registerEmailField.text;
-        string password = registerPasswordField.text;
-        string confirmPassword = confirmPasswordField.text;
-
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
-        {
-            Debug.LogError("Please fill in all fields.");
-            return;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-
-        if (password != confirmPassword)
+        else
         {
-            Debug.LogError("Passwords do not match.");
-            return;
-        }
-
-        try
-        {
-            var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
-            await registerTask;
-            AuthResult authResult = registerTask.Result;
-            FirebaseUser user = authResult.User;
-            Debug.Log($"Registration successful: {user.Email}");
-
-            SceneManager.LoadScene("Login");
-        }
-        catch (FirebaseException e)
-        {
-            Debug.LogError($"Registration failed: {e.Message}");
+            Destroy(gameObject);
         }
     }
 
-    public async void Login()
+    void Start()
     {
-        await FirebaseApp.CheckAndFixDependenciesAsync();
+        auth = FirebaseAuth.DefaultInstance;
+    }
 
-        string email = loginEmailField.text;
-        string password = loginPasswordField.text;
+    public void Login(string email, string password, LoginUI loginUI)
+    {
+        StartCoroutine(LoginCoroutine(email, password, loginUI));
+    }
 
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+    private IEnumerator LoginCoroutine(string email, string password, LoginUI loginUI)
+    {
+        var loginTask = auth.SignInWithEmailAndPasswordAsync(email, password);
+        yield return new WaitUntil(() => loginTask.IsCompleted);
+
+        if (loginTask.Exception != null)
         {
-            Debug.LogError("Please fill in both email and password.");
-            return;
+            loginUI.DisplayFeedback($"Failed to login: {loginTask.Exception.Message}");
         }
-
-        try
+        else
         {
-            var loginTask = auth.SignInWithEmailAndPasswordAsync(email, password);
-            await loginTask;
-            AuthResult authResult = loginTask.Result;
-            FirebaseUser user = authResult.User;
-            Debug.Log($"Login successful: {user.Email}");
-
+            user = loginTask.Result.User;
+            loginUI.DisplayFeedback($"Logged in successfully: {user.Email}");
+            SaveUserData(user);
             SceneManager.LoadScene("Menu");
         }
-        catch (FirebaseException e)
+    }
+
+    public void Register(string email, string password, string username, RegisterUI registerUI)
+    {
+        StartCoroutine(RegisterCoroutine(email, password, username, registerUI));
+    }
+
+    private IEnumerator RegisterCoroutine(string email, string password, string username, RegisterUI registerUI)
+    {
+        var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
+        yield return new WaitUntil(() => registerTask.IsCompleted);
+
+        if (registerTask.Exception != null)
         {
-            Debug.LogError($"Login failed: {e.Message}");
+            registerUI.DisplayFeedback($"Failed to register: {registerTask.Exception.Message}");
         }
+        else
+        {
+            var authResult = registerTask.Result;
+            user = authResult.User;
+            UserProfile profile = new UserProfile { DisplayName = username };
+
+            var updateProfileTask = user.UpdateUserProfileAsync(profile);
+            yield return new WaitUntil(() => updateProfileTask.IsCompleted);
+
+            if (updateProfileTask.Exception != null)
+            {
+                registerUI.DisplayFeedback($"Failed to update profile: {updateProfileTask.Exception.Message}");
+            }
+            else
+            {
+                // เก็บข้อมูลผู้ใช้ลงใน Firebase
+                DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(user.UserId);
+                userRef.Child("username").SetValueAsync(username);
+                userRef.Child("email").SetValueAsync(email);
+
+                registerUI.DisplayFeedback($"Registered successfully: {user.Email}");
+                SceneManager.LoadScene("Login");
+            }
+        }
+    }
+
+    public void Logout()
+    {
+        auth.SignOut();
+        user = null;
+        SceneManager.LoadScene("Login");
+    }
+
+    private void SaveUserData(FirebaseUser user)
+    {
+        DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(user.UserId);
+        userRef.Child("email").SetValueAsync(user.Email);
+        userRef.Child("username").SetValueAsync(user.DisplayName);
+    }
+
+    public string GetCurrentUserId()
+    {
+        return auth.CurrentUser != null ? auth.CurrentUser.UserId : null;
+    }
+
+    public string GetCurrentUsername()
+    {
+        return auth.CurrentUser != null ? auth.CurrentUser.DisplayName : null;
     }
 }

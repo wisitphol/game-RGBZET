@@ -8,11 +8,11 @@ using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class DeckFire3 : MonoBehaviourPunCallbacks
+public class DeckFire : MonoBehaviourPunCallbacks
 {
     public List<Card> container = new List<Card>();
     public List<Card> deck = new List<Card>();
-    public int x;
+    public int y;
     public static int deckSize;
     public static List<Card> staticDeck = new List<Card>();
 
@@ -24,6 +24,14 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
     private BoardCheck3 boardCheckScript;
     private List<GameObject> cardList = new List<GameObject>();
     private PhotonView localphotonView;
+
+    private int Id;
+    private string LetterType;
+    private string ColorType;
+    private string AmountType;
+    private string FontType;
+    private int Point;
+    private Sprite Spriteimg;
 
     DatabaseReference reference;
 
@@ -39,8 +47,6 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
     }
-
- 
 
     public override void OnConnectedToMaster()
     {
@@ -59,13 +65,13 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("Joined Lobby");
+        //Debug.Log("Joined Lobby");
         PhotonNetwork.JoinOrCreateRoom("RoomName", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Joined Room");
+        //Debug.Log("Joined Room");
         base.OnJoinedRoom();
 
         if (PhotonNetwork.IsMasterClient)
@@ -100,10 +106,6 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
                 yield return new WaitForSeconds(0.5f);
                 CreateCard();
             }
-        }
-        else
-        {
-            SyncCardsWithMasterClient();
         }
     }
 
@@ -172,8 +174,8 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
             PhotonView cardPhotonView = newCard.GetComponent<PhotonView>();
             if (cardPhotonView != null)
             {
-                //Debug.Log("Creating card with ViewID: " + cardPhotonView.ViewID);
-                photonView.RPC("SyncCardState", RpcTarget.AllBuffered, cardPhotonView.ViewID, newCard.transform.position, newCard.transform.rotation);
+                photonView.RPC("SyncCardState", RpcTarget.AllBuffered,
+                cardPhotonView.ViewID, newCard.transform.position, newCard.transform.rotation);
             }
             else
             {
@@ -182,21 +184,16 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
         }
     }
 
-
     [PunRPC]
-    public void SyncCardState(int viewID, Vector3 position, Quaternion rotation)
+    private void SyncCardState(int viewID, Vector3 position, Quaternion rotation)
     {
-        GameObject card = PhotonView.Find(viewID).gameObject;
+        GameObject card = PhotonView.Find(viewID)?.gameObject;
         if (card != null)
         {
             card.transform.position = position;
             card.transform.rotation = rotation;
         }
     }
-
-
-   
-
 
     [PunRPC]
     private void RequestCardSync()
@@ -207,18 +204,19 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
             foreach (GameObject card in cardList)
             {
                 PhotonView cardPhotonView = card.GetComponent<PhotonView>();
-                if (cardPhotonView != null)
+                DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
+                if (cardPhotonView != null && cardComponent != null)
                 {
-                    photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, card.transform.position, card.transform.rotation);
-                    Debug.Log("Syncing card with ViewID: " + cardPhotonView.ViewID);
+                    photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, cardComponent.Id, card.transform.position, card.transform.rotation);
+                    Debug.Log("Syncing card with ViewID: " + cardPhotonView.ViewID + " and CardID: " + cardComponent.Id);
                 }
             }
 
-            // Send deck information to other players
+            // ส่งข้อมูลเด็คไปให้ผู้เล่นคนอื่น
             List<int> cardIds = new List<int>();
             foreach (Card card in deck)
             {
-                cardIds.Add(card.Id); // Assuming each card has a unique Id
+                cardIds.Add(card.Id);
             }
             photonView.RPC("ReceiveDeck", RpcTarget.OthersBuffered, cardIds.ToArray());
             Debug.Log("Syncing deck with " + cardIds.Count + " cards.");
@@ -229,13 +227,17 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
     private void ReceiveDeck(int[] cardIds)
     {
         deck.Clear();
-        foreach (int id in cardIds)
+        foreach (int cardId in cardIds)
         {
-            Card card = CardData.cardList.Find(c => c.Id == id);
+            Card card = CardData.cardList.Find(c => c.Id == cardId);
             if (card != null)
             {
                 deck.Add(card);
-                Debug.Log("Added card to deck with ID: " + id);
+                //Debug.Log("Added card to deck with ID: " + card.Id);
+            }
+            else
+            {
+                //Debug.LogWarning("Card not found with ID: " + cardId);
             }
         }
         deckSize = deck.Count;
@@ -243,22 +245,68 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void ReceiveCard(int viewID, Vector3 position, Quaternion rotation)
+    private void ReceiveCard(int viewID, int cardID, Vector3 position, Quaternion rotation)
     {
         GameObject card = PhotonView.Find(viewID)?.gameObject;
         if (card != null)
         {
-            cardList.Add(card);
-            card.transform.SetParent(Board.transform, false);
-            card.transform.position = position;
-            card.transform.rotation = rotation;
-            card.SetActive(true);
-            Debug.Log("Received card with ViewID: " + viewID);
+            if (!cardList.Contains(card))
+            {
+                cardList.Add(card);
+                card.transform.SetParent(Board.transform, false);
+                card.transform.position = position;
+                card.transform.rotation = rotation;
+                card.SetActive(true);
+                Debug.Log("Received card with ViewID: " + viewID + " and CardID: " + cardID);
+            }
+            else
+            {
+                Debug.LogWarning("Card with ViewID: " + viewID + " is already in the cardList.");
+            }
+
+            DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
+            if (cardComponent != null)
+            {
+                Card masterCard = deck.Find(c => c.Id == cardID);
+                if (masterCard != null)
+                {
+                    cardComponent.LetterType = masterCard.LetterType;
+                    cardComponent.ColorType = masterCard.ColorType;
+                    cardComponent.AmountType = masterCard.AmountType;
+                    cardComponent.FontType = masterCard.FontType;
+                    cardComponent.Point = masterCard.Point;
+                    cardComponent.Spriteimg = masterCard.Spriteimg;
+                    Debug.Log("Card data synchronized for card with ViewID: " + viewID + " and CardID: " + cardID);
+                }
+                else
+                {
+                    Debug.LogWarning("Master card not found for card with ID: " + cardID);
+                }
+            }
+            else
+            {
+                Debug.LogError("Card component not found on the received card.");
+            }
         }
         else
         {
             Debug.LogError("Could not find card with ViewID: " + viewID);
         }
+    }
+
+
+    private void RemoveInitialBoardCards()
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            if (cardList.Count > 0)
+            {
+                GameObject cardToRemove = cardList[0];
+                cardList.RemoveAt(0);
+                PhotonNetwork.Destroy(cardToRemove);
+            }
+        }
+        Debug.Log("Removed initial 12 cards from boardzone.");
     }
 
     public void DrawCards(int numberOfCards)
@@ -270,5 +318,4 @@ public class DeckFire3 : MonoBehaviourPunCallbacks
     {
         return deckSize;
     }
-
 }

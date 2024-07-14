@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class DeckFire : MonoBehaviourPunCallbacks
+public class DeckFire4 : MonoBehaviourPunCallbacks
 {
     public List<Card> container = new List<Card>();
     public List<Card> deck = new List<Card>();

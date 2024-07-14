@@ -38,7 +38,7 @@ public class DisplayCard3 : MonoBehaviour
     void Start()
     {
         //numberOfCardInDeck = DeckFire.deckSize;
-        numberOfCardInDeck = Deckfree.deckSize;
+        numberOfCardInDeck = DeckFire.deckSize;
 
         //Debug.Log("CardList Count: " + CardData.cardList.Count);
         //Debug.Log("DisplayId: " + displayId);
@@ -76,9 +76,9 @@ public class DisplayCard3 : MonoBehaviour
 
             if (this.tag == "Clone" && numberOfCardInDeck > 0)
             {
-                displayCard[0] = Deckfree.staticDeck[numberOfCardInDeck - 1];
+                displayCard[0] = DeckFire.staticDeck[numberOfCardInDeck - 1];
                 numberOfCardInDeck -= 1;
-                Deckfree.deckSize -= 1;
+                DeckFire.deckSize -= 1;
                 cardBack = false;
                 this.tag = "Untagged";
             }

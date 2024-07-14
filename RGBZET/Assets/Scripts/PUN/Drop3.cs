@@ -16,14 +16,14 @@ public class Drop3 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
     [HideInInspector]
     public Transform parentToReturnTo;
     [HideInInspector]
-    public Deckfree deck;
+    public DeckFire deck;
     [HideInInspector]
     public int currentScore;
     private PhotonView photonView;
 
     public void Start()
     {
-        deck = FindObjectOfType<Deckfree>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
+        deck = FindObjectOfType<DeckFire>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
         photonView = GetComponent<PhotonView>();
     }

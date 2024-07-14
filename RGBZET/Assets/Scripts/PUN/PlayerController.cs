@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using TMPro;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     public GameObject zettext; // อ้างอิงไปยัง object zet ใน player
     //private bool isZetActive = false; // สถานะการแสดง zet
-
+    public TMP_Text NameText;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     private float cooldownTimer = 0f; // เวลาที่เหลือจากการ cooldown
     private Button zetButton;
@@ -60,5 +61,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void ToggleZet(bool show)
     {
         zettext.SetActive(show);
+    }
+
+    public void SetPlayerName(string playerName)
+    {
+        if (NameText != null)
+        {
+            NameText.text = playerName;
+            Debug.Log("Player name set to: " + playerName);
+        }
+        else
+        {
+            Debug.LogError("NameText is null");
+        }
     }
 }

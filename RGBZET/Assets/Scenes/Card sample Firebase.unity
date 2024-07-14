@@ -303,6 +303,10 @@ PrefabInstance:
       propertyPath: zettext
       value: 
       objectReference: {fileID: 1330303960}
+    - target: {fileID: 1880096697467023553, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+      propertyPath: NameText
+      value: 
+      objectReference: {fileID: 1962279518}
     - target: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
       propertyPath: m_fontSize
       value: 30
@@ -2301,6 +2305,10 @@ PrefabInstance:
       propertyPath: zettext
       value: 
       objectReference: {fileID: 342042568}
+    - target: {fileID: 1880096697467023553, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+      propertyPath: NameText
+      value: 
+      objectReference: {fileID: 796226679}
     - target: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
       propertyPath: m_fontSize
       value: 30
@@ -2537,6 +2545,10 @@ PrefabInstance:
       propertyPath: zettext
       value: 
       objectReference: {fileID: 1271393461}
+    - target: {fileID: 1880096697467023553, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+      propertyPath: NameText
+      value: 
+      objectReference: {fileID: 684407960}
     - target: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
       propertyPath: m_fontSize
       value: 30
@@ -3622,7 +3634,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2026080485
 Transform:
   m_ObjectHideFlags: 0
@@ -3696,7 +3708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2036629587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3711,7 +3723,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   container: []
   deck: []
-  x: 0
+  y: 0
   CardInDeck: {fileID: 2050878401}
   CardPrefab: {fileID: 1723533852}
   Clones: []
@@ -3773,6 +3785,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2050878400}
     - target: {fileID: 2004888973992085867, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
+      propertyPath: Board
+      value: 
+      objectReference: {fileID: 1729317774}
+    - target: {fileID: 2004888973992085867, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
@@ -3780,6 +3796,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2946009656275745986, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
+      propertyPath: parentToReturnTo
+      value: 
+      objectReference: {fileID: 1729317775}
     - target: {fileID: 3333748350357053810, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
       propertyPath: m_Name
       value: CardBoardOndeck1
@@ -3886,11 +3906,11 @@ PrefabInstance:
       objectReference: {fileID: 526030816, guid: 349ca126e143fb04ab4cd30142a6af22, type: 3}
     - target: {fileID: 5321262053624453993, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7388266710415748219, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 839b2d9bf120d9640836722c82b621d0, type: 3}
@@ -4088,6 +4108,10 @@ PrefabInstance:
       propertyPath: zettext
       value: 
       objectReference: {fileID: 928509396}
+    - target: {fileID: 1880096697467023553, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+      propertyPath: NameText
+      value: 
+      objectReference: {fileID: 4012695862991642548}
     - target: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
       propertyPath: m_fontSize
       value: 30
