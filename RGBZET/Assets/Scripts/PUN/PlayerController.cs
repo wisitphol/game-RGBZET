@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (NameText != null)
         {
             NameText.text = playerName;
-            Debug.Log("Player name set to: " + playerName);
+            Debug.Log("Player:" + playerName);
         }
         else
         {

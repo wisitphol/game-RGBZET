@@ -27,7 +27,7 @@ public class MainMenuUI : MonoBehaviour
 
         joinTournamentButton.onClick.AddListener(() => 
         {
-            SceneManager.LoadScene("JoinTournament");
+            SceneManager.LoadScene("Card sample Firebase");
         });
         createTournamentButton.onClick.AddListener(() => 
         {

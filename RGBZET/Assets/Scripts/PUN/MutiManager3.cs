@@ -16,16 +16,13 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     public GameObject player3;
     public GameObject player4;
     private ZETManager3 zetManager3;
-    private PlayerController playerController;
     private PhotonView myPhotonView;
 
     public GameObject Cardboard;
     public GameObject Board;
     private Dictionary<int, Vector3> playerPositions = new Dictionary<int, Vector3>();
     private FirebaseAuth auth;
-    private DatabaseReference userRef;
-
-
+    private DatabaseReference usersRef;
 
     void Start()
     {
@@ -42,7 +39,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         }
 
         zetManager3 = FindObjectOfType<ZETManager3>();
-        playerController = FindObjectOfType<PlayerController>();
         myPhotonView = GetComponent<PhotonView>();
 
         Debug.Log("Firebase Initialized: " + (auth != null ? "Yes" : "No"));
@@ -50,7 +46,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
     private void AddPlayerPosition(int actorNumber, Vector3 position)
     {
-        // เพิ่มหรืออัปเดตตำแหน่งของผู้เล่น
         if (playerPositions.ContainsKey(actorNumber))
         {
             playerPositions[actorNumber] = position;
@@ -80,7 +75,8 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Joined Room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
 
-
+        // Load user data for the current player
+        LoadUserData(PhotonNetwork.LocalPlayer);
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -88,19 +84,16 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
         LoadUserData(newPlayer);
-
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("Player left room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsOUT(otherPlayer);
-
     }
 
     void UpdatePlayerObjectsIN()
     {
-
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
 
         switch (playerCount)
@@ -137,20 +130,11 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
                 break;
         }
 
-        // เก็บตำแหน่งของผู้เล่นทุกคน
         foreach (Player player in PhotonNetwork.PlayerList)
         {
             if (playerPositions.ContainsKey(player.ActorNumber))
             {
-                // หาก Dictionary มีหมายเลขผู้เล่นนี้อยู่แล้ว ให้เรียกใช้เมธอด UpdatePlayerPosition
-                // เพื่ออัปเดตตำแหน่งของผู้เล่น
                 UpdatePlayerPosition(player.ActorNumber, playerPositions[player.ActorNumber]);
-            }
-            else
-            {
-                // หาก Dictionary ยังไม่มีหมายเลขผู้เล่นนี้ ให้เรียกใช้เมธอด SetPlayerPosition
-                // เพื่อเพิ่มตำแหน่งของผู้เล่นลงใน Dictionary
-                //SetPlayerPosition(player.ActorNumber, player.Position); // ใช้ Position ของ Player แทน
             }
         }
     }
@@ -159,7 +143,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     {
         int actorNumber = leftPlayer.ActorNumber;
 
-        // ปิดการแสดงผลผู้เล่นที่ออกจากห้อง
         switch (actorNumber)
         {
             case 1:
@@ -177,7 +160,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         }
     }
 
-    // เมธอดสำหรับการอัปเดตตำแหน่งของผู้เล่น
     void UpdatePlayerPosition(int actorNumber, Vector3 position)
     {
         switch (actorNumber)
@@ -196,8 +178,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
                 break;
         }
     }
-
-    // เพิ่มเมธอดสำหรับการส่ง RPC เมื่อกดปุ่ม zet
     public void OnZetButtonPressed()
     {
         if (zetManager3 != null && !ZETManager3.isZETActive && PhotonNetwork.IsConnected)
@@ -258,43 +238,70 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
     private void LoadUserData(Player player)
     {
-        string userId = player.UserId;
-        if (!string.IsNullOrEmpty(userId))
+        if (auth.CurrentUser != null)
         {
-            userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
-            userRef.GetValueAsync().ContinueWithOnMainThread(task =>
+            string email = auth.CurrentUser.Email;
+            Debug.Log("Loading user data for email: " + email);
+
+            usersRef = FirebaseDatabase.DefaultInstance.GetReference("users");
+            usersRef.OrderByChild("email").EqualTo(email).GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (task.IsCompleted)
                 {
                     DataSnapshot snapshot = task.Result;
-                    if (snapshot.Exists)
-                    {
-                        string playerName = snapshot.Child("username").Value.ToString();
+                    Debug.Log("Firebase response received. Snapshot exists: " + snapshot.Exists);
 
-                        // เรียกฟังก์ชัน SetPlayerName ใน PlayerController เพื่อแสดงชื่อผู้เล่น
-                        if (playerController != null)
+                    if (snapshot.Exists && snapshot.ChildrenCount > 0)
+                    {
+                        foreach (DataSnapshot userSnapshot in snapshot.Children)
                         {
-                            playerController.SetPlayerName(playerName);
-                            Debug.Log("Player name loaded successfully: " + playerName); // เพิ่ม Debug Log นี้
+                            if (userSnapshot.HasChild("username"))
+                            {
+                                string playerName = userSnapshot.Child("username").Value.ToString();
+                                Debug.Log("Username found: " + playerName);
+
+                                // แสดงชื่อผู้ใช้ใน PlayerController ที่เกี่ยวข้อง
+                                ShowPlayerName(player.ActorNumber, playerName);
+
+                                Debug.Log("User data loaded successfully for player: " + playerName);
+                                return;
+                            }
                         }
+                        Debug.LogError("Username not found in snapshot for email: " + email);
                     }
                     else
                     {
-                        Debug.LogWarning("No data exists for user: " + userId); // เพิ่ม Debug Log นี้
+                        Debug.LogError("Snapshot does not exist for email: " + email);
                     }
                 }
                 else
                 {
-                    Debug.LogError("Failed to fetch user data for user: " + userId); // เพิ่ม Debug Log นี้
+                    Debug.LogError("Failed to get user data from Firebase for email: " + email);
                 }
             });
         }
         else
         {
-            Debug.LogWarning("Player's user ID is null or empty."); // เพิ่ม Debug Log นี้
+            Debug.LogError("User email is null or empty");
         }
     }
 
-
-
+    private void ShowPlayerName(int actorNumber, string playerName)
+    {
+        switch (actorNumber)
+        {
+            case 1:
+                player1.GetComponent<PlayerController>().SetPlayerName(playerName);
+                break;
+            case 2:
+                player2.GetComponent<PlayerController>().SetPlayerName(playerName);
+                break;
+            case 3:
+                player3.GetComponent<PlayerController>().SetPlayerName(playerName);
+                break;
+            case 4:
+                player4.GetComponent<PlayerController>().SetPlayerName(playerName);
+                break;
+        }
+    }
 }
