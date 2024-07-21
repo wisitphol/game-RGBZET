@@ -73,23 +73,26 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
+        
+        LoadUserData(PhotonNetwork.LocalPlayer);
+       
         UpdatePlayerObjectsIN();
 
-        // Load user data for the current player
-        LoadUserData(PhotonNetwork.LocalPlayer);
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
-        LoadUserData(newPlayer);
+        //LoadUserData(newPlayer);
+
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("Player left room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsOUT(otherPlayer);
+
     }
 
     void UpdatePlayerObjectsIN()
@@ -240,68 +243,108 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     {
         if (auth.CurrentUser != null)
         {
-            string email = auth.CurrentUser.Email;
-            Debug.Log("Loading user data for email: " + email);
+            string userId = auth.CurrentUser.UserId;
+            Debug.Log("Loading user data for userId: " + userId);
 
-            usersRef = FirebaseDatabase.DefaultInstance.GetReference("users");
-            usersRef.OrderByChild("email").EqualTo(email).GetValueAsync().ContinueWithOnMainThread(task =>
+            usersRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
+            usersRef.GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (task.IsCompleted)
                 {
                     DataSnapshot snapshot = task.Result;
                     Debug.Log("Firebase response received. Snapshot exists: " + snapshot.Exists);
 
-                    if (snapshot.Exists && snapshot.ChildrenCount > 0)
+                    if (snapshot.Exists)
                     {
-                        foreach (DataSnapshot userSnapshot in snapshot.Children)
+                        if (snapshot.HasChild("username"))
                         {
-                            if (userSnapshot.HasChild("username"))
-                            {
-                                string playerName = userSnapshot.Child("username").Value.ToString();
-                                Debug.Log("Username found: " + playerName);
+                            string playerName = snapshot.Child("username").Value.ToString();
+                            Debug.Log("Username found: " + playerName);
 
-                                // แสดงชื่อผู้ใช้ใน PlayerController ที่เกี่ยวข้อง
-                                ShowPlayerName(player.ActorNumber, playerName);
-
-                                Debug.Log("User data loaded successfully for player: " + playerName);
-                                return;
-                            }
+                            // แสดงชื่อผู้ใช้ใน PlayerController ที่เกี่ยวข้อง
+                            myPhotonView.RPC("UpdatePlayerName", RpcTarget.AllBuffered, player.ActorNumber, playerName);
+                            //myPhotonView.RPC("UpdatePlayerName2", RpcTarget.AllBuffered, playerName);
+                            Debug.Log("User data loaded successfully for player: " + playerName);
                         }
-                        Debug.LogError("Username not found in snapshot for email: " + email);
+                        else
+                        {
+                            Debug.LogError("Username not found in snapshot for userId: " + userId);
+                        }
                     }
                     else
                     {
-                        Debug.LogError("Snapshot does not exist for email: " + email);
+                        Debug.LogError("Snapshot does not exist for userId: " + userId);
                     }
                 }
                 else
                 {
-                    Debug.LogError("Failed to get user data from Firebase for email: " + email);
+                    Debug.LogError("Failed to get user data from Firebase for userId: " + userId);
                 }
             });
         }
         else
         {
-            Debug.LogError("User email is null or empty");
+            Debug.LogError("CurrentUser is null");
         }
     }
 
-    private void ShowPlayerName(int actorNumber, string playerName)
+
+
+    [PunRPC]
+    private void UpdatePlayerName(int actorNumber, string username)
     {
-        switch (actorNumber)
+        PlayerController playerController = null;
+
+        if (actorNumber == 1 && player1 != null)
         {
-            case 1:
-                player1.GetComponent<PlayerController>().SetPlayerName(playerName);
-                break;
-            case 2:
-                player2.GetComponent<PlayerController>().SetPlayerName(playerName);
-                break;
-            case 3:
-                player3.GetComponent<PlayerController>().SetPlayerName(playerName);
-                break;
-            case 4:
-                player4.GetComponent<PlayerController>().SetPlayerName(playerName);
-                break;
+            playerController = player1.GetComponent<PlayerController>();
+        }
+        else if (actorNumber == 2 && player2 != null)
+        {
+            playerController = player2.GetComponent<PlayerController>();
+        }
+        else if (actorNumber == 3 && player3 != null)
+        {
+            playerController = player3.GetComponent<PlayerController>();
+        }
+        else if (actorNumber == 4 && player4 != null)
+        {
+            playerController = player4.GetComponent<PlayerController>();
+        }
+
+        if (playerController != null)
+        {
+            playerController.SetPlayerName(username);
         }
     }
+
+    
+    [PunRPC]
+    private void UpdatePlayerName2( string username)
+    {
+        PlayerController playerController = null;
+
+        if (player1 != null)
+        {
+            playerController = player1.GetComponent<PlayerController>();
+        }
+        else if (player2 != null)
+        {
+            playerController = player2.GetComponent<PlayerController>();
+        }
+        else if (player3 != null)
+        {
+            playerController = player3.GetComponent<PlayerController>();
+        }
+        else if (player4 != null)
+        {
+            playerController = player4.GetComponent<PlayerController>();
+        }
+
+        if (playerController != null)
+        {
+            playerController.SetPlayerName(username);
+        }
+    }
+
 }

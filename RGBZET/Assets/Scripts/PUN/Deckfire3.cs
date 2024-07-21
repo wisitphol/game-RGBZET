@@ -208,7 +208,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 if (cardPhotonView != null && cardComponent != null)
                 {
                     photonView.RPC("ReceiveCard", RpcTarget.OthersBuffered, cardPhotonView.ViewID, cardComponent.Id, card.transform.position, card.transform.rotation);
-                    Debug.Log("Syncing card with ViewID: " + cardPhotonView.ViewID + " and CardID: " + cardComponent.Id);
+                    //Debug.Log("Syncing card with ViewID: " + cardPhotonView.ViewID + " and CardID: " + cardComponent.Id);
                 }
             }
 
@@ -219,7 +219,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 cardIds.Add(card.Id);
             }
             photonView.RPC("ReceiveDeck", RpcTarget.OthersBuffered, cardIds.ToArray());
-            Debug.Log("Syncing deck with " + cardIds.Count + " cards.");
+            //Debug.Log("Syncing deck with " + cardIds.Count + " cards.");
         }
     }
 
@@ -257,11 +257,11 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 card.transform.position = position;
                 card.transform.rotation = rotation;
                 card.SetActive(true);
-                Debug.Log("Received card with ViewID: " + viewID + " and CardID: " + cardID);
+                //Debug.Log("Received card with ViewID: " + viewID + " and CardID: " + cardID);
             }
             else
             {
-                Debug.LogWarning("Card with ViewID: " + viewID + " is already in the cardList.");
+                //Debug.LogWarning("Card with ViewID: " + viewID + " is already in the cardList.");
             }
 
             DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
@@ -276,21 +276,21 @@ public class DeckFire : MonoBehaviourPunCallbacks
                     cardComponent.FontType = masterCard.FontType;
                     cardComponent.Point = masterCard.Point;
                     cardComponent.Spriteimg = masterCard.Spriteimg;
-                    Debug.Log("Card data synchronized for card with ViewID: " + viewID + " and CardID: " + cardID);
+                    //Debug.Log("Card data synchronized for card with ViewID: " + viewID + " and CardID: " + cardID);
                 }
                 else
                 {
-                    Debug.LogWarning("Master card not found for card with ID: " + cardID);
+                    //Debug.LogWarning("Master card not found for card with ID: " + cardID);
                 }
             }
             else
             {
-                Debug.LogError("Card component not found on the received card.");
+                //Debug.LogError("Card component not found on the received card.");
             }
         }
         else
         {
-            Debug.LogError("Could not find card with ViewID: " + viewID);
+            //Debug.LogError("Could not find card with ViewID: " + viewID);
         }
     }
 

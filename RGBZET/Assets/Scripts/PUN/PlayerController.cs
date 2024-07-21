@@ -11,16 +11,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     private float cooldownTimer = 0f; // เวลาที่เหลือจากการ cooldown
     private Button zetButton;
+    private int playerID;
 
     void Start()
     {
-        // ซ่อน object zet เมื่อเริ่มต้น
-        zettext.SetActive(false);
+         zetButton = GetComponent<Button>();
 
         if (zetButton != null)
         {
-            // กำหนดค่าให้กับ zetButton โดยอ้างอิงจาก Button component บน GameObject นี้
-            zetButton = GetComponent<Button>();
+            // ซ่อน object zet เมื่อเริ่มต้น
+            zettext.SetActive(false);
+        }
+        else
+        {
+            //Debug.LogError("zetButton is null");
+        }
+
+        // กำหนดค่า playerID จาก PhotonNetwork
+        if (photonView.IsMine)
+        {
+            playerID = PhotonNetwork.LocalPlayer.ActorNumber;
         }
     }
 
@@ -68,7 +78,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (NameText != null)
         {
             NameText.text = playerName;
-            Debug.Log("Player:" + playerName);
+            Debug.Log("Player ID: " + playerID + " updated name to: " + playerName);
         }
         else
         {
