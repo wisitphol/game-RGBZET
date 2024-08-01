@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class CardToBoard3 : MonoBehaviour
 {
@@ -16,17 +17,30 @@ public class CardToBoard3 : MonoBehaviour
     {
         Board = GameObject.Find("Boardzone");
         boardCheckScript = FindObjectOfType<BoardCheck3>();
-        
+
         //นับทุกการ์ดทีอยู่ใน boardzone
         if (Board.transform.childCount == 13)
         {
-             boardCheckScript.CheckBoard();
+            boardCheckScript.CheckBoard();
         }
-        
+
+        if (PhotonNetwork.LocalPlayer.ActorNumber != 1)
+        {
+            if (Board.transform.childCount == 13)
+            {
+                Debug.Log("Calling CheckBoardSame() for non-MasterClient.");
+                boardCheckScript.CheckBoardSame();
+            }
+        }
+
         photonView = GetComponent<PhotonView>();
+
         
+
     }
 
+
+    /*
     public void MoveCardToBoard()
     {
         if (!ZETManager3.isZETActive)
@@ -56,6 +70,7 @@ public class CardToBoard3 : MonoBehaviour
             boardCheckScript.CheckBoard();
         }
     }
+    */
 
 
 }

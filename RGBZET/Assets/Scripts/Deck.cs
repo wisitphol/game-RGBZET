@@ -17,8 +17,8 @@ public class Deck : MonoBehaviour
     public GameObject Board;
     private BoardCheck boardCheckScript;
 
-   
-   
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,17 +39,23 @@ public class Deck : MonoBehaviour
     {
         staticDeck = deck;
 
-        if(deckSize <= 0)
+        if (deckSize <= 0)
         {
             CardInDeck.SetActive(false);
-           // boardCheckScript.CheckBoardEnd();
+            // boardCheckScript.CheckBoardEnd();
+            
         }
-       
+        else
+        {
+            CardInDeck.SetActive(true); // เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า CardInDeck ถูกเปิดใช้งานเมื่อ deckSize มากกว่า 0
+           
+        }
+
     }
 
     IEnumerator StartGame()
     {
-        for(int i = 0; i < 12; i++)
+        for (int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
             GameObject newCard = Instantiate(CardPrefab, transform.position, transform.rotation); //as GameObject;
@@ -72,7 +78,7 @@ public class Deck : MonoBehaviour
 
     public IEnumerator Draw(int x)
     {
-        for(int i = 0; i < x; i++)
+        for (int i = 0; i < x; i++)
         {
             yield return new WaitForSeconds(1);
 
@@ -84,28 +90,28 @@ public class Deck : MonoBehaviour
                 newCard.SetActive(true);
 
 
-                Debug.Log("Number of cards in deck: " + RemainingCardsCount()); 
+                Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
             else
             {
                 //Debug.Log("No more cards in the deck. Cannot draw.");
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
-            } 
-            
+            }
+
         }
 
-        if(deckSize <= 0)
+        if (deckSize <= 0)
         {
             boardCheckScript.CheckBoardEnd();
         }
-        
+
     }
 
     public void DrawCards(int numberOfCards)
     {
         StartCoroutine(Draw(numberOfCards));
     }
-    
+
     public int RemainingCardsCount()
     {
         return deckSize;

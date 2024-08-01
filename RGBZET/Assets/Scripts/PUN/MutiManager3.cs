@@ -44,17 +44,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Firebase Initialized: " + (auth != null ? "Yes" : "No"));
     }
 
-    private void AddPlayerPosition(int actorNumber, Vector3 position)
-    {
-        if (playerPositions.ContainsKey(actorNumber))
-        {
-            playerPositions[actorNumber] = position;
-        }
-        else
-        {
-            playerPositions.Add(actorNumber, position);
-        }
-    }
 
     public override void OnConnectedToMaster()
     {
@@ -84,7 +73,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
-        //LoadUserData(newPlayer);
+        
 
     }
 
@@ -263,7 +252,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
                             // แสดงชื่อผู้ใช้ใน PlayerController ที่เกี่ยวข้อง
                             myPhotonView.RPC("UpdatePlayerName", RpcTarget.AllBuffered, player.ActorNumber, playerName);
-                            //myPhotonView.RPC("UpdatePlayerName2", RpcTarget.AllBuffered, playerName);
+                            
                             Debug.Log("User data loaded successfully for player: " + playerName);
                         }
                         else
@@ -319,32 +308,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
     }
 
     
-    [PunRPC]
-    private void UpdatePlayerName2( string username)
-    {
-        PlayerController playerController = null;
-
-        if (player1 != null)
-        {
-            playerController = player1.GetComponent<PlayerController>();
-        }
-        else if (player2 != null)
-        {
-            playerController = player2.GetComponent<PlayerController>();
-        }
-        else if (player3 != null)
-        {
-            playerController = player3.GetComponent<PlayerController>();
-        }
-        else if (player4 != null)
-        {
-            playerController = player4.GetComponent<PlayerController>();
-        }
-
-        if (playerController != null)
-        {
-            playerController.SetPlayerName(username);
-        }
-    }
+    
 
 }

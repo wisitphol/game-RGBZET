@@ -25,7 +25,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3333748350357053811
 RectTransform:
   m_ObjectHideFlags: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 020b73ea8e1d3de41ac16e9f3e5accd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardBack3: {fileID: 5132717203509620669}
+  cardBack: {fileID: 5132717203509620669}
 --- !u!114 &2004888973992085867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,7 +322,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5132717203509620668
 RectTransform:
   m_ObjectHideFlags: 0

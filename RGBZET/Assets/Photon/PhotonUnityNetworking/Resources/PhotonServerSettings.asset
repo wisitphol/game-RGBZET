@@ -90,6 +90,10 @@ MonoBehaviour:
   - SendCardData
   - UpdatePlayerName
   - UpdatePlayerName2
+  - ReceiveCard2
+  - RPC_CreateCard
+  - CreateCard
+  - UpdateCard
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
