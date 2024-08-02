@@ -40,14 +40,19 @@ public class DeckFire : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
 
         boardCheckScript = FindObjectOfType<BoardCheck3>();
+
+         deck = new List<Card>(CardData.cardList);
+            deckSize = deck.Count;
+            Shuffle(deck);
+            StartCoroutine(StartGame());
     }
 
     public override void OnConnectedToMaster()
     {
         Debug.Log("Connected to Master");
-        StartCoroutine(JoinLobbyWhenReady());
+        //StartCoroutine(JoinLobbyWhenReady());
     }
-
+    /*
     private IEnumerator JoinLobbyWhenReady()
     {
         while (!PhotonNetwork.IsConnectedAndReady)
@@ -62,22 +67,21 @@ public class DeckFire : MonoBehaviourPunCallbacks
         //Debug.Log("Joined Lobby");
         PhotonNetwork.JoinOrCreateRoom("RoomName", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
     }
-
+    */
     public override void OnJoinedRoom()
     {
         //Debug.Log("Joined Room");
         base.OnJoinedRoom();
 
-        deck = new List<Card>(CardData.cardList);
-        deckSize = deck.Count;
-        Shuffle(deck);
-       
         
        
         if (PhotonNetwork.IsMasterClient)
         {
-            StartCoroutine(StartGame());
             
+           // deck = new List<Card>(CardData.cardList);
+          //  deckSize = deck.Count;
+          //  Shuffle(deck);
+          //  StartCoroutine(StartGame());
             
         }
         else

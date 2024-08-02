@@ -51,8 +51,14 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginandRegister.unity
     guid: 9a24ae7a9aeb4f248b396600f7982f26
   - enabled: 1
+    path: Assets/Scenes/Card sample 2.unity
+    guid: 65fe9ae85bca05c47a3418ea273fff1f
+  - enabled: 1
     path: Assets/Scenes/Endscene.unity
     guid: 6e07ee7e02677cf42b22d3caff3e3314
+  - enabled: 1
+    path: Assets/Scenes/CreateFriend.unity
+    guid: 4a3da33eb7714544eb4b5066e1a6fd9e
   - enabled: 1
     path: Assets/Scenes/Card sample Firebase.unity
     guid: ad11272663b4b9545b4c001b4087d68a

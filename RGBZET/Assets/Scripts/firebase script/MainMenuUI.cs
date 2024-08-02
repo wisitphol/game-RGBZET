@@ -10,6 +10,7 @@ public class MainMenuUI : MonoBehaviour
     public Text usernameText;
     public Button joinTournamentButton;
     public Button createTournamentButton;
+    public Button lobbyTournamentButton;
     public Button logoutButton;
     public Text feedbackText;
 
@@ -27,11 +28,15 @@ public class MainMenuUI : MonoBehaviour
 
         joinTournamentButton.onClick.AddListener(() => 
         {
-            SceneManager.LoadScene("Card sample Firebase");
+            SceneManager.LoadScene("Joinroom");
         });
         createTournamentButton.onClick.AddListener(() => 
         {
-            SceneManager.LoadScene("TournamentCreation");
+            SceneManager.LoadScene("CreateFriend");
+        });
+        lobbyTournamentButton.onClick.AddListener(() => 
+        {
+            SceneManager.LoadScene("Lobby");
         });
         logoutButton.onClick.AddListener(() => 
         {

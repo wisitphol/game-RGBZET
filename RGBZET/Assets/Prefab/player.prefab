@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zettext: {fileID: 0}
+  NameText: {fileID: 0}
   cooldownTime: 7
 --- !u!1 &6909384780239791164
 GameObject:

@@ -13,7 +13,7 @@ public class ZETManager : MonoBehaviour
     public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     
-
+    public PlayerCon playercon;
 
     private void Start()
     {
@@ -26,7 +26,7 @@ public class ZETManager : MonoBehaviour
         if (!isZETActive)
         {
             StartCoroutine(ActivateZetWithCooldown());
-
+           
            
         }
     }

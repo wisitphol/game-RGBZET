@@ -35,7 +35,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         else
         {
             Debug.Log("Connected!");
-            JoinOrCreateRoom();
+           // JoinOrCreateRoom();
         }
 
         zetManager3 = FindObjectOfType<ZETManager3>();
@@ -44,10 +44,15 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         Debug.Log("Firebase Initialized: " + (auth != null ? "Yes" : "No"));
     }
 
-
     public override void OnConnectedToMaster()
     {
         Debug.Log("Connected to Photon Master Server. Pun is ready for use!");
+       // PhotonNetwork.JoinLobby();  // Join the default lobby
+    }
+    /*
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("Joined Lobby");
         JoinOrCreateRoom();
     }
 
@@ -58,7 +63,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinOrCreateRoom("cardsample", roomOptions, TypedLobby.Default);
     }
-
+    */
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined Room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
@@ -66,22 +71,18 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         LoadUserData(PhotonNetwork.LocalPlayer);
        
         UpdatePlayerObjectsIN();
-
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("Player entered room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsIN();
-        
-
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log("Player left room! Current players: " + PhotonNetwork.CurrentRoom.PlayerCount);
         UpdatePlayerObjectsOUT(otherPlayer);
-
     }
 
     void UpdatePlayerObjectsIN()
@@ -170,6 +171,7 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
                 break;
         }
     }
+
     public void OnZetButtonPressed()
     {
         if (zetManager3 != null && !ZETManager3.isZETActive && PhotonNetwork.IsConnected)
@@ -178,53 +180,33 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
         }
     }
 
-    // เพิ่มเมธอด RPC สำหรับการรับ RPC เมื่อผู้เล่นคนใดคนหนึ่งกดปุ่ม zet
     [PunRPC]
     void RPC_ZetButtonPressed_MutiManager3(int playerActorNumber)
     {
-        // ตรวจสอบว่า zetManager3 ไม่ได้เป็น null
         if (zetManager3 != null)
         {
-            // หากผู้เล่นที่กดปุ่ม ZET เป็นผู้เล่นที่มีหมายเลข Actor เท่ากับ 1
             if (playerActorNumber == 1 && player1 != null && player1.GetComponent<PlayerController>() != null)
             {
-                // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
                 zetManager3.OnZetButtonPressed();
-
-                // แสดง zettext สำหรับผู้เล่นที่มีหมายเลข Actor เท่ากับ 1
                 player1.GetComponent<PlayerController>().OnZetButtonPressed();
-
             }
-            // หากผู้เล่นที่กดปุ่ม ZET เป็นผู้เล่นที่มีหมายเลข Actor เท่ากับ 2
             else if (playerActorNumber == 2 && player2 != null && player2.GetComponent<PlayerController>() != null)
             {
-                // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
                 zetManager3.OnZetButtonPressed();
-
-                // แสดง zettext สำหรับผู้เล่นที่มีหมายเลข Actor เท่ากับ 2
                 player2.GetComponent<PlayerController>().OnZetButtonPressed();
             }
-            // หากผู้เล่นที่กดปุ่ม ZET เป็นผู้เล่นที่มีหมายเลข Actor เท่ากับ 3
             else if (playerActorNumber == 3 && player3 != null && player3.GetComponent<PlayerController>() != null)
             {
-                // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
                 zetManager3.OnZetButtonPressed();
-
-                // แสดง zettext สำหรับผู้เล่นที่มีหมายเลข Actor เท่ากับ 3
                 player3.GetComponent<PlayerController>().OnZetButtonPressed();
             }
-            // หากผู้เล่นที่กดปุ่ม ZET เป็นผู้เล่นที่มีหมายเลข Actor เท่ากับ 4
             else if (playerActorNumber == 4 && player4 != null && player4.GetComponent<PlayerController>() != null)
             {
-                // เรียกใช้งานเมธอด OnZetButtonPressed ของ ZETManager โดยตรง
                 zetManager3.OnZetButtonPressed();
-
-                // แสดง zettext สำหรับผู้เล่นที่มีหมายเลข Actor เท่ากับ 4
                 player4.GetComponent<PlayerController>().OnZetButtonPressed();
             }
         }
 
-        // แสดง Debug.Log เพื่อบันทึกว่ามีผู้เล่นกดปุ่ม ZET
         Debug.Log("Player " + playerActorNumber + " pressed the zet button.");
     }
 
@@ -250,7 +232,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
                             string playerName = snapshot.Child("username").Value.ToString();
                             Debug.Log("Username found: " + playerName);
 
-                            // แสดงชื่อผู้ใช้ใน PlayerController ที่เกี่ยวข้อง
                             myPhotonView.RPC("UpdatePlayerName", RpcTarget.AllBuffered, player.ActorNumber, playerName);
                             
                             Debug.Log("User data loaded successfully for player: " + playerName);
@@ -276,8 +257,6 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
             Debug.LogError("CurrentUser is null");
         }
     }
-
-
 
     [PunRPC]
     private void UpdatePlayerName(int actorNumber, string username)
@@ -306,8 +285,4 @@ public class MutiManager3 : MonoBehaviourPunCallbacks
             playerController.SetPlayerName(username);
         }
     }
-
-    
-    
-
 }
