@@ -116,7 +116,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
     void RPC_StartGame()
     {
         // เปลี่ยนฉากสำหรับผู้เล่นทุกคน
-        PhotonNetwork.LoadLevel("Card sample Firebase"); // ชื่อของ scene หน้าเล่นเกม
+        PhotonNetwork.LoadLevel("Card sample 2"); // ชื่อของ scene หน้าเล่นเกม
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)

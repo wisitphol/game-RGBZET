@@ -45,6 +45,8 @@ public class DeckFire : MonoBehaviourPunCallbacks
             deckSize = deck.Count;
             Shuffle(deck);
             StartCoroutine(StartGame());
+
+            SyncCardsWithMasterClient();
     }
 
     public override void OnConnectedToMaster()
@@ -86,30 +88,11 @@ public class DeckFire : MonoBehaviourPunCallbacks
         }
         else
         {
-             //SyncCardsWithMasterClient();
+            //SyncCardsWithMasterClient();
             
 
         }
 
-    }
-
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            //SendDeckToNewPlayer(newPlayer);
-        }
-    }
-
-    private void SendDeckToNewPlayer(Player newPlayer)
-    {
-        List<int> cardIds = new List<int>();
-        foreach (Card card in deck)
-        {
-            cardIds.Add(card.Id);
-        }
-        photonView.RPC("ReceiveDeck", newPlayer, cardIds.ToArray());
-        Debug.Log("Syncing deck with " + cardIds.Count + " cards to new player.");
     }
 
 
@@ -140,13 +123,13 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 yield return new WaitForSeconds(0.5f);
                 CreateCard();
             }
-           /*  foreach (GameObject card in cardList)
+          /*   foreach (GameObject card in cardList)
              {
                  PhotonView cardPhotonView = card.GetComponent<PhotonView>();
                  DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
                  if (cardPhotonView != null && cardComponent != null)
                  {
-                     photonView.RPC("SyncCardState", RpcTarget.AllBuffered,
+                     photonView.RPC("SyncCardState", RpcTarget.OthersBuffered,
                          cardPhotonView.ViewID, card.transform.position, card.transform.rotation,
                          cardComponent.LetterType, cardComponent.ColorType, cardComponent.AmountType, cardComponent.FontType,
                          cardComponent.Point, cardComponent.Spriteimg.name);
@@ -289,7 +272,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-          /* Debug.Log("Master Client processing card sync request.");
+         /*  Debug.Log("Master Client processing card sync request.");
             foreach (GameObject card in cardList)
             {
                 PhotonView cardPhotonView = card.GetComponent<PhotonView>();
