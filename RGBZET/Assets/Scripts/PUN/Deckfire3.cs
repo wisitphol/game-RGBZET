@@ -123,7 +123,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 yield return new WaitForSeconds(0.5f);
                 CreateCard();
             }
-          /*   foreach (GameObject card in cardList)
+           /*  foreach (GameObject card in cardList)
              {
                  PhotonView cardPhotonView = card.GetComponent<PhotonView>();
                  DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
@@ -272,8 +272,8 @@ public class DeckFire : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-         /*  Debug.Log("Master Client processing card sync request.");
-            foreach (GameObject card in cardList)
+           Debug.Log("Master Client processing card sync request.");
+           /* foreach (GameObject card in cardList)
             {
                 PhotonView cardPhotonView = card.GetComponent<PhotonView>();
                 DisplayCard3 cardComponent = card.GetComponent<DisplayCard3>();
@@ -291,7 +291,7 @@ public class DeckFire : MonoBehaviourPunCallbacks
                 cardIds.Add(card.Id);
             }
             photonView.RPC("ReceiveDeck", RpcTarget.OthersBuffered, cardIds.ToArray());
-            Debug.Log("Syncing deck with " + cardIds.Count + " cards.");*/
+            Debug.Log("Syncing deck with " + cardIds.Count + " cards."); */
 
             CallUpdateCard();
 

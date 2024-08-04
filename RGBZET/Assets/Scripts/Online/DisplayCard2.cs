@@ -91,23 +91,47 @@ public class DisplayCard2 : MonoBehaviour
 
     public void DisplayCardData(Card card)
     {
+        if (card != null && displayCard.Count > 0)
+        {
+            // ตรวจสอบขนาดของ displayCard ก่อนเข้าถึงดัชนี
+            if (displayCard.Count > 0)
+            {
+                Id = displayCard[0].Id;
+                LetterType = displayCard[0].LetterType;
+                ColorType = displayCard[0].ColorType;
+                AmountType = displayCard[0].AmountType;
+                FontType = displayCard[0].FontType;
+                Point = displayCard[0].Point;
+                Spriteimg = displayCard[0].Spriteimg;
 
-        Id = displayCard[0].Id;
-        LetterType = displayCard[0].LetterType;
-        ColorType = displayCard[0].ColorType;
-        AmountType = displayCard[0].AmountType;
-        FontType = displayCard[0].FontType;
-        Point = displayCard[0].Point;
-        Spriteimg = displayCard[0].Spriteimg;
+                //IdText.text = " " + Id;
+                ArtImage.sprite = Spriteimg;
+            }
+            else
+            {
+                Debug.LogError("displayCard is empty.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Card is null or displayCard is empty.");
+        }
 
-        //IdText.text = " " + Id;
-        ArtImage.sprite = Spriteimg;
+
     }
 
 
     public void SetBlocksRaycasts(bool blocksRaycasts)
     {
-        GetComponent<CanvasGroup>().blocksRaycasts = blocksRaycasts;
+        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.blocksRaycasts = blocksRaycasts;
+        }
+        else
+        {
+            Debug.LogError("CanvasGroup component missing.");
+        }
     }
 
 }

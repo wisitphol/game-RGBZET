@@ -8,7 +8,7 @@ public class BoardCheck2 : MonoBehaviour
     
     private Drop2 dropScript;
     private Deck2 deck;
-    private GameObject Board;
+    public GameObject Board;
     
     public void Start()
     {
@@ -111,5 +111,47 @@ public class BoardCheck2 : MonoBehaviour
             }
         }
         return false; // Return false if no set is found
+    }
+
+
+    public void FindCard()
+    {
+        List<GameObject> cardsOnBoard = new List<GameObject>();
+
+        // ตรวจสอบการ์ดใน Boardzone
+        for (int i = 0; i < Board.transform.childCount; i++)
+        {
+            GameObject card = Board.transform.GetChild(i).gameObject;
+            if (card != null)
+            {
+                cardsOnBoard.Add(card);
+            }
+        }
+
+        // ถ้ามีการ์ดใน Boardzone มากกว่า 1 ใบ ไม่ต้องทำอะไร
+        if (cardsOnBoard.Count > 1)
+        {
+            Debug.Log("There are already enough cards on the board.");
+            return;
+        }
+        else
+        {
+            // หา GameObjects ที่เป็นการ์ดนอก canvas (หรือพื้นที่อื่นๆ)
+            GameObject[] allCards = GameObject.FindGameObjectsWithTag("Clone");
+            foreach (GameObject card in allCards)
+            {
+                if (card.transform.parent != Board.transform)
+                {
+                    // ย้ายการ์ดมาที่ Boardzone
+                    card.transform.SetParent(Board.transform, false);
+                    card.transform.localScale = Vector3.one;
+                    card.transform.localPosition = Vector3.zero;
+                    card.transform.localEulerAngles = Vector3.zero;
+                    Debug.Log("Moved card to board!");
+                    return;
+                }
+            }
+            Debug.Log("No cards found outside the board.");
+        }
     }
 }
