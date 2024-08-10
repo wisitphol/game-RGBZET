@@ -98,6 +98,8 @@ MonoBehaviour:
   - SyncCards
   - SyncDeck
   - ReceiveBoard
+  - RPC_ActivateZet
+  - RPC_ActivateZET
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -80,6 +80,7 @@ public class DisplayCard2 : MonoBehaviour
                 Deck2.deckSize -= 1;
                 cardBack = false;
                 this.tag = "Untagged";
+              
             }
 
         }

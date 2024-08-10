@@ -4,31 +4,30 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using Photon.Pun;
 
 public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public TMP_Text scoreText; // อ้างอิงไปยัง Text UI สำหรับแสดงคะแนน
     
     private List<Card> droppedCards = new List<Card>(); // เก็บคุณสมบัติของการ์ดที่ลากมาวางลงในพื้นที่ drop
-    
     private Transform parentToReturnTo;
-    
     private Deck2 deck;
-  
     private int currentScore;
+    private PhotonView photonView;
 
 
     public void Start() 
     {
         deck = FindObjectOfType<Deck2>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
-        
+         photonView = GetComponent<PhotonView>();
     }
 
     public void Update()
     {
         // เมื่อปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETManage2.isZETActive)
+        if (!MutiManage2.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;
@@ -76,7 +75,7 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
     public void OnDrop(PointerEventData eventData)
     {
         // ตรวจสอบก่อนว่าปุ่ม ZET ถูกกดแล้วหรือยัง
-        if (!ZETManage2.isZETActive)
+        if (!MutiManage2.isZETActive)
         {
             
             //Debug.Log("Cannot drop. ZET button has not been pressed.");
@@ -106,6 +105,7 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
             {
                 // กำหนด parent ใหม่ให้กับ object ที่ลากมา เพื่อให้วางลงใน panel นี้
                 draggable.parentToReturnTo = this.transform;
+                photonView.RPC("UpdateCardParent", RpcTarget.AllBuffered, draggable.GetComponent<PhotonView>().ViewID, photonView.ViewID);
             }
 
             DisplayCard2 displayCardComponent = eventData.pointerDrag.GetComponent<DisplayCard2>();
@@ -155,8 +155,8 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                 UpdateScore(TotalScore);
                 
                 //scoreText.text =  totalScore.ToString();
-               
-                RemoveCardsFromGame();
+                photonView.RPC("RemoveCardsFromGameRPC", RpcTarget.AllBuffered);
+                //RemoveCardsFromGame();
 
                 deck.DrawCards(3);
             }
@@ -164,8 +164,9 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
             {
                 //Debug.Log("Not a valid Set. Return the cards to their original position.");
                 // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
-                ReturnCardsToOriginalPosition();
+                //ReturnCardsToOriginalPosition();
 
+                photonView.RPC("ReturnCardsToOriginalPositionRPC", RpcTarget.AllBuffered);
                 UpdateScore(-1);
                 
             }
@@ -299,7 +300,7 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
     public void CheckAndReturnCardsToBoardZone()
     {
         // ตรวจสอบว่าปุ่ม ZET ไม่ได้ถูกกด
-        if (!ZETManage2.isZETActive)
+        if (!MutiManage2.isZETActive)
         {
             // ตรวจสอบจำนวนการ์ดใน Checkzone
             int numberOfCardsInCheckZone = transform.childCount;
@@ -332,7 +333,75 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
         }
     }
 
+    [PunRPC]
+    public void ReturnCardsToOriginalPositionRPC()
+    {
+        int numberOfCards = transform.childCount;
 
+        for (int i = numberOfCards - 1; i >= 0; i--)
+        {
+            Transform cardTransform = transform.GetChild(i);
+            if (cardTransform != null)
+            {
+                cardTransform.SetParent(GameObject.Find("Boardzone").transform);
+                cardTransform.localPosition = Vector3.zero;
 
+                DisplayCard2 displayCardComponent = cardTransform.GetComponent<DisplayCard2>();
+                if (displayCardComponent != null)
+                {
+                    displayCardComponent.SetBlocksRaycasts(true);
+                }
+
+                Card card = displayCardComponent.displayCard[0];
+                if (droppedCards.Contains(card))
+                {
+                    droppedCards.Remove(card);
+                }
+            }
+        }
+
+        photonView.RPC("ClearDroppedCards", RpcTarget.AllBuffered);
+    }
+
+     [PunRPC]
+    public void RemoveCardsFromGameRPC()
+    {
+        int numberOfCards = transform.childCount;
+
+        for (int i = numberOfCards - 1; i >= 0; i--)
+        {
+            Transform cardTransform = transform.GetChild(i);
+            if (cardTransform != null)
+            {
+                DisplayCard2 displayCard = cardTransform.GetComponent<DisplayCard2>();
+                if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
+                {
+                    PhotonNetwork.Destroy(cardTransform.gameObject);
+                    droppedCards.Remove(displayCard.displayCard[0]);
+                }
+            }
+        }
+
+        photonView.RPC("ClearDroppedCards", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    public void ClearDroppedCards()
+    {
+        droppedCards.Clear();
+    }
+
+    [PunRPC]
+    public void UpdateCardParent(int cardViewID, int parentViewID)
+    {
+        PhotonView cardPhotonView = PhotonView.Find(cardViewID);
+        PhotonView parentPhotonView = PhotonView.Find(parentViewID);
+
+        if (cardPhotonView != null && parentPhotonView != null)
+        {
+            cardPhotonView.transform.SetParent(parentPhotonView.transform);
+            cardPhotonView.transform.localPosition = Vector3.zero;
+        }
+    }
 
 }

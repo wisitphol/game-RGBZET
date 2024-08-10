@@ -99,7 +99,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
             {
                 // เริ่มเกมและเปลี่ยนไปยังหน้าเล่นเกม
-                photonView.RPC("RPC_StartGame", RpcTarget.All);// ชื่อของ scene หน้าเล่นเกม
+                photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);// ชื่อของ scene หน้าเล่นเกม
             }
             else
             {

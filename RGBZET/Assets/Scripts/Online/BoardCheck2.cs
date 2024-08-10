@@ -5,11 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class BoardCheck2 : MonoBehaviour
 {
-    
+
     private Drop2 dropScript;
     private Deck2 deck;
     public GameObject Board;
-    
+
     public void Start()
     {
         dropScript = FindObjectOfType<Drop2>();
@@ -50,7 +50,7 @@ public class BoardCheck2 : MonoBehaviour
         else
         {
             Debug.Log("Not enough cards on the board to check for a set.");
-        }     
+        }
 
     }
 
@@ -70,7 +70,7 @@ public class BoardCheck2 : MonoBehaviour
         }
 
         // Check if there are less than 12 cards on the board
-        if(cardsOnBoard.Count < 12)
+        if (cardsOnBoard.Count < 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
 
@@ -86,12 +86,12 @@ public class BoardCheck2 : MonoBehaviour
         }
         else
         {
-        // If there are 12 cards on the board, the game continues
+            // If there are 12 cards on the board, the game continues
         }
-        
+
     }
 
-    
+
 
     private bool CheckSetForAllCards(List<Card> cards)
     {
@@ -116,6 +116,12 @@ public class BoardCheck2 : MonoBehaviour
 
     public void FindCard()
     {
+        if (Board == null)
+        {
+            Debug.LogError("Board is not assigned.");
+            return;
+        }
+
         List<GameObject> cardsOnBoard = new List<GameObject>();
 
         // ตรวจสอบการ์ดใน Boardzone
@@ -134,24 +140,39 @@ public class BoardCheck2 : MonoBehaviour
             Debug.Log("There are already enough cards on the board.");
             return;
         }
-        else
+
+        // หา GameObjects ที่เป็นการ์ดนอก canvas (หรือพื้นที่อื่นๆ)
+        GameObject[] allCards = GameObject.FindObjectsOfType<GameObject>();
+
+        foreach (GameObject card in allCards)
         {
-            // หา GameObjects ที่เป็นการ์ดนอก canvas (หรือพื้นที่อื่นๆ)
-            GameObject[] allCards = GameObject.FindGameObjectsWithTag("Clone");
-            foreach (GameObject card in allCards)
+            if (card != null && card.CompareTag("Untagged") && card.transform.parent == null)
             {
-                if (card.transform.parent != Board.transform)
-                {
-                    // ย้ายการ์ดมาที่ Boardzone
-                    card.transform.SetParent(Board.transform, false);
-                    card.transform.localScale = Vector3.one;
-                    card.transform.localPosition = Vector3.zero;
-                    card.transform.localEulerAngles = Vector3.zero;
-                    Debug.Log("Moved card to board!");
-                    return;
-                }
+                // ย้ายการ์ดมาที่ Boardzone
+                card.transform.SetParent(Board.transform, false);
+                card.transform.localScale = Vector3.one;
+                card.transform.localPosition = Vector3.zero;
+                card.transform.localEulerAngles = Vector3.zero;
+                Debug.Log("Moved card to board!");
+                return;
             }
-            Debug.Log("No cards found outside the board.");
         }
+        Debug.Log("No cards found outside the board.");
     }
+
+
+    // ฟังก์ชันสำหรับตรวจสอบว่าการ์ดอยู่ใน canvas หรือไม่
+    private bool IsCardInCanvas(GameObject card)
+    {
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas canvas in canvases)
+        {
+            if (card.transform.IsChildOf(canvas.transform))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
