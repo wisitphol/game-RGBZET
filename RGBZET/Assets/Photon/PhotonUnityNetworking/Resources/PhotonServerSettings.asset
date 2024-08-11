@@ -100,6 +100,7 @@ MonoBehaviour:
   - ReceiveBoard
   - RPC_ActivateZet
   - RPC_ActivateZET
+  - RPC_SetCardParent
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -46,29 +46,14 @@ public class Deck2 : MonoBehaviourPunCallbacks
             // Sync deck with other players
             photonView.RPC("ReceiveDeck", RpcTarget.Others, deckCardIds);
 
-           // photonView.RPC("RPC_StartGame", RpcTarget.All);
 
-            
-            StartCoroutine(StartGame());
-
-            
-         /*   int[] photonViewIds = new int[deck.Count];
-            Vector3[] cardPositions = GetCardPositions(); // Method to get positions
-            Quaternion[] cardRotations = GetCardRotations(); // Method to get rotations
-
+            RPC_StartGame();
         
-            photonView.RPC("ReceiveBoard", RpcTarget.OthersBuffered, photonViewIds, cardPositions, cardRotations);*/
         }
         else
         {
-            // Wait for the master client to sync the deck
-            StartCoroutine(WaitForDeckSync());
-         
 
             Debug.Log("This player is NOT the MasterClient.");
-
-           
-
 
         }
     }
@@ -91,7 +76,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
         }
 
     }
-    
+
     [PunRPC]
     public void RPC_StartGame()
     {
@@ -105,13 +90,25 @@ public class Deck2 : MonoBehaviourPunCallbacks
         {
             yield return new WaitForSeconds(0.5f);
             GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
-            newCard.transform.SetParent(Board.transform, false);
-            newCard.transform.localPosition = new Vector3(0, 0, 0); // ตั้งค่า localPosition ให้ถูกต้อง
-            newCard.transform.localRotation = Quaternion.identity; // ตั้งค่า localRotation ให้ถูกต้อง
-            newCard.SetActive(true);
+            int viewID = newCard.GetComponent<PhotonView>().ViewID;
 
+            // เรียกใช้ RPC เพื่อให้ผู้เล่นอื่นๆ จัดการกับการ์ดที่ถูกสร้างใหม่
+            photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
         }
 
+    }
+
+    [PunRPC]
+    private void RPC_SetCardParent(int viewID)
+    {
+        GameObject card = PhotonView.Find(viewID)?.gameObject;
+        if (card != null)
+        {
+            card.transform.SetParent(Board.transform, false);
+            card.transform.localPosition = Vector3.zero;
+            card.transform.localRotation = Quaternion.identity;
+            card.SetActive(true);
+        }
     }
 
     private void InitializeDeck()
@@ -131,7 +128,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
         }
 
         // Deck has been synced, start the game
-       StartCoroutine(StartGame());
+        StartCoroutine(StartGame());
     }
 
     [PunRPC]
@@ -267,6 +264,12 @@ public class Deck2 : MonoBehaviourPunCallbacks
     }
 
     public void DrawCards(int numberOfCards)
+    {
+       photonView.RPC("DrawMultipleCards", RpcTarget.All, numberOfCards);
+    }
+
+    [PunRPC]
+    private void DrawMultipleCards(int numberOfCards)
     {
         StartCoroutine(Draw(numberOfCards));
     }

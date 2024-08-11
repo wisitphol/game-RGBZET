@@ -23,7 +23,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
     
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (MutiManage2.isZETActive && photonView.Owner == MutiManage2.playerWhoActivatedZET) // ตรวจสอบผู้เล่นที่กดปุ่ม ZET
+        if (MutiManage2.isZETActive && MutiManage2.playerWhoActivatedZET == PhotonNetwork.LocalPlayer) // ตรวจสอบผู้เล่นที่กดปุ่ม ZET
         {
             Debug.Log("Dragging enabled.");
             parentToReturnTo = this.transform.parent;
@@ -48,7 +48,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (MutiManage2.isZETActive && photonView.Owner == MutiManage2.playerWhoActivatedZET) // ตรวจสอบผู้เล่นที่กดปุ่ม ZET
+        if (MutiManage2.isZETActive && MutiManage2.playerWhoActivatedZET == PhotonNetwork.LocalPlayer) // ตรวจสอบผู้เล่นที่กดปุ่ม ZET
         {
             this.transform.position = eventData.position;
 

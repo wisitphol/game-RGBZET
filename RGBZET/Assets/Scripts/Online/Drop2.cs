@@ -376,7 +376,7 @@ public class Drop2 : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointer
                 DisplayCard2 displayCard = cardTransform.GetComponent<DisplayCard2>();
                 if (displayCard != null && droppedCards.Contains(displayCard.displayCard[0]))
                 {
-                    PhotonNetwork.Destroy(cardTransform.gameObject);
+                    Destroy(cardTransform.gameObject);
                     droppedCards.Remove(displayCard.displayCard[0]);
                 }
             }
