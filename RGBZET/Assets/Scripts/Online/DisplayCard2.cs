@@ -72,7 +72,7 @@ public class DisplayCard2 : MonoBehaviour
             }
 
             staticCardBack = cardBack;
-
+            
             if (this.tag == "Clone" && numberOfCardInDeck > 0)
             {
                 displayCard[0] = Deck2.staticDeck[numberOfCardInDeck - 1];
@@ -80,8 +80,9 @@ public class DisplayCard2 : MonoBehaviour
                 Deck2.deckSize -= 1;
                 cardBack = false;
                 this.tag = "Untagged";
-              
+
             }
+
 
         }
         else

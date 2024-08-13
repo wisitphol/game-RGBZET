@@ -17,13 +17,12 @@ public class Deck2 : MonoBehaviourPunCallbacks
     public GameObject[] Clones;
     public GameObject Board;
     private BoardCheck2 boardCheckScript;
-    private List<GameObject> cardList = new List<GameObject>();
-
-
+    
 
     // Start is called before the first frame update
     void Start()
     {
+        boardCheckScript = FindObjectOfType<BoardCheck2>(); 
 
         if (Board == null)
         {
@@ -48,7 +47,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
 
             RPC_StartGame();
-        
+
         }
         else
         {
@@ -67,12 +66,10 @@ public class Deck2 : MonoBehaviourPunCallbacks
         {
             CardInDeck.SetActive(false);
             // boardCheckScript.CheckBoardEnd();
-
         }
         else
         {
             CardInDeck.SetActive(true); // เพิ่มบรรทัดนี้เพื่อให้แน่ใจว่า CardInDeck ถูกเปิดใช้งานเมื่อ deckSize มากกว่า 0
-
         }
 
     }
@@ -89,12 +86,26 @@ public class Deck2 : MonoBehaviourPunCallbacks
         for (int i = 0; i < 12; i++)
         {
             yield return new WaitForSeconds(0.5f);
-            GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
-            int viewID = newCard.GetComponent<PhotonView>().ViewID;
 
-            // เรียกใช้ RPC เพื่อให้ผู้เล่นอื่นๆ จัดการกับการ์ดที่ถูกสร้างใหม่
-            photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
+            if (deckSize > 0)
+            {
+                GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
+                int viewID = newCard.GetComponent<PhotonView>().ViewID;
+
+                // เรียกใช้ RPC เพื่อให้ผู้เล่นอื่นๆ จัดการกับการ์ดที่ถูกสร้างใหม่
+                photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
+
+                
+            }
+            else
+            {
+                Debug.LogWarning("Deck is empty, no more cards to draw.");
+                break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดหมด
+            }
+
         }
+      //  Card card = deck[deckSize - 12];
+      //  deck.RemoveAt(deckSize - 12);
 
     }
 
@@ -120,17 +131,6 @@ public class Deck2 : MonoBehaviourPunCallbacks
         Debug.Log("Deck initialized with " + deckSize + " cards.");
     }
 
-    IEnumerator WaitForDeckSync()
-    {
-        while (deck.Count == 0)
-        {
-            yield return null;
-        }
-
-        // Deck has been synced, start the game
-        StartCoroutine(StartGame());
-    }
-
     [PunRPC]
     private void ReceiveDeck(int[] cardIds)
     {
@@ -151,72 +151,6 @@ public class Deck2 : MonoBehaviourPunCallbacks
         deckSize = deck.Count;
         Debug.Log("Deck synchronized with " + deckSize + " cards.");
     }
-
-
-    [PunRPC]
-    private void ReceiveBoard(int[] photonViewIds, Vector3[] positions, Quaternion[] rotations)
-    {
-        GameObject boardzone = GameObject.Find("Boardzone");
-
-        if (boardzone == null)
-        {
-            Debug.LogError("Boardzone not found.");
-            return;
-        }
-
-        for (int i = 0; i < photonViewIds.Length; i++)
-        {
-            // หาตำแหน่งและการหมุนของการ์ดจากข้อมูลที่ได้รับ
-            Vector3 position = positions[i];
-            Quaternion rotation = rotations[i];
-
-            // ค้นหาการ์ดโดยใช้ PhotonView ID
-            GameObject cardObject = PhotonView.Find(photonViewIds[i])?.gameObject;
-
-            if (cardObject != null)
-            {
-                // ตั้งค่าตำแหน่งและการหมุนของการ์ด
-                cardObject.transform.SetParent(boardzone.transform, false);
-                cardObject.transform.localPosition = position;
-                cardObject.transform.localRotation = rotation;
-                cardObject.SetActive(true);
-            }
-            else
-            {
-                Debug.LogWarning("Card object not found for PhotonView ID: " + photonViewIds[i]);
-            }
-        }
-    }
-
-
-
-
-
-    private Vector3[] GetCardPositions()
-    {
-        // Method to get positions of cards in the boardzone
-        Vector3[] positions = new Vector3[deck.Count];
-        for (int i = 0; i < deck.Count; i++)
-        {
-            // Assume cards are placed in a grid or specific positions
-            // This is just an example and should be replaced with actual logic
-            positions[i] = new Vector3(i * 2.0f, 0, 0); // Adjust based on your actual board layout
-        }
-        return positions;
-    }
-
-    private Quaternion[] GetCardRotations()
-    {
-        Quaternion[] rotations = new Quaternion[deck.Count];
-        for (int i = 0; i < deck.Count; i++)
-        {
-            // Assume all cards have no rotation
-            rotations[i] = Quaternion.identity; // Replace with actual logic if needed
-        }
-        return rotations;
-    }
-
-    // Add methods to get other card data (letterTypes, colorTypes, amountTypes, fontTypes, points, spriteNames) based on your card data structure.
 
     private void Shuffle(List<Card> list)
     {
@@ -244,6 +178,14 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 newCard.transform.localRotation = Quaternion.identity; // ตั้งค่า localRotation ให้ถูกต้อง
                 newCard.SetActive(true);
 
+                int viewID = newCard.GetComponent<PhotonView>().ViewID;
+
+                photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
+               
+               
+               // Card card = deck[deckSize - 1];
+              
+               // deck.RemoveAt(deckSize - 1);
 
 
                 Debug.Log("Number of cards in deck: " + RemainingCardsCount());
@@ -253,8 +195,9 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 //Debug.Log("No more cards in the deck. Cannot draw.");
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
             }
-
         }
+
+       // photonView.RPC("ReceiveDraw", RpcTarget.Others, drawnCardIds.ToArray());
 
         if (deckSize <= 0)
         {
@@ -263,39 +206,25 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
     }
 
+    [PunRPC]
     public void DrawCards(int numberOfCards)
     {
-       photonView.RPC("DrawMultipleCards", RpcTarget.All, numberOfCards);
+        StartCoroutine(Draw(numberOfCards));
     }
 
     [PunRPC]
-    private void DrawMultipleCards(int numberOfCards)
+    public void RequestDrawCardsFromMaster(int numberOfCards)
     {
-        StartCoroutine(Draw(numberOfCards));
+         Debug.Log(" RequestDrawCardsFromMaster called");
+        if (PhotonNetwork.IsMasterClient)
+        {
+            DrawCards(numberOfCards); // เรียกฟังก์ชันการจั่วการ์ด
+        }
     }
 
     public int RemainingCardsCount()
     {
         return deckSize;
-    }
-
-    [PunRPC]
-    private void ReceiveCard(int viewID, Vector3 position, Quaternion rotation)
-    {
-        GameObject card = PhotonView.Find(viewID)?.gameObject;
-        if (card != null)
-        {
-            cardList.Add(card);
-            card.transform.SetParent(Board.transform, false);
-            card.transform.position = position;
-            card.transform.rotation = rotation;
-            card.SetActive(true);
-            Debug.Log("Received card with ViewID: " + viewID);
-        }
-        else
-        {
-            Debug.LogError("Could not find card with ViewID: " + viewID);
-        }
     }
 
 }

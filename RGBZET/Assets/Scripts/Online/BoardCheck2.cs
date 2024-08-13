@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
 
 public class BoardCheck2 : MonoBehaviour
 {
@@ -44,7 +45,17 @@ public class BoardCheck2 : MonoBehaviour
             else
             {
                 Debug.Log("The cards on the board do not form a set. Drawing three more cards...");
-                StartCoroutine(deck.Draw(3));
+
+                if (PhotonNetwork.IsMasterClient)
+                {
+                   
+                    deck.DrawCards(3);
+                }
+                else
+                {
+                   // photonView.RPC("RemoveCardByMasterClient", RpcTarget.MasterClient);
+                    deck.photonView.RPC("RequestDrawCardsFromMaster", RpcTarget.MasterClient, 3);
+                }
             }
         }
         else
@@ -114,65 +125,5 @@ public class BoardCheck2 : MonoBehaviour
     }
 
 
-    public void FindCard()
-    {
-        if (Board == null)
-        {
-            Debug.LogError("Board is not assigned.");
-            return;
-        }
-
-        List<GameObject> cardsOnBoard = new List<GameObject>();
-
-        // ตรวจสอบการ์ดใน Boardzone
-        for (int i = 0; i < Board.transform.childCount; i++)
-        {
-            GameObject card = Board.transform.GetChild(i).gameObject;
-            if (card != null)
-            {
-                cardsOnBoard.Add(card);
-            }
-        }
-
-        // ถ้ามีการ์ดใน Boardzone มากกว่า 1 ใบ ไม่ต้องทำอะไร
-        if (cardsOnBoard.Count > 1)
-        {
-            Debug.Log("There are already enough cards on the board.");
-            return;
-        }
-
-        // หา GameObjects ที่เป็นการ์ดนอก canvas (หรือพื้นที่อื่นๆ)
-        GameObject[] allCards = GameObject.FindObjectsOfType<GameObject>();
-
-        foreach (GameObject card in allCards)
-        {
-            if (card != null && card.CompareTag("Untagged") && card.transform.parent == null)
-            {
-                // ย้ายการ์ดมาที่ Boardzone
-                card.transform.SetParent(Board.transform, false);
-                card.transform.localScale = Vector3.one;
-                card.transform.localPosition = Vector3.zero;
-                card.transform.localEulerAngles = Vector3.zero;
-                Debug.Log("Moved card to board!");
-                return;
-            }
-        }
-        Debug.Log("No cards found outside the board.");
-    }
-
-
-    // ฟังก์ชันสำหรับตรวจสอบว่าการ์ดอยู่ใน canvas หรือไม่
-    private bool IsCardInCanvas(GameObject card)
-    {
-        Canvas[] canvases = FindObjectsOfType<Canvas>();
-        foreach (Canvas canvas in canvases)
-        {
-            if (card.transform.IsChildOf(canvas.transform))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

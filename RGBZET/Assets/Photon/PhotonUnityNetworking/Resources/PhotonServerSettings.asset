@@ -101,6 +101,12 @@ MonoBehaviour:
   - RPC_ActivateZet
   - RPC_ActivateZET
   - RPC_SetCardParent
+  - RequestRemoveCardsFromMaster
+  - RemoveCardByMasterClient
+  - DrawCardsByMasterClient
+  - RequestDrawCardsFromMaster
+  - ReceiveDraw
+  - DrawCards
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

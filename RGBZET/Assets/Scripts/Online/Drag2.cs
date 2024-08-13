@@ -5,19 +5,17 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Photon.Pun;
 
-public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class Drag2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Transform parentToReturnTo = null;
     private Vector3 startPosition;
     private Quaternion startRotation; 
     private DisplayCard2 displayCard;
-    private PhotonView photonView;
 
     void Start()
     {
         displayCard = GetComponent<DisplayCard2>();
       
-        photonView = GetComponent<PhotonView>();
     }
 
     
@@ -25,7 +23,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
     {
         if (MutiManage2.isZETActive && MutiManage2.playerWhoActivatedZET == PhotonNetwork.LocalPlayer) // ตรวจสอบผู้เล่นที่กดปุ่ม ZET
         {
-            Debug.Log("Dragging enabled.");
+           // Debug.Log("Dragging enabled.");
             parentToReturnTo = this.transform.parent;
             startPosition = this.transform.localPosition; // จัดเก็บตำแหน่งเริ่มต้น
             startRotation = this.transform.localRotation; // จัดเก็บการหมุนเริ่มต้น
@@ -41,7 +39,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
         }
         else
         {
-            Debug.Log("Dragging disabled. ZET button has not been pressed.");
+           // Debug.Log("Dragging disabled. ZET button has not been pressed.");
             eventData.pointerDrag = null; // ป้องกันการลาก
         }
     }
@@ -64,7 +62,7 @@ public class Drag2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
         this.transform.localRotation = startRotation;
         
         GetComponent<CanvasGroup>().blocksRaycasts = true;
-        Debug.Log("Returning to original position.");
+       // Debug.Log("Returning to original position.");
 
         photonView.RPC("RPC_OnEndDrag", RpcTarget.AllBuffered, startPosition, startRotation);
 
