@@ -17,12 +17,12 @@ public class Deck2 : MonoBehaviourPunCallbacks
     public GameObject[] Clones;
     public GameObject Board;
     private BoardCheck2 boardCheckScript;
-    
+
 
     // Start is called before the first frame update
     void Start()
     {
-        boardCheckScript = FindObjectOfType<BoardCheck2>(); 
+        boardCheckScript = FindObjectOfType<BoardCheck2>();
 
         if (Board == null)
         {
@@ -41,10 +41,8 @@ public class Deck2 : MonoBehaviourPunCallbacks
             {
                 deckCardIds[i] = deck[i].Id;  // Assuming Id is an integer, if it's a string, use a different approach
             }
-
             // Sync deck with other players
             photonView.RPC("ReceiveDeck", RpcTarget.Others, deckCardIds);
-
 
             RPC_StartGame();
 
@@ -54,6 +52,11 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
             Debug.Log("This player is NOT the MasterClient.");
 
+        }
+
+        if (Board.transform.childCount == 13)
+        {
+            boardCheckScript.CheckBoard();
         }
     }
 
@@ -65,7 +68,6 @@ public class Deck2 : MonoBehaviourPunCallbacks
         if (deckSize <= 0)
         {
             CardInDeck.SetActive(false);
-            // boardCheckScript.CheckBoardEnd();
         }
         else
         {
@@ -78,7 +80,6 @@ public class Deck2 : MonoBehaviourPunCallbacks
     public void RPC_StartGame()
     {
         StartCoroutine(StartGame());
-
     }
 
     IEnumerator StartGame()
@@ -91,11 +92,9 @@ public class Deck2 : MonoBehaviourPunCallbacks
             {
                 GameObject newCard = PhotonNetwork.Instantiate(CardPrefab.name, transform.position, transform.rotation);
                 int viewID = newCard.GetComponent<PhotonView>().ViewID;
-
                 // เรียกใช้ RPC เพื่อให้ผู้เล่นอื่นๆ จัดการกับการ์ดที่ถูกสร้างใหม่
                 photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
 
-                
             }
             else
             {
@@ -104,22 +103,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
             }
 
         }
-      //  Card card = deck[deckSize - 12];
-      //  deck.RemoveAt(deckSize - 12);
 
-    }
-
-    [PunRPC]
-    private void RPC_SetCardParent(int viewID)
-    {
-        GameObject card = PhotonView.Find(viewID)?.gameObject;
-        if (card != null)
-        {
-            card.transform.SetParent(Board.transform, false);
-            card.transform.localPosition = Vector3.zero;
-            card.transform.localRotation = Quaternion.identity;
-            card.SetActive(true);
-        }
     }
 
     private void InitializeDeck()
@@ -152,6 +136,19 @@ public class Deck2 : MonoBehaviourPunCallbacks
         Debug.Log("Deck synchronized with " + deckSize + " cards.");
     }
 
+    [PunRPC]
+    private void RPC_SetCardParent(int viewID)
+    {
+        GameObject card = PhotonView.Find(viewID)?.gameObject;
+        if (card != null)
+        {
+            card.transform.SetParent(Board.transform, false);
+            card.transform.localPosition = Vector3.zero;
+            card.transform.localRotation = Quaternion.identity;
+            card.SetActive(true);
+        }
+    }
+
     private void Shuffle(List<Card> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -179,14 +176,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 newCard.SetActive(true);
 
                 int viewID = newCard.GetComponent<PhotonView>().ViewID;
-
                 photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
-               
-               
-               // Card card = deck[deckSize - 1];
-              
-               // deck.RemoveAt(deckSize - 1);
-
 
                 Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
@@ -196,8 +186,6 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 break; // หยุดการจั่วการ์ดเมื่อสำรับการ์ดใน deck หมดลงแล้ว
             }
         }
-
-       // photonView.RPC("ReceiveDraw", RpcTarget.Others, drawnCardIds.ToArray());
 
         if (deckSize <= 0)
         {
@@ -215,10 +203,21 @@ public class Deck2 : MonoBehaviourPunCallbacks
     [PunRPC]
     public void RequestDrawCardsFromMaster(int numberOfCards)
     {
-         Debug.Log(" RequestDrawCardsFromMaster called");
+        Debug.Log(" RequestDrawCardsFromMaster called");
         if (PhotonNetwork.IsMasterClient)
         {
             DrawCards(numberOfCards); // เรียกฟังก์ชันการจั่วการ์ด
+        }
+    }
+
+    [PunRPC]
+    void RemoveCardFromDeck(int cardId)
+    {
+        Card cardToRemove = deck.Find(c => c.Id == cardId);
+        if (cardToRemove != null)
+        {
+            deck.Remove(cardToRemove);
+            deckSize = deck.Count; // อัพเดท deckSize หลังจากลบการ์ด
         }
     }
 

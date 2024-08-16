@@ -107,6 +107,7 @@ MonoBehaviour:
   - RequestDrawCardsFromMaster
   - ReceiveDraw
   - DrawCards
+  - UpdatePlayerScore
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

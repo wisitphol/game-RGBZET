@@ -3251,6 +3251,10 @@ PrefabInstance:
       propertyPath: Board
       value: 
       objectReference: {fileID: 1729317774}
+    - target: {fileID: 6427996480461071328, guid: 3f3c46c5487121148a82746e1b71c386, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7565365075251685378, guid: 3f3c46c5487121148a82746e1b71c386, type: 3}
       propertyPath: parentToReturnTo
       value: 

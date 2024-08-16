@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using Photon.Pun;
 
 
 public class DisplayCard2 : MonoBehaviour
@@ -72,18 +73,22 @@ public class DisplayCard2 : MonoBehaviour
             }
 
             staticCardBack = cardBack;
-            
+
             if (this.tag == "Clone" && numberOfCardInDeck > 0)
             {
-                displayCard[0] = Deck2.staticDeck[numberOfCardInDeck - 1];
-                numberOfCardInDeck -= 1;
-                Deck2.deckSize -= 1;
-                cardBack = false;
-                this.tag = "Untagged";
-
+                if (numberOfCardInDeck <= Deck2.staticDeck.Count && numberOfCardInDeck > 0)
+                {
+                    displayCard[0] = Deck2.staticDeck[numberOfCardInDeck - 1];
+                    numberOfCardInDeck--;
+                    Deck2.deckSize--;
+                    cardBack = false;
+                    this.tag = "Untagged";
+                }
+                else
+                {
+                    Debug.LogError("numberOfCardInDeck is out of range.");
+                }
             }
-
-
         }
         else
         {
@@ -118,10 +123,7 @@ public class DisplayCard2 : MonoBehaviour
         {
             Debug.LogError("Card is null or displayCard is empty.");
         }
-
-
     }
-
 
     public void SetBlocksRaycasts(bool blocksRaycasts)
     {

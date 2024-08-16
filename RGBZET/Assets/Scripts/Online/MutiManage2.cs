@@ -48,6 +48,8 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 PlayerCon2 playerCon = playerObjects[i].GetComponent<PlayerCon2>();
                 if (playerCon != null)
                 {
+                    playerCon.SetActorNumber(players[i].ActorNumber);
+
                     // ดึงชื่อผู้เล่นจาก CustomProperties หรือ NickName
                     string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
 
@@ -151,11 +153,11 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 playerCon.ActivateZetText();
                 activatedPlayerCon = playerCon;
             }
-          //  else if (playerCon != null)
-          //  {
-                // ซ่อน zettext สำหรับผู้เล่นที่ไม่ได้กดปุ่ม ZET
-          //      playerCon.DeactivateZetText();
-          //  }
+            //  else if (playerCon != null)
+            //  {
+            // ซ่อน zettext สำหรับผู้เล่นที่ไม่ได้กดปุ่ม ZET
+            //      playerCon.DeactivateZetText();
+            //  }
         }
 
         yield return new WaitForSeconds(cooldownTime);
@@ -170,4 +172,27 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         zetButton.interactable = true;
         Debug.Log("ZET is now available again after cooldown.");
     }
+
+    [PunRPC]
+    public void UpdatePlayerScore(int actorNumber, int newScore)
+    {
+        Debug.Log($"Updating score for actorNumber: {actorNumber} with newScore: {newScore}");
+
+        GameObject[] players = { player1, player2, player3, player4 };
+
+        foreach (GameObject player in players)
+        {
+            PlayerCon2 playerComponent = player.GetComponent<PlayerCon2>();
+            if (playerComponent != null && playerComponent.ActorNumber == actorNumber)
+            {
+                playerComponent.UpdateScore(newScore);
+                Debug.Log($"Score updated for {playerComponent.NameText.text} to {newScore}");
+                break;
+            }
+        }
+    }
+
+
+
+
 }

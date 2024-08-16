@@ -87,11 +87,10 @@ GameObject:
   - component: {fileID: 3695626017689113207}
   - component: {fileID: 3695626017689113205}
   - component: {fileID: 3695626017689113204}
-  - component: {fileID: 8703629565376866413}
   - component: {fileID: 6899618011589851656}
   - component: {fileID: 3039198020068625279}
   - component: {fileID: 7629831665280262987}
-  - component: {fileID: 2859539497508901686}
+  - component: {fileID: 8703629565376866413}
   - component: {fileID: 1614091641321527508}
   m_Layer: 0
   m_Name: CardBoardOff2
@@ -161,19 +160,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &8703629565376866413
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3695626017689113206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c69761c0d6fa988449d9190fbdf6d0b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cardBack: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
 --- !u!61 &6899618011589851656
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -237,7 +223,7 @@ MonoBehaviour:
   cardBack: 0
   Board: {fileID: 0}
   numberOfCardInDeck: 0
---- !u!114 &2859539497508901686
+--- !u!114 &8703629565376866413
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -246,11 +232,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3695626017689113206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6827da23639e654a847d5ec68b3713e, type: 3}
+  m_Script: {fileID: 11500000, guid: c69761c0d6fa988449d9190fbdf6d0b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Board: {fileID: 0}
-  BoardCard: {fileID: 0}
+  cardBack: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
 --- !u!114 &1614091641321527508
 MonoBehaviour:
   m_ObjectHideFlags: 0
