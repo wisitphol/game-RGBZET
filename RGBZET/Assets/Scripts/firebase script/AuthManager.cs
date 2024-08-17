@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 
-
 public class AuthManager : MonoBehaviour
 {
-       public static AuthManager Instance { get; private set; }
+    public static AuthManager Instance { get; private set; }
 
     private FirebaseAuth auth;
     private FirebaseUser user;
