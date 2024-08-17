@@ -4,22 +4,44 @@ using TMPro;
 
 public class RegisterUI : MonoBehaviour
 {
-    public TMP_InputField emailInput;
-    public TMP_InputField passwordInput;
-    public TMP_InputField usernameInput;
-    public Button registerButton;
-    public Text feedbackText;
+    [SerializeField] private TMP_InputField usernameInput;
+    [SerializeField] private TMP_InputField emailInput;
+    [SerializeField] private TMP_InputField passwordInput;
+    [SerializeField] private TMP_InputField confirmPasswordInput;
+    [SerializeField] private Button registerButton;
+    [SerializeField] private Button backToLoginButton;
+    [SerializeField] private TMP_Text feedbackText;
 
-    void Start()
+    public void Start()
     {
-        registerButton.onClick.AddListener(() => 
+        registerButton.onClick.AddListener(OnRegisterButtonClicked);
+        backToLoginButton.onClick.AddListener(OnBackToLoginButtonClicked);
+    }
+
+    private void OnRegisterButtonClicked()
+    {
+        string username = usernameInput.text;
+        string email = emailInput.text;
+        string password = passwordInput.text;
+        string confirmPassword = confirmPasswordInput.text;
+
+        if (password != confirmPassword)
         {
-            AuthManager.Instance.Register(emailInput.text, passwordInput.text, usernameInput.text, this);
-        });
+            DisplayFeedback("Passwords do not match.");
+            return;
+        }
+
+        // ใช้ AuthManager.Instance.Register โดยส่ง this (RegisterUI) เป็นพารามิเตอร์
+        AuthManager.Instance.Register(email, password, username, this);
     }
 
     public void DisplayFeedback(string message)
     {
         feedbackText.text = message;
+    }
+
+    private void OnBackToLoginButtonClicked()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
     }
 }

@@ -14,9 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Card sample.unity
     guid: 3b092d0d8df21864491e8200c77f4159
-  - enabled: 1
-    path: Assets/Scenes/Card sample online.unity
-    guid: df7e13c27d3540d4cbfcba420c80054a
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/Login.unity
     guid: 3fc8acdd13e6c734bafef6554d6fdbcd
