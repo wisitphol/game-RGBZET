@@ -6,7 +6,6 @@ using Photon.Pun;
 
 public class BoardCheck2 : MonoBehaviour
 {
-
     private Drop2 dropScript;
     private Deck2 deck;
     public GameObject Board;

@@ -88,12 +88,12 @@ GameObject:
   - component: {fileID: 3695626017689113205}
   - component: {fileID: 3695626017689113204}
   - component: {fileID: 6899618011589851656}
-  - component: {fileID: 3039198020068625279}
-  - component: {fileID: 7629831665280262987}
+  - component: {fileID: 3695626017689113202}
   - component: {fileID: 8703629565376866413}
-  - component: {fileID: 1614091641321527508}
+  - component: {fileID: 2478718427435984822}
+  - component: {fileID: 3039198020068625279}
   m_Layer: 0
-  m_Name: CardBoardOff2
+  m_Name: CardOffline
   m_TagString: Clone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -186,19 +186,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!225 &3039198020068625279
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3695626017689113206}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &7629831665280262987
+--- !u!114 &3695626017689113202
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -207,11 +195,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 3695626017689113206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b7ff6b51aa8276438e30a6384b79f1e, type: 3}
+  m_Script: {fileID: 11500000, guid: e77c94bdfb7932c40be6b28182fe7607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayCard: []
-  displayId: 0
+  displayCard:
+  - Id: 0
+    LetterType: 
+    ColorType: 
+    AmountType: 
+    FontType: 
+    Point: 0
+    Spriteimg: {fileID: 0}
+    originalParent: {fileID: 0}
+  displayId: 10
   Id: 0
   LetterType: 
   ColorType: 
@@ -236,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardBack: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
---- !u!114 &1614091641321527508
+--- !u!114 &2478718427435984822
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -245,10 +241,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 3695626017689113206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c1d98a20b9737c49900a50417da6d33, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a22d6d97f9002541902942f6656e57f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parentToReturnTo: {fileID: 0}
+--- !u!225 &3039198020068625279
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7497955081822477325
 GameObject:
   m_ObjectHideFlags: 0

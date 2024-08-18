@@ -11,10 +11,6 @@ public class DisplayCard : MonoBehaviour
     public List<Card> displayCard = new List<Card>();
     public int displayId;
 
-    private Vector3 originalPosition;
-    private Quaternion originalRotation;
-    private Transform originalParent;
-
     public int Id;
     public string LetterType;
     public string ColorType;

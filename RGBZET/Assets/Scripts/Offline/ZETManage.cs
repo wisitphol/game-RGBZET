@@ -6,18 +6,15 @@ using UnityEngine.EventSystems;
 using TMPro;
 using Photon.Pun;
 
-public class ZETManage2 : MonoBehaviour
+public class ZETManage : MonoBehaviour
 {
-    
     public static bool isZETActive = false;
     public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     
-
     private void Start()
     {
         zetButton.interactable = true;
-        
     }
 
     public void OnZetButtonPressed()
@@ -25,8 +22,6 @@ public class ZETManage2 : MonoBehaviour
         if (!isZETActive)
         {
             StartCoroutine(ActivateZetWithCooldown());
-           
-           
         }
     }
 

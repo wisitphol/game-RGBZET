@@ -32,6 +32,10 @@ public class Deck : MonoBehaviour
 
         boardCheckScript = FindObjectOfType<BoardCheck>();
 
+        if (Board.transform.childCount == 13)
+        {
+             boardCheckScript.CheckBoard();
+        }
     }
 
     // Update is called once per frame

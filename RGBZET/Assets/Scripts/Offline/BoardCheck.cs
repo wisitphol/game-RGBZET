@@ -5,12 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class BoardCheck : MonoBehaviour
 {
-    [HideInInspector]
-    public Drop dropScript;
-    [HideInInspector]
-    public Deck deck;
-    [HideInInspector]
-   
+    private Drop dropScript;
+    private Deck deck;
     private GameObject Board;
     
     public void Start()
