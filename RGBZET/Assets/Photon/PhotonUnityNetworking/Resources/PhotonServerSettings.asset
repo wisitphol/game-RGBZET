@@ -108,6 +108,7 @@ MonoBehaviour:
   - ReceiveDraw
   - DrawCards
   - UpdatePlayerScore
+  - RPC_LoadEndScene
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

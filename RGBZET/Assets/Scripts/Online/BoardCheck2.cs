@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 
-public class BoardCheck2 : MonoBehaviour
+public class BoardCheck2 : MonoBehaviourPunCallbacks
 {
     private Drop2 dropScript;
     private Deck2 deck;
@@ -47,12 +47,12 @@ public class BoardCheck2 : MonoBehaviour
 
                 if (PhotonNetwork.IsMasterClient)
                 {
-                   
+
                     deck.DrawCards(3);
                 }
                 else
                 {
-                   // photonView.RPC("RemoveCardByMasterClient", RpcTarget.MasterClient);
+                    // photonView.RPC("RemoveCardByMasterClient", RpcTarget.MasterClient);
                     deck.photonView.RPC("RequestDrawCardsFromMaster", RpcTarget.MasterClient, 3);
                 }
             }
@@ -91,7 +91,7 @@ public class BoardCheck2 : MonoBehaviour
             }
             else
             {
-                SceneManager.LoadScene("Endscene");
+                photonView.RPC("RPC_LoadEndScene", RpcTarget.AllBuffered);
             }
         }
         else
@@ -99,6 +99,12 @@ public class BoardCheck2 : MonoBehaviour
             // If there are 12 cards on the board, the game continues
         }
 
+    }
+
+    [PunRPC]
+    public void RPC_LoadEndScene()
+    {
+       PhotonNetwork.LoadLevel("Endscene");
     }
 
 

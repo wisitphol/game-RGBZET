@@ -14,6 +14,8 @@ public class AuthManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseUser user;
     private DatabaseReference databaseRef;
+    private bool isQuitting = false;
+
 
     void Awake()
     {
@@ -32,6 +34,24 @@ public class AuthManager : MonoBehaviour
     {
         auth = FirebaseAuth.DefaultInstance;
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
+        Application.quitting += OnApplicationQuit;
+    }
+
+    void OnApplicationQuit()
+    {
+        isQuitting = true;
+        if (auth.CurrentUser != null)
+        {
+            SetUserLoginStatusImmediate(auth.CurrentUser.UserId, false);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (isQuitting && auth.CurrentUser != null)
+        {
+            SetUserLoginStatusImmediate(auth.CurrentUser.UserId, false);
+        }
     }
 
     public void Login(string email, string password, LoginUI loginUI)
@@ -51,7 +71,7 @@ public class AuthManager : MonoBehaviour
         else
         {
             user = loginTask.Result.User;
-            
+
             // Check if the user is already logged in
             var userStatusTask = CheckUserLoginStatus(user.UserId);
             yield return new WaitUntil(() => userStatusTask.IsCompleted);
@@ -142,11 +162,27 @@ public class AuthManager : MonoBehaviour
         }
     }
 
+     private void SetUserLoginStatusImmediate(string userId, bool status)
+    {
+        databaseRef.Child("users").Child(userId).Child("isLoggedIn").SetValueAsync(status).ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError($"Failed to set user login status: {task.Exception.Message}");
+            }
+        });
+    }
+
     private void SaveUserData(FirebaseUser user)
     {
         DatabaseReference userRef = databaseRef.Child("users").Child(user.UserId);
         userRef.Child("email").SetValueAsync(user.Email);
         userRef.Child("username").SetValueAsync(user.DisplayName);
+
+        // เพิ่มฟิลด์การติดตามผลการแข่งขัน
+        userRef.Child("gamescount").SetValueAsync(0);
+        userRef.Child("gameswin").SetValueAsync(0);
+        userRef.Child("gameslose").SetValueAsync(0);
     }
 
     public string GetCurrentUserId()
@@ -186,7 +222,8 @@ public class AuthManager : MonoBehaviour
 
     public void ResetPassword(string email, System.Action<bool> callback)
     {
-        auth.SendPasswordResetEmailAsync(email).ContinueWith(task => {
+        auth.SendPasswordResetEmailAsync(email).ContinueWith(task =>
+        {
             if (task.IsCanceled || task.IsFaulted)
             {
                 callback(false);
@@ -203,7 +240,8 @@ public class AuthManager : MonoBehaviour
         if (auth.CurrentUser != null)
         {
             UserProfile profile = new UserProfile { DisplayName = newUsername };
-            auth.CurrentUser.UpdateUserProfileAsync(profile).ContinueWith(task => {
+            auth.CurrentUser.UpdateUserProfileAsync(profile).ContinueWith(task =>
+            {
                 if (task.IsCanceled || task.IsFaulted)
                 {
                     callback(false);
@@ -212,7 +250,8 @@ public class AuthManager : MonoBehaviour
                 {
                     // Update username in the database as well
                     databaseRef.Child("users").Child(auth.CurrentUser.UserId).Child("username").SetValueAsync(newUsername)
-                        .ContinueWith(dbTask => {
+                        .ContinueWith(dbTask =>
+                        {
                             callback(!dbTask.IsCanceled && !dbTask.IsFaulted);
                         });
                 }
@@ -221,6 +260,47 @@ public class AuthManager : MonoBehaviour
         else
         {
             callback(false);
+        }
+    }
+
+    public void UpdateGameStats(string userId, int gamescount, int win, int lose)
+    {
+        DatabaseReference userRef = databaseRef.Child("users").Child(userId);
+        userRef.Child("gamescount").SetValueAsync(gamescount);
+        userRef.Child("win").SetValueAsync(win);
+        userRef.Child("lose").SetValueAsync(lose);
+    }
+
+    // ตัวอย่างการเรียกใช้งานหลังจากเกมจบ
+    public void GameFinished(bool won)
+    {
+        string userId = GetCurrentUserId();
+        DatabaseReference userRef = databaseRef.Child("users").Child(userId);
+
+        userRef.Child("gamescount").RunTransaction(mutableData =>
+        {
+            int currentGamesPlayed = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+            mutableData.Value = currentGamesPlayed + 1;
+            return TransactionResult.Success(mutableData);
+        });
+
+        if (won)
+        {
+            userRef.Child("win").RunTransaction(mutableData =>
+            {
+                int currentWins = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                mutableData.Value = currentWins + 1;
+                return TransactionResult.Success(mutableData);
+            });
+        }
+        else
+        {
+            userRef.Child("lose").RunTransaction(mutableData =>
+            {
+                int currentLosses = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                mutableData.Value = currentLosses + 1;
+                return TransactionResult.Success(mutableData);
+            });
         }
     }
 }

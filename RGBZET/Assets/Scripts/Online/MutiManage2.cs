@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using Firebase.Auth;
+using Firebase.Database;
 
 public class MutiManage2 : MonoBehaviourPunCallbacks
 {
@@ -16,10 +19,15 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     public static bool isZETActive = false;
     public static Player playerWhoActivatedZET = null;
+    private DatabaseReference databaseRef;
+    private string roomId;
 
 
     void Start()
     {
+        roomId = PlayerPrefs.GetString("RoomId");
+        databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
+
         UpdatePlayerList();
 
         zetButton.interactable = true;
@@ -81,7 +89,10 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdatePlayerList();
+        UpdatePlayerListInFirebase(); // อัปเดตรายชื่อผู้เล่นใน Firebase
+    
         Debug.Log($"{newPlayer.NickName} player In");
+        
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -93,16 +104,18 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         UpdatePlayerList();
+       // UpdatePlayerListInFirebase(); 
     }
 
     public override void OnJoinedRoom()
     {
+        
         if (PhotonNetwork.IsMasterClient)
         {
             string username = PlayerPrefs.GetString("username");
             ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username }, { "isHost", true } };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-            Debug.Log($"โฮสต์: {username}");
+            Debug.Log($"host: {username}");
         }
         else
         {
@@ -113,6 +126,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
 
         UpdatePlayerList();
+        UpdatePlayerListInFirebase(); 
     }
 
     public void OnZetButtonPressed()
@@ -153,11 +167,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 playerCon.ActivateZetText();
                 activatedPlayerCon = playerCon;
             }
-            //  else if (playerCon != null)
-            //  {
-            // ซ่อน zettext สำหรับผู้เล่นที่ไม่ได้กดปุ่ม ZET
-            //      playerCon.DeactivateZetText();
-            //  }
+
         }
 
         yield return new WaitForSeconds(cooldownTime);
@@ -187,11 +197,48 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
             {
                 playerComponent.UpdateScore(newScore);
                 Debug.Log($"Score updated for {playerComponent.NameText.text} to {newScore}");
+
+                UpdatePlayerInfoInFirebase(actorNumber, playerComponent.NameText.text, newScore);
                 break;
             }
         }
     }
 
+    // เพิ่มฟังก์ชันนี้เพื่ออัปเดตข้อมูลผู้เล่นใน Firebase
+    void UpdatePlayerInfoInFirebase(int actorNumber, string playerName, int score)
+    {
+        // สร้างข้อมูลผู้เล่น
+        Dictionary<string, object> playerData = new Dictionary<string, object>
+        {
+            { "name", playerName },
+            { "score", score }
+        };
+
+        // กำหนด path ของข้อมูลผู้เล่นใน Firebase
+        string playerKey = "player_" + actorNumber;
+        databaseRef.Child("players").Child(playerKey).UpdateChildrenAsync(playerData)
+            .ContinueWith(task =>
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    Debug.LogError("Failed to update player data in Firebase.");
+                }
+                else
+                {
+                    Debug.Log($"Player data updated in Firebase: {playerName}, Score: {score}");
+                }
+            });
+    }
+
+    void UpdatePlayerListInFirebase()
+    {
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            string playerName = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
+            int score = player.CustomProperties.ContainsKey("score") ? (int)player.CustomProperties["score"] : 0;
+            UpdatePlayerInfoInFirebase(player.ActorNumber, playerName, score);
+        }
+    }
 
 
 

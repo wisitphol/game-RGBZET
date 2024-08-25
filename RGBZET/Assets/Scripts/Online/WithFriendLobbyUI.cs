@@ -69,18 +69,25 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     void UpdatePlayerList()
     {
-        playerListText.text = "Player List:\n";
-        foreach (Player player in PhotonNetwork.PlayerList)
+        if (playerListText != null)
         {
-            string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
-            playerListText.text += username;
-            if (player.CustomProperties.ContainsKey("isHost") && (bool)player.CustomProperties["isHost"])
+            playerListText.text = "Player List:\n";
+            foreach (Player player in PhotonNetwork.PlayerList)
             {
-                playerListText.text += " (Host)";
+                string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
+                playerListText.text += username;
+                if (player.CustomProperties.ContainsKey("isHost") && (bool)player.CustomProperties["isHost"])
+                {
+                    playerListText.text += " (Host)";
+                }
+                playerListText.text += "\n";
             }
-            playerListText.text += "\n";
+            Debug.Log(playerListText.text);
         }
-        Debug.Log(playerListText.text);
+        else
+        {
+            Debug.LogError("playerListText is not assigned.");
+        }
     }
 
     void CheckStartButtonVisibility()
@@ -112,7 +119,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
-     [PunRPC]
+    [PunRPC]
     void RPC_StartGame()
     {
         // เปลี่ยนฉากสำหรับผู้เล่นทุกคน
@@ -196,24 +203,36 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     private IEnumerator DestroyRoomAndReturnToMainGame()
     {
-        yield return new WaitForSeconds(1f);
-        var task = databaseRef.RemoveValueAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-        if (task.IsFaulted || task.IsCanceled)
+        // ตรวจสอบว่าผู้เล่นเป็น host หรือไม่
+        if (auth.CurrentUser.UserId == hostUserId)
         {
-            Debug.LogError("Failed to remove room data from Firebase.");
+            yield return new WaitForSeconds(1f);
+
+            var task = databaseRef.RemoveValueAsync();
+            yield return new WaitUntil(() => task.IsCompleted);
+
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.LogError("Failed to remove room data from Firebase.");
+            }
+            else
+            {
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                PhotonNetwork.CurrentRoom.IsVisible = false;
+                PhotonNetwork.LeaveRoom();
+            }
+
+            yield return new WaitForSeconds(1f);
+            SceneManager.LoadScene("menu"); //scene ก่อนหน้า
         }
         else
         {
-            PhotonNetwork.CurrentRoom.IsOpen = false;
-            PhotonNetwork.CurrentRoom.IsVisible = false;
-            PhotonNetwork.LeaveRoom();
+            // ถ้าผู้เล่นไม่ใช่ host ไม่ต้องทำอะไร
+            Debug.Log("Player is not the host, so the room will not be destroyed.");
         }
-        yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene("menu"); //scene ก่อนหน้า
     }
 
-    private void OnDestroy()
+ /*   private void OnDestroy()
     {
         if (auth.CurrentUser != null && auth.CurrentUser.UserId == hostUserId)
         {
@@ -226,5 +245,5 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
                 }
             });
         }
-    }
+    }*/
 }
