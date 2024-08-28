@@ -13,11 +13,15 @@ public class PlayerResult : MonoBehaviourPunCallbacks
 
     void Start()
     {
-
+        if (NameText == null || ScoreText == null || WinText == null)
+        {
+            Debug.LogError("PlayerResult: One or more TMP_Text components are not assigned.");
+        }
     }
     public void UpdatePlayerResult(string name, string score, string win)
     {
-
+        Debug.Log($"Updating Player Result: Name = {name}, Score = {score}, Win = {win}");
+        
         if (NameText != null)
         {
             NameText.text = name;

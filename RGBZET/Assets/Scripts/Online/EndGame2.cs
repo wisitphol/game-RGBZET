@@ -33,7 +33,21 @@ public class EndGame2 : MonoBehaviour
         {
             if (playerObjects[i] != null)
             {
+                Debug.Log($"player{i + 1} is not null. Checking for PlayerResult component.");
                 playerResults[i] = playerObjects[i].GetComponent<PlayerResult>();
+
+                if (playerResults[i] != null)
+                {
+                    Debug.Log($"PlayerResult component found on player{i + 1}.");
+                }
+                else
+                {
+                    Debug.LogWarning($"PlayerResult component NOT found on player{i + 1}.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"player{i + 1} is null.");
             }
         }
 
@@ -41,76 +55,136 @@ public class EndGame2 : MonoBehaviour
         // ตรวจสอบให้แน่ใจว่า path นี้ตรงกับที่ใช้ใน MutiManage2
         databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
 
-        // ดึงและแสดงผลลัพธ์ของผู้เล่น
-        FetchPlayerDataFromFirebase();
+        FetchPlayerDataFromPhoton();
+
     }
 
-    void FetchPlayerDataFromFirebase()
+    /*  void FetchPlayerDataFromFirebase()
+      {
+          string roomID = PhotonNetwork.CurrentRoom.Name;
+          Debug.Log("Room ID: " + roomID); // ตรวจสอบ Room ID
+
+          databaseReference.Child(roomID).Child("players").GetValueAsync().ContinueWith(task =>
+          {
+              if (task.IsFaulted)
+              {
+                  Debug.LogError("Failed to retrieve data from Firebase.");
+                  return;
+              }
+              else if (task.IsCompleted)
+              {
+                  DataSnapshot snapshot = task.Result;
+                  Debug.Log("Data retrieved from Firebase."); // ตรวจสอบการดึงข้อมูลสำเร็จ
+
+                  // Clear all player objects first
+                  foreach (var playerObject in playerObjects)
+                  {
+                      playerObject.SetActive(false);
+                  }
+
+                  int index = 0;
+
+                  foreach (DataSnapshot playerSnapshot in snapshot.Children)
+                  {
+                      if (index >= playerResults.Length) break;
+
+                      string playerName = playerSnapshot.Child("name").Value.ToString();
+                      string playerScore = playerSnapshot.Child("score").Value.ToString();
+
+                      Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
+
+                      // Update player results and set active
+                      playerResults[index].UpdatePlayerResult(playerName, playerScore, "");
+                      playerObjects[index].SetActive(true);
+
+                      index++;
+                  }
+
+                  // Sort players by score
+                  List<PlayerResult> activePlayers = new List<PlayerResult>(playerResults);
+                  activePlayers.Sort((a, b) =>
+                  {
+                      int scoreA = int.Parse(a.ScoreText.text);
+                      int scoreB = int.Parse(b.ScoreText.text);
+                      return scoreB.CompareTo(scoreA); // Descending order
+                  });
+
+                  // Mark the player with the highest score as the winner
+                  if (activePlayers.Count > 0)
+                  {
+                      activePlayers[0].UpdatePlayerResult(activePlayers[0].NameText.text, activePlayers[0].ScoreText.text, "Winner");
+                  }
+                  else
+                  {
+                      Debug.Log("No active players found.");
+                  }
+              }
+          });
+      }*/
+
+    void FetchPlayerDataFromPhoton()
     {
-        // Get the current room ID from Photon or other relevant source
-        string roomID = PhotonNetwork.CurrentRoom.Name;
+        Debug.Log("Fetching player data from Photon.");
 
-        // Reference to the correct room in "withfriends"
-        databaseReference.Child("withfriends").Child(roomID).Child("players").GetValueAsync().ContinueWith(task =>
+        // Clear all player objects first
+        foreach (var playerObject in playerObjects)
         {
-            if (task.IsFaulted)
+            playerObject.SetActive(false);
+        }
+
+        Player[] players = PhotonNetwork.PlayerList;
+        int index = 0;
+        int highestScore = int.MinValue;
+        List<int> highestScoreIndices = new List<int>();
+
+        foreach (Player player in players)
+        {
+            if (index >= playerResults.Length) break;
+
+            string playerName = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
+            string playerScoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
+
+            // Clean score string and parse it to integer
+            int playerScore;
+            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(playerScoreStr, @"\D", ""); // Remove non-digit characters
+
+            if (!int.TryParse(cleanScoreStr, out playerScore))
             {
-                Debug.LogError("Failed to retrieve data from Firebase.");
-                return;
+                Debug.LogError($"Failed to parse score '{playerScoreStr}' for player '{playerName}'. Defaulting to 0.");
+                playerScore = 0;
             }
-            else if (task.IsCompleted)
+
+            Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
+
+            // Check if this player has the highest score
+            if (playerScore > highestScore)
             {
-                DataSnapshot snapshot = task.Result;
-
-                List<PlayerResult> activePlayers = new List<PlayerResult>();
-
-                int index = 0;
-
-                foreach (DataSnapshot playerSnapshot in snapshot.Children)
-                {
-                    if (index >= playerResults.Length) break;
-
-                    string playerName = playerSnapshot.Child("name").Value.ToString();
-                    string playerScore = playerSnapshot.Child("score").Value.ToString();
-
-                    Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
-
-                    playerResults[index].UpdatePlayerResult(playerName, playerScore, "");
-
-                    activePlayers.Add(playerResults[index]);
-                    index++;
-                }
-
-                // Deactivate any unused player objects
-                for (int i = 0; i < playerObjects.Length; i++)
-                {
-                    if (i < activePlayers.Count)
-                    {
-                        playerObjects[i].SetActive(true);
-                    }
-                    else
-                    {
-                        playerObjects[i].SetActive(false);
-                    }
-                }
-
-                // Sort players by score (assuming the score is an integer)
-                activePlayers.Sort((a, b) =>
-                {
-                    int scoreA = int.Parse(a.ScoreText.text);
-                    int scoreB = int.Parse(b.ScoreText.text);
-
-                    return scoreB.CompareTo(scoreA); // Descending order
-                });
-
-                // Set win status for the player with the highest score
-                if (activePlayers.Count > 0)
-                {
-                    activePlayers[0].UpdatePlayerResult(activePlayers[0].NameText.text, activePlayers[0].ScoreText.text, "Winner");
-                }
+                highestScore = playerScore;
+                highestScoreIndices.Clear();
+                highestScoreIndices.Add(index);
             }
-        });
+            else if (playerScore == highestScore)
+            {
+                highestScoreIndices.Add(index);
+            }
+
+            // Update player results and set active
+            playerResults[index].UpdatePlayerResult(playerName, playerScore.ToString(), "");
+            playerObjects[index].SetActive(true);
+
+            index++;
+        }
+
+        // Mark all players with the highest score as winners
+        foreach (int i in highestScoreIndices)
+        {
+            playerResults[i].UpdatePlayerResult(playerResults[i].NameText.text, playerResults[i].ScoreText.text, "Winner");
+        }
     }
+
+
+
+
 
 
 

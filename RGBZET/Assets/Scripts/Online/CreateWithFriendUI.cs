@@ -27,9 +27,12 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
         auth = FirebaseAuth.DefaultInstance;
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
 
+        playerCountDropdown.ClearOptions();
+        playerCountDropdown.AddOptions(new List<string>{ "1", "2", "3", "4"});
+
         createRoomButton.onClick.AddListener(() =>
         {
-            playerCount = GetPlayerCountFromDropdown();
+            playerCount = playerCountDropdown.value + 1;
             userId = auth.CurrentUser.UserId;
             Debug.Log($"Create Room Button Clicked: playerCount={playerCount}, userId={userId}");
             if (PhotonNetwork.IsConnectedAndReady)
@@ -83,18 +86,6 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
                 PlayerPrefs.SetString("HostUserId", userId);
             }
         }, TaskScheduler.FromCurrentSynchronizationContext());
-    }
-
-    private int GetPlayerCountFromDropdown()
-    {
-        switch (playerCountDropdown.value)
-        {
-            case 0: return 1;
-            case 1: return 2;
-            case 2: return 3;
-            case 3: return 4;
-            default: return 2;
-        }
     }
 
     private string GenerateRoomId(int length = 6)

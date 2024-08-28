@@ -17,6 +17,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
     public TMP_Text feedbackText;
     public Button leaveRoomButton;
     public Button startGameButton;
+    public Button readyButton;
 
     private DatabaseReference databaseRef;
     private string roomId;
@@ -32,8 +33,6 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         hostUserId = PlayerPrefs.GetString("HostUserId");
         roomCodeText.text = "Room Code: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
-        UpdatePlayerCount();
-        UpdatePlayerList();
 
         leaveRoomButton.onClick.AddListener(() =>
         {
@@ -49,9 +48,17 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
         // เพิ่ม Listener สำหรับปุ่ม Start
         startGameButton.onClick.AddListener(StartGame);
-
         // ซ่อนปุ่ม Start เมื่อเริ่มต้น
-        startGameButton.gameObject.SetActive(false);
+        readyButton.onClick.AddListener(ToggleReady);
+         UpdateUI();
+    }
+
+     void UpdateUI()
+    {
+        UpdatePlayerCount();
+        UpdatePlayerList();
+        UpdateStartButtonVisibility();
+        UpdateReadyButtonVisibility();
     }
 
     void UpdatePlayerCount()
@@ -61,33 +68,27 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             maxPlayers = PhotonNetwork.CurrentRoom.MaxPlayers;
             playerCountText.text = "Players: " + PhotonNetwork.CurrentRoom.PlayerCount + " / " + maxPlayers;
             Debug.Log($"Player count updated: {PhotonNetwork.CurrentRoom.PlayerCount}/{maxPlayers}");
-
-            // ตรวจสอบว่าจำนวนผู้เล่นครบหรือไม่
-            CheckStartButtonVisibility();
         }
     }
 
     void UpdatePlayerList()
     {
-        if (playerListText != null)
+        playerListText.text = "Player List:\n";
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
-            playerListText.text = "Player List:\n";
-            foreach (Player player in PhotonNetwork.PlayerList)
+            string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
+            bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
+            string readyStatus = isReady ? " (Ready)" : " (Not Ready)";
+            
+            playerListText.text += username;
+            if (player.UserId == hostUserId)
             {
-                string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
-                playerListText.text += username;
-                if (player.CustomProperties.ContainsKey("isHost") && (bool)player.CustomProperties["isHost"])
-                {
-                    playerListText.text += " (Host)";
-                }
-                playerListText.text += "\n";
+                playerListText.text += " (Host)";
             }
-            Debug.Log(playerListText.text);
+            playerListText.text += maxPlayers > 1 ? readyStatus : "";
+            playerListText.text += "\n";
         }
-        else
-        {
-            Debug.LogError("playerListText is not assigned.");
-        }
+        Debug.Log("Player list updated: " + playerListText.text);
     }
 
     void CheckStartButtonVisibility()
@@ -126,61 +127,84 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel("Card sample 2"); // ชื่อของ scene หน้าเล่นเกม
     }
 
+    void UpdateReadyButtonVisibility()
+    {
+        readyButton.gameObject.SetActive(maxPlayers > 1);
+        if (maxPlayers > 1)
+        {
+            UpdateReadyButtonText();
+        }
+    }
+
+    void UpdateStartButtonVisibility()
+    {
+       
+        readyButton.gameObject.SetActive(maxPlayers > 1);
+        if (maxPlayers > 1)
+        {
+            UpdateReadyButtonText();
+        }
+    }
+
+      void UpdateReadyButtonText()
+    {
+        bool isReady = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        Debug.Log($"Ready button text updated: {readyButton.GetComponentInChildren<TMP_Text>().text}");
+    }
+
+
+     void ToggleReady()
+    {
+        bool currentReadyState = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
+        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", !currentReadyState } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+        Debug.Log($"Ready state toggled. New state: {!currentReadyState}");
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        Debug.Log($"Player properties updated for {targetPlayer.NickName}");
+        if (changedProps.ContainsKey("IsReady"))
+        {
+            Debug.Log($"IsReady state changed to {changedProps["IsReady"]}");
+        }
+        UpdateUI();
+    }
+
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        UpdatePlayerCount();
-        UpdatePlayerList();
-        DisplayFeedback(newPlayer.NickName + " has joined the room.");
-        Debug.Log($"{newPlayer.NickName} has joined the room.");
-
-        if (newPlayer.CustomProperties.ContainsKey("isHost") && (bool)newPlayer.CustomProperties["isHost"])
-        {
-            ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "isHost", false } };
-            newPlayer.SetCustomProperties(playerProperties);
-            Debug.Log($"Ensured {newPlayer.NickName} is not set as host");
-        }
+        UpdateUI();
+        DisplayFeedback($"{newPlayer.NickName} has joined the room.");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        UpdatePlayerCount();
-        UpdatePlayerList();
-        DisplayFeedback(otherPlayer.NickName + " has left the room.");
-        Debug.Log($"{otherPlayer.NickName} has left the room.");
+       UpdateUI();
+        DisplayFeedback($"{otherPlayer.NickName} has left the room.");
 
-        if (otherPlayer.CustomProperties.ContainsKey("isHost") && (bool)otherPlayer.CustomProperties["isHost"])
+        if (otherPlayer.UserId == hostUserId)
         {
-            DisplayFeedback("The host has left the room. Connection lost.");
-            Debug.Log("The host has left the room. Connection lost.");
+            DisplayFeedback("The host has left the room. Returning to main menu...");
             StartCoroutine(DestroyRoomAndReturnToMainGame());
         }
     }
 
     public override void OnJoinedRoom()
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            string username = PlayerPrefs.GetString("username");
-            ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username }, { "isHost", true } };
-            PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-            Debug.Log($"Host: {username}");
-        }
-        else
-        {
-            ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "isHost", false } };
-            PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-        }
+         string username = AuthManager.Instance.GetCurrentUsername();
+        bool isHost = PhotonNetwork.IsMasterClient;
+        
+        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable 
+        { 
+            { "username", username }, 
+            { "isHost", isHost },
+            { "IsReady", maxPlayers == 1 } // Set initial ready state to true for single player, false for multiplayer
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
 
-        // Force an immediate properties update
-        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
-
-        UpdatePlayerCount();
-        UpdatePlayerList();
-    }
-
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        UpdatePlayerList();
+        Debug.Log($"Joined room. Username: {username}, IsHost: {isHost}, MaxPlayers: {maxPlayers}");
+        UpdateUI();
     }
 
     public override void OnLeftRoom()

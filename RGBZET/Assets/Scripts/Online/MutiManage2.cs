@@ -188,6 +188,10 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     {
         Debug.Log($"Updating score for actorNumber: {actorNumber} with newScore: {newScore}");
 
+        string scoreWithPrefix = "score : " + newScore.ToString();
+
+         PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "score", scoreWithPrefix } });
+
         GameObject[] players = { player1, player2, player3, player4 };
 
         foreach (GameObject player in players)
