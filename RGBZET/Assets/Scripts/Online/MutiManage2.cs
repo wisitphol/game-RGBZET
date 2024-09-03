@@ -33,7 +33,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         zetButton.interactable = true;
         zetButton.onClick.AddListener(OnZetButtonPressed);
 
-
+        LogServerConnectionStatus();
     }
 
     void UpdatePlayerList()
@@ -244,6 +244,20 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         }
     }
 
-
+    private void LogServerConnectionStatus()
+    {
+        if (PhotonNetwork.InLobby)
+        {
+            Debug.Log("Currently connected to Master Server.");
+        }
+        else if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Currently connected to Game Server.");
+        }
+        else
+        {
+            Debug.Log("Not connected to Master Server or Game Server.");
+        }
+    }
 
 }

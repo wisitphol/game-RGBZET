@@ -66,8 +66,11 @@ public class EndGame2 : MonoBehaviour
         // ตรวจสอบให้แน่ใจว่า path นี้ตรงกับที่ใช้ใน MutiManage2
         databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
 
+        LogServerConnectionStatus();
+
         FetchPlayerDataFromPhoton();
 
+        StartCoroutine(DelayedUpdateGameResults());
     }
 
     void FetchPlayerDataFromPhoton()
@@ -129,7 +132,18 @@ public class EndGame2 : MonoBehaviour
             playerResults[i].UpdatePlayerResult(playerResults[i].NameText.text, playerResults[i].ScoreText.text, "Winner");
         }
 
-       // UpdateGameResultsInDatabase();
+
+    }
+
+    IEnumerator DelayedUpdateGameResults()
+    {
+        yield return new WaitForSeconds(3f); // หน่วงเวลา 5 วินาที
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            UpdateGameResultsInDatabase();
+        }
+
     }
 
     void UpdateGameResultsInDatabase()
@@ -222,15 +236,10 @@ public class EndGame2 : MonoBehaviour
         }
     }
 
-
-
-
-
-
-
-
     private void OnBackToMenuButtonClicked()
     {
+        
+
         if (PhotonNetwork.IsMasterClient)
         {
             // ถ้าผู้เล่นเป็น host, ลบข้อมูลห้องและเปลี่ยนไปยังเมนู
@@ -239,7 +248,7 @@ public class EndGame2 : MonoBehaviour
         else
         {
             // ถ้าผู้เล่นไม่ใช่ host, เปลี่ยนไปยังเมนูทันที
-            SceneManager.LoadScene("menu");
+            StartCoroutine(LeaveRoomAndCheckConnection());
         }
     }
 
@@ -261,9 +270,51 @@ public class EndGame2 : MonoBehaviour
         // ออกจากห้อง Photon
         PhotonNetwork.LeaveRoom();
 
-        // เปลี่ยนไปยังเมนูหลังจากออกจากห้อง
-        yield return new WaitForSeconds(1f); // รอเพื่อให้แน่ใจว่าผู้เล่นออกจากห้องแล้ว
+        // ตรวจสอบสถานะการเชื่อมต่อกับ Game Server
+        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
 
-        SceneManager.LoadScene("menu");
+        // ยกเลิกการเชื่อมต่อจาก Game Server
+        PhotonNetwork.Disconnect();
+
+        // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
+        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+
+         LogServerConnectionStatus();
+        SceneManager.LoadScene("Menu");
+    }
+
+    private void LogServerConnectionStatus()
+    {
+        if (PhotonNetwork.InLobby)
+        {
+            Debug.Log("Currently connected to Master Server.");
+        }
+        else if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Currently connected to Game Server.");
+        }
+        else
+        {
+            Debug.Log("Not connected to Master Server or Game Server.");
+        }
+    }
+
+    private IEnumerator LeaveRoomAndCheckConnection()
+    {
+        PhotonNetwork.LeaveRoom();
+
+        // รอให้การออกจากห้องเสร็จสมบูรณ์
+        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
+
+        // ยกเลิกการเชื่อมต่อจาก Game Server
+        PhotonNetwork.Disconnect();
+
+        // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
+        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+         LogServerConnectionStatus();
+        // เปลี่ยนไปยังเมนู
+        SceneManager.LoadScene("Menu");
+
+        
     }
 }

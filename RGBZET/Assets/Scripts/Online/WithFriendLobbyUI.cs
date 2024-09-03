@@ -49,6 +49,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         });
 
         UpdateUI();
+        LogServerConnectionStatus();
     }
 
     void UpdateUI()
@@ -281,4 +282,20 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
              });
          }
      }*/
+
+    private void LogServerConnectionStatus()
+    {
+        if (PhotonNetwork.InLobby)
+        {
+            Debug.Log("Currently connected to Master Server.");
+        }
+        else if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Currently connected to Game Server.");
+        }
+        else
+        {
+            Debug.Log("Not connected to Master Server or Game Server.");
+        }
+    }
 }
