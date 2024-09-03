@@ -20,10 +20,21 @@ public class EndGame2 : MonoBehaviour
     private GameObject[] playerObjects;
     private PlayerResult[] playerResults;
     private DatabaseReference databaseReference;
+    private FirebaseUserId firebaseUserId;
 
     void Start()
     {
         backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
+
+        firebaseUserId = FindObjectOfType<FirebaseUserId>();
+        if (firebaseUserId == null)
+        {
+            Debug.LogError("FirebaseUserId script not found in the scene.");
+        }
+        else
+        {
+            Debug.Log("FirebaseUserId script found successfully.");
+        }
 
         playerObjects = new GameObject[] { player1, player2, player3, player4 };
         playerResults = new PlayerResult[playerObjects.Length];
@@ -58,69 +69,6 @@ public class EndGame2 : MonoBehaviour
         FetchPlayerDataFromPhoton();
 
     }
-
-    /*  void FetchPlayerDataFromFirebase()
-      {
-          string roomID = PhotonNetwork.CurrentRoom.Name;
-          Debug.Log("Room ID: " + roomID); // ตรวจสอบ Room ID
-
-          databaseReference.Child(roomID).Child("players").GetValueAsync().ContinueWith(task =>
-          {
-              if (task.IsFaulted)
-              {
-                  Debug.LogError("Failed to retrieve data from Firebase.");
-                  return;
-              }
-              else if (task.IsCompleted)
-              {
-                  DataSnapshot snapshot = task.Result;
-                  Debug.Log("Data retrieved from Firebase."); // ตรวจสอบการดึงข้อมูลสำเร็จ
-
-                  // Clear all player objects first
-                  foreach (var playerObject in playerObjects)
-                  {
-                      playerObject.SetActive(false);
-                  }
-
-                  int index = 0;
-
-                  foreach (DataSnapshot playerSnapshot in snapshot.Children)
-                  {
-                      if (index >= playerResults.Length) break;
-
-                      string playerName = playerSnapshot.Child("name").Value.ToString();
-                      string playerScore = playerSnapshot.Child("score").Value.ToString();
-
-                      Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
-
-                      // Update player results and set active
-                      playerResults[index].UpdatePlayerResult(playerName, playerScore, "");
-                      playerObjects[index].SetActive(true);
-
-                      index++;
-                  }
-
-                  // Sort players by score
-                  List<PlayerResult> activePlayers = new List<PlayerResult>(playerResults);
-                  activePlayers.Sort((a, b) =>
-                  {
-                      int scoreA = int.Parse(a.ScoreText.text);
-                      int scoreB = int.Parse(b.ScoreText.text);
-                      return scoreB.CompareTo(scoreA); // Descending order
-                  });
-
-                  // Mark the player with the highest score as the winner
-                  if (activePlayers.Count > 0)
-                  {
-                      activePlayers[0].UpdatePlayerResult(activePlayers[0].NameText.text, activePlayers[0].ScoreText.text, "Winner");
-                  }
-                  else
-                  {
-                      Debug.Log("No active players found.");
-                  }
-              }
-          });
-      }*/
 
     void FetchPlayerDataFromPhoton()
     {
@@ -169,7 +117,7 @@ public class EndGame2 : MonoBehaviour
             }
 
             // Update player results and set active
-            playerResults[index].UpdatePlayerResult(playerName, playerScore.ToString(), "");
+            playerResults[index].UpdatePlayerResult(playerName, "score: " + playerScore.ToString(), "");
             playerObjects[index].SetActive(true);
 
             index++;
@@ -180,7 +128,100 @@ public class EndGame2 : MonoBehaviour
         {
             playerResults[i].UpdatePlayerResult(playerResults[i].NameText.text, playerResults[i].ScoreText.text, "Winner");
         }
+
+       // UpdateGameResultsInDatabase();
     }
+
+    void UpdateGameResultsInDatabase()
+    {
+        Debug.Log("Updating game results in database.");
+
+        Player[] players = PhotonNetwork.PlayerList;
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            string userId = players[i].CustomProperties.ContainsKey("FirebaseUserId") ? players[i].CustomProperties["FirebaseUserId"].ToString() : null;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                Debug.LogWarning($"UserId is null or empty for player {i}, skipping update.");
+                continue;
+            }
+            else
+            {
+                Debug.Log($"FirebaseUserId for player {i}: {userId}");
+            }
+
+            DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
+
+            // เพิ่มจำนวนเกมที่เล่นโดยใช้ Transaction
+            userRef.Child("gamescount").RunTransaction(mutableData =>
+            {
+                int currentGamesPlayed = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                mutableData.Value = currentGamesPlayed + 1;
+                return TransactionResult.Success(mutableData);
+            }).ContinueWith(task =>
+            {
+                if (task.IsCompleted)
+                {
+                    Debug.Log("Game count updated successfully.");
+                }
+                else
+                {
+                    Debug.LogError("Failed to update game count.");
+                }
+            });
+
+            // ตรวจสอบว่าผู้เล่นคนนี้เป็นผู้ชนะหรือไม่
+            bool isWinner = false;
+
+            if (playerResults[i] != null && playerResults[i].WinText.text == "Winner")
+            {
+                isWinner = true;
+            }
+
+            // อัปเดตจำนวนชัยชนะหรือการแพ้
+            if (isWinner)
+            {
+                userRef.Child("gameswin").RunTransaction(mutableData =>
+                {
+                    int currentWins = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                    mutableData.Value = currentWins + 1;
+                    return TransactionResult.Success(mutableData);
+                }).ContinueWith(task =>
+                {
+                    if (task.IsCompleted)
+                    {
+                        Debug.Log("Wins count updated successfully.");
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to update wins count.");
+                    }
+                });
+            }
+            else
+            {
+                userRef.Child("gameslose").RunTransaction(mutableData =>
+                {
+                    int currentLosses = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                    mutableData.Value = currentLosses + 1;
+                    return TransactionResult.Success(mutableData);
+                }).ContinueWith(task =>
+                {
+                    if (task.IsCompleted)
+                    {
+                        Debug.Log("Losses count updated successfully.");
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to update losses count.");
+                    }
+                });
+            }
+        }
+    }
+
 
 
 

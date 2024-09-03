@@ -72,6 +72,7 @@ public class AuthManager : MonoBehaviour
         {
             user = loginTask.Result.User;
 
+        
             // Check if the user is already logged in
             var userStatusTask = CheckUserLoginStatus(user.UserId);
             yield return new WaitUntil(() => userStatusTask.IsCompleted);
@@ -88,7 +89,7 @@ public class AuthManager : MonoBehaviour
 
                 loginUI.DisplayFeedback($"Logged in successfully: {user.Email}");
                 SaveUserData(user);
-                SceneManager.LoadScene("menu");
+                SceneManager.LoadScene("Menu");
             }
         }
     }
@@ -178,11 +179,6 @@ public class AuthManager : MonoBehaviour
         DatabaseReference userRef = databaseRef.Child("users").Child(user.UserId);
         userRef.Child("email").SetValueAsync(user.Email);
         userRef.Child("username").SetValueAsync(user.DisplayName);
-
-        // เพิ่มฟิลด์การติดตามผลการแข่งขัน
-        userRef.Child("gamescount").SetValueAsync(0);
-        userRef.Child("gameswin").SetValueAsync(0);
-        userRef.Child("gameslose").SetValueAsync(0);
     }
 
     public string GetCurrentUserId()
@@ -263,44 +259,4 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    public void UpdateGameStats(string userId, int gamescount, int win, int lose)
-    {
-        DatabaseReference userRef = databaseRef.Child("users").Child(userId);
-        userRef.Child("gamescount").SetValueAsync(gamescount);
-        userRef.Child("win").SetValueAsync(win);
-        userRef.Child("lose").SetValueAsync(lose);
-    }
-
-    // ตัวอย่างการเรียกใช้งานหลังจากเกมจบ
-    public void GameFinished(bool won)
-    {
-        string userId = GetCurrentUserId();
-        DatabaseReference userRef = databaseRef.Child("users").Child(userId);
-
-        userRef.Child("gamescount").RunTransaction(mutableData =>
-        {
-            int currentGamesPlayed = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-            mutableData.Value = currentGamesPlayed + 1;
-            return TransactionResult.Success(mutableData);
-        });
-
-        if (won)
-        {
-            userRef.Child("win").RunTransaction(mutableData =>
-            {
-                int currentWins = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                mutableData.Value = currentWins + 1;
-                return TransactionResult.Success(mutableData);
-            });
-        }
-        else
-        {
-            userRef.Child("lose").RunTransaction(mutableData =>
-            {
-                int currentLosses = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                mutableData.Value = currentLosses + 1;
-                return TransactionResult.Success(mutableData);
-            });
-        }
-    }
 }

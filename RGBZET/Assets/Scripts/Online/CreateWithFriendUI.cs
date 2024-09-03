@@ -28,7 +28,7 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
 
         playerCountDropdown.ClearOptions();
-        playerCountDropdown.AddOptions(new List<string>{ "1", "2", "3", "4"});
+        playerCountDropdown.AddOptions(new List<string> { "1", "2", "3", "4" });
 
         createRoomButton.onClick.AddListener(() =>
         {
@@ -48,8 +48,9 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
 
         backButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("menu");//Scene ก่อนหน้า
+            SceneManager.LoadScene("Menu");//Scene ก่อนหน้า
         });
+
     }
 
     public override void OnConnectedToMaster()
@@ -100,7 +101,8 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
     {
         DisplayFeedback("Room created successfully.");
         Debug.Log("OnCreatedRoom called");
-        SetPlayerUsername(() => {
+        SetPlayerUsername(() =>
+        {
             SceneManager.LoadScene("Lobby");//scene หน้า lobby
         });
     }
@@ -132,10 +134,10 @@ public class CreateWithFriendUI : MonoBehaviourPunCallbacks
                     ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username }, { "isHost", true } };
                     PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
                     Debug.Log($"Custom Properties Set: {PhotonNetwork.LocalPlayer.CustomProperties["username"]}, {PhotonNetwork.LocalPlayer.CustomProperties["isHost"]}");
-                    
+
                     // Force an immediate properties update
                     PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
-                    
+
                     onComplete?.Invoke();
                 }
                 else

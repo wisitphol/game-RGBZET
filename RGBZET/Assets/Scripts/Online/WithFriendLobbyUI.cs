@@ -8,6 +8,7 @@ using Photon.Realtime;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 {
@@ -29,11 +30,12 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
     {
         auth = FirebaseAuth.DefaultInstance;
         roomId = PlayerPrefs.GetString("RoomId");
-        string inputRoomName = PlayerPrefs.GetString("InputRoomName");
         hostUserId = PlayerPrefs.GetString("HostUserId");
         roomCodeText.text = "Room Code: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
+        startGameButton.onClick.AddListener(StartGame);
+        readyButton.onClick.AddListener(ToggleReady);
         leaveRoomButton.onClick.AddListener(() =>
         {
             if (auth.CurrentUser.UserId == hostUserId)
@@ -46,14 +48,10 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             }
         });
 
-        // เพิ่ม Listener สำหรับปุ่ม Start
-        startGameButton.onClick.AddListener(StartGame);
-        // ซ่อนปุ่ม Start เมื่อเริ่มต้น
-        readyButton.onClick.AddListener(ToggleReady);
-         UpdateUI();
+        UpdateUI();
     }
 
-     void UpdateUI()
+    void UpdateUI()
     {
         UpdatePlayerCount();
         UpdatePlayerList();
@@ -66,8 +64,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom != null)
         {
             maxPlayers = PhotonNetwork.CurrentRoom.MaxPlayers;
-            playerCountText.text = "Players: " + PhotonNetwork.CurrentRoom.PlayerCount + " / " + maxPlayers;
-            Debug.Log($"Player count updated: {PhotonNetwork.CurrentRoom.PlayerCount}/{maxPlayers}");
+            playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / {maxPlayers}";
         }
     }
 
@@ -79,7 +76,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
             bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
             string readyStatus = isReady ? " (Ready)" : " (Not Ready)";
-            
+
             playerListText.text += username;
             if (player.UserId == hostUserId)
             {
@@ -91,12 +88,47 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         Debug.Log("Player list updated: " + playerListText.text);
     }
 
-    void CheckStartButtonVisibility()
+    void UpdateStartButtonVisibility()
     {
         bool isHost = auth.CurrentUser.UserId == hostUserId;
-        bool isRoomFull = PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers;
+        bool allPlayersReady = PhotonNetwork.PlayerList.All(p => p.CustomProperties.ContainsKey("IsReady") && (bool)p.CustomProperties["IsReady"]);
+        bool allPlayersJoined = PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers;
 
-        startGameButton.gameObject.SetActive(isHost && isRoomFull);
+        if (maxPlayers == 1)
+        {
+            startGameButton.gameObject.SetActive(isHost);
+        }
+        else
+        {
+            startGameButton.gameObject.SetActive(isHost && allPlayersReady && allPlayersJoined);
+        }
+
+        if (isHost)
+        {
+            string statusMessage = maxPlayers == 1 ? "Ready to start the game!" :
+                                   !allPlayersJoined ? "Waiting for more players to join..." :
+                                   !allPlayersReady ? "Waiting for all players to be ready..." :
+                                   "Ready to start the game!";
+            DisplayFeedback(statusMessage);
+        }
+
+        Debug.Log($"Start button visibility updated: {startGameButton.gameObject.activeSelf}");
+    }
+
+    void UpdateReadyButtonVisibility()
+    {
+        readyButton.gameObject.SetActive(maxPlayers > 1);
+        if (maxPlayers > 1)
+        {
+            UpdateReadyButtonText();
+        }
+    }
+
+    void UpdateReadyButtonText()
+    {
+        bool isReady = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        Debug.Log($"Ready button text updated: {readyButton.GetComponentInChildren<TMP_Text>().text}");
     }
 
     void StartGame()
@@ -127,34 +159,20 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel("Card sample 2"); // ชื่อของ scene หน้าเล่นเกม
     }
 
-    void UpdateReadyButtonVisibility()
+
+    void LeaveRoom()
     {
-        readyButton.gameObject.SetActive(maxPlayers > 1);
-        if (maxPlayers > 1)
+        if (auth.CurrentUser.UserId == hostUserId)
         {
-            UpdateReadyButtonText();
+            StartCoroutine(DestroyRoomAndReturnToMainGame());
+        }
+        else
+        {
+            PhotonNetwork.LeaveRoom();
         }
     }
 
-    void UpdateStartButtonVisibility()
-    {
-       
-        readyButton.gameObject.SetActive(maxPlayers > 1);
-        if (maxPlayers > 1)
-        {
-            UpdateReadyButtonText();
-        }
-    }
-
-      void UpdateReadyButtonText()
-    {
-        bool isReady = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
-        Debug.Log($"Ready button text updated: {readyButton.GetComponentInChildren<TMP_Text>().text}");
-    }
-
-
-     void ToggleReady()
+    void ToggleReady()
     {
         bool currentReadyState = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
         ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", !currentReadyState } };
@@ -180,7 +198,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-       UpdateUI();
+        UpdateUI();
         DisplayFeedback($"{otherPlayer.NickName} has left the room.");
 
         if (otherPlayer.UserId == hostUserId)
@@ -192,12 +210,12 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-         string username = AuthManager.Instance.GetCurrentUsername();
+        string username = AuthManager.Instance.GetCurrentUsername();
         bool isHost = PhotonNetwork.IsMasterClient;
-        
-        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable 
-        { 
-            { "username", username }, 
+
+        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            { "username", username },
             { "isHost", isHost },
             { "IsReady", maxPlayers == 1 } // Set initial ready state to true for single player, false for multiplayer
         };
@@ -209,20 +227,13 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        SceneManager.LoadScene("menu"); // scene ก่อนหน้า
+        SceneManager.LoadScene("Menu");
     }
 
     public void DisplayFeedback(string message)
     {
         feedbackText.text = message;
-        Debug.Log($"DisplayFeedback: {message}");
-        StartCoroutine(ClearFeedbackAfterDelay(3f));
-    }
-
-    private IEnumerator ClearFeedbackAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        feedbackText.text = "";
+        Debug.Log($"Feedback: {message}");
     }
 
     private IEnumerator DestroyRoomAndReturnToMainGame()
@@ -247,7 +258,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             }
 
             yield return new WaitForSeconds(1f);
-            SceneManager.LoadScene("menu"); //scene ก่อนหน้า
+            SceneManager.LoadScene("Menu"); //scene ก่อนหน้า
         }
         else
         {
@@ -256,18 +267,18 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
- /*   private void OnDestroy()
-    {
-        if (auth.CurrentUser != null && auth.CurrentUser.UserId == hostUserId)
-        {
-            var task = databaseRef.RemoveValueAsync();
-            task.ContinueWith(t =>
-            {
-                if (t.IsFaulted || t.IsCanceled)
-                {
-                    Debug.LogError("Failed to remove room data from Firebase.");
-                }
-            });
-        }
-    }*/
+    /* private void OnDestroy()
+     {
+         if (auth.CurrentUser != null && auth.CurrentUser.UserId == hostUserId)
+         {
+             var task = databaseRef.RemoveValueAsync();
+             task.ContinueWith(t =>
+             {
+                 if (t.IsFaulted || t.IsCanceled)
+                 {
+                     Debug.LogError("Failed to remove room data from Firebase.");
+                 }
+             });
+         }
+     }*/
 }

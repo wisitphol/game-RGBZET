@@ -43,8 +43,14 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 
         backButton.onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("menu");//ไป scene ก่อนหน้านี้
+            SceneManager.LoadScene("Menu");//ไป scene ก่อนหน้านี้
         });
+
+          // เชื่อมต่อกับ Master Server หากยังไม่ได้เชื่อมต่อ
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 
     public override void OnConnectedToMaster()
@@ -61,13 +67,22 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             return;
         }
 
-        PhotonNetwork.JoinRoom(roomId);
+        if (PhotonNetwork.IsConnectedAndReady)
+        {
+            PhotonNetwork.JoinRoom(roomId);
+        }
+        else
+        {
+            DisplayFeedback("Connecting to Master Server...");
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 
     public override void OnJoinedRoom()
     {
         DisplayFeedback("Joined room successfully.");
-        SetPlayerUsername(() => {
+        SetPlayerUsername(() =>
+        {
             PlayerPrefs.SetString("RoomId", roomId);
             SceneManager.LoadScene("Lobby");//เพิ่ม scene lobby
         });
@@ -82,7 +97,6 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     {
         feedbackText.text = message;
     }
-
     private void SetPlayerUsername(System.Action onComplete = null)
     {
         string userId = auth.CurrentUser.UserId;
@@ -97,7 +111,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
                     ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username } };
                     PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
                     PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
-                    
+
                     onComplete?.Invoke();
                 }
                 else
