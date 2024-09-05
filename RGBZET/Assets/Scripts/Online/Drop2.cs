@@ -325,7 +325,7 @@ public class Drop2 : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
     [PunRPC]
     public void RemoveCardByMasterClient(int viewID)
     {
-        Debug.Log("RemoveCardByMasterClient RPC called");
+       // Debug.Log("RemoveCardByMasterClient RPC called");
         // หา PhotonView จาก viewID ที่ได้รับมา
         if (PhotonNetwork.IsMasterClient)
         {

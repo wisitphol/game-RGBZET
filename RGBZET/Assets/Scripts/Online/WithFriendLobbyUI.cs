@@ -47,9 +47,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
                 PhotonNetwork.LeaveRoom();
             }
         });
-
         UpdateUI();
-        LogServerConnectionStatus();
     }
 
     void UpdateUI()
@@ -268,34 +266,4 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
-    /* private void OnDestroy()
-     {
-         if (auth.CurrentUser != null && auth.CurrentUser.UserId == hostUserId)
-         {
-             var task = databaseRef.RemoveValueAsync();
-             task.ContinueWith(t =>
-             {
-                 if (t.IsFaulted || t.IsCanceled)
-                 {
-                     Debug.LogError("Failed to remove room data from Firebase.");
-                 }
-             });
-         }
-     }*/
-
-    private void LogServerConnectionStatus()
-    {
-        if (PhotonNetwork.InLobby)
-        {
-            Debug.Log("Currently connected to Master Server.");
-        }
-        else if (PhotonNetwork.InRoom)
-        {
-            Debug.Log("Currently connected to Game Server.");
-        }
-        else
-        {
-            Debug.Log("Not connected to Master Server or Game Server.");
-        }
-    }
 }

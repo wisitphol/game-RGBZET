@@ -29,16 +29,14 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         UpdatePlayerList();
-
+        ResetPlayerData();
         zetButton.interactable = true;
         zetButton.onClick.AddListener(OnZetButtonPressed);
-
-        LogServerConnectionStatus();
     }
 
     void UpdatePlayerList()
     {
-        Debug.Log("UpdatePlayerList called.");
+        // Debug.Log("UpdatePlayerList called.");
 
         // สร้าง array สำหรับ player gameObjects
         GameObject[] playerObjects = { player1, player2, player3, player4 };
@@ -84,32 +82,41 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         }
     }
 
-
-
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdatePlayerList();
         UpdatePlayerListInFirebase(); // อัปเดตรายชื่อผู้เล่นใน Firebase
-    
+
         Debug.Log($"{newPlayer.NickName} player In");
-        
+
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        UpdatePlayerList();
-        Debug.Log($"{otherPlayer.NickName} player Out");
+
+        if (otherPlayer.IsMasterClient)
+        {
+            Debug.Log("The player who left is the MasterClient.");
+            StartCoroutine(DeleteRoomAndGoToMenu());
+        }
+        else
+        {
+            // ถ้าไม่ใช่ MasterClient ก็แค่ Update รายชื่อผู้เล่น
+            UpdatePlayerList();
+            Debug.Log($"{otherPlayer.NickName} player Out");
+        }
+
+
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         UpdatePlayerList();
-       // UpdatePlayerListInFirebase(); 
+        // UpdatePlayerListInFirebase(); 
     }
 
     public override void OnJoinedRoom()
     {
-        
         if (PhotonNetwork.IsMasterClient)
         {
             string username = PlayerPrefs.GetString("username");
@@ -126,7 +133,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
 
         UpdatePlayerList();
-        UpdatePlayerListInFirebase(); 
+        UpdatePlayerListInFirebase();
     }
 
     public void OnZetButtonPressed()
@@ -148,7 +155,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     {
         isZETActive = true;
         zetButton.interactable = false;
-        Debug.Log("ZET activated.");
+        //   Debug.Log("ZET activated.");
 
         // ค้นหา player object ที่สอดคล้องกับ playerActorNumber
         GameObject[] playerObjects = { player1, player2, player3, player4 };
@@ -180,7 +187,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
         isZETActive = false;
         zetButton.interactable = true;
-        Debug.Log("ZET is now available again after cooldown.");
+        //  Debug.Log("ZET is now available again after cooldown.");
     }
 
     [PunRPC]
@@ -190,7 +197,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
         string scoreWithPrefix = "score : " + newScore.ToString();
 
-         PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "score", scoreWithPrefix } });
+        PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "score", scoreWithPrefix } });
 
         GameObject[] players = { player1, player2, player3, player4 };
 
@@ -244,20 +251,67 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         }
     }
 
-    private void LogServerConnectionStatus()
+    void ResetPlayerData()
     {
-        if (PhotonNetwork.InLobby)
+        isZETActive = false; // รีเซ็ตสถานะ isZETActive ให้เป็น false
+        playerWhoActivatedZET = null; // รีเซ็ต playerWhoActivatedZET ให้เป็น null
+        zetButton.interactable = true; // ทำให้ปุ่ม zet กดได้อีกครั้ง
+        Debug.Log("ResetPlayerData called.");
+        // รีเซ็ตข้อมูลผู้เล่นทั้งหมด
+        GameObject[] playerObjects = { player1, player2, player3, player4 };
+        foreach (var playerObject in playerObjects)
         {
-            Debug.Log("Currently connected to Master Server.");
+            if (playerObject != null)
+            {
+                PlayerCon2 playerCon = playerObject.GetComponent<PlayerCon2>();
+                if (playerCon != null)
+                {
+                    string playerName = playerCon.NameText.text;
+                    playerCon.UpdatePlayerInfo(playerName, "score : 0", false);
+                    playerCon.DeactivateZetText();
+                }
+            }
         }
-        else if (PhotonNetwork.InRoom)
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.LocalPlayer.IsMasterClient)
         {
-            Debug.Log("Currently connected to Game Server.");
+            StartCoroutine(DeleteRoomAndGoToMenu());
+        }
+    }
+
+    private IEnumerator DeleteRoomAndGoToMenu()
+    {
+          Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
+        // ลบข้อมูลห้องจาก Firebase
+        var task = databaseRef.RemoveValueAsync();  // databaseRef ใช้ตัวแปรที่ชี้ไปยังห้องใน Firebase
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted || task.IsCanceled)
+        {
+            Debug.LogError("Can't delete room from Firebase.");
         }
         else
         {
-            Debug.Log("Not connected to Master Server or Game Server.");
+            Debug.Log("Can delete room from Firebase.");
         }
+
+        // ออกจากห้อง Photon
+        PhotonNetwork.LeaveRoom();
+
+        // ตรวจสอบสถานะการเชื่อมต่อกับ Game Server
+        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
+
+        // ยกเลิกการเชื่อมต่อจาก Game Server
+        PhotonNetwork.Disconnect();
+
+        // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
+        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+
+        // เข้าสู่หน้าเมนู
+        SceneManager.LoadScene("Menu");  // เปลี่ยนชื่อ Scene เป็น "Menu" หรือตามที่คุณกำหนด
     }
 
 }

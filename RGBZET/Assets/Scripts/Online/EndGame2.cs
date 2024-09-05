@@ -24,6 +24,8 @@ public class EndGame2 : MonoBehaviour
 
     void Start()
     {
+        backToMenu.interactable = false;
+        StartCoroutine(EnableBackButtonAfterDelay(3f));
         backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
 
         firebaseUserId = FindObjectOfType<FirebaseUserId>();
@@ -71,6 +73,12 @@ public class EndGame2 : MonoBehaviour
         FetchPlayerDataFromPhoton();
 
         StartCoroutine(DelayedUpdateGameResults());
+    }
+
+    IEnumerator EnableBackButtonAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        backToMenu.interactable = true;  // Enable the button after delay
     }
 
     void FetchPlayerDataFromPhoton()
@@ -137,7 +145,7 @@ public class EndGame2 : MonoBehaviour
 
     IEnumerator DelayedUpdateGameResults()
     {
-        yield return new WaitForSeconds(3f); // หน่วงเวลา 5 วินาที
+        yield return new WaitForSeconds(2f); 
 
         if (PhotonNetwork.IsMasterClient)
         {
