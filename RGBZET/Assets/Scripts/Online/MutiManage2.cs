@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections;
 using Firebase.Auth;
 using Firebase.Database;
+using System.Linq; 
 
 public class MutiManage2 : MonoBehaviourPunCallbacks
 {
@@ -21,7 +22,6 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public static Player playerWhoActivatedZET = null;
     private DatabaseReference databaseRef;
     private string roomId;
-
 
     void Start()
     {
@@ -60,7 +60,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                     string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
 
                     // ตั้งค่าคะแนนของผู้เล่น
-                    string score = players[i].CustomProperties.ContainsKey("score") ? players[i].CustomProperties["score"].ToString() : "score : 0";
+                    string score = players[i].CustomProperties.ContainsKey("score") ? players[i].CustomProperties["score"].ToString() : "0";
 
                     // ตัวอย่างการตั้งค่า zettext (คุณอาจต้องปรับให้เหมาะสมตามความต้องการ)
                     bool zetActive = false; // ตัวอย่างการกำหนดค่า zettext, ปรับตามความต้องการ
@@ -80,6 +80,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 }
             }
         }
+
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -251,28 +252,39 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         }
     }
 
-    void ResetPlayerData()
+   void ResetPlayerData()
+{
+    isZETActive = false; // รีเซ็ตสถานะ isZETActive ให้เป็น false
+    playerWhoActivatedZET = null; // รีเซ็ต playerWhoActivatedZET ให้เป็น null
+    zetButton.interactable = true; // ทำให้ปุ่ม zet กดได้อีกครั้ง
+    Debug.Log("ResetPlayerData called.");
+
+    // รีเซ็ตข้อมูลผู้เล่นทั้งหมด
+    GameObject[] playerObjects = { player1, player2, player3, player4 };
+    foreach (var playerObject in playerObjects)
     {
-        isZETActive = false; // รีเซ็ตสถานะ isZETActive ให้เป็น false
-        playerWhoActivatedZET = null; // รีเซ็ต playerWhoActivatedZET ให้เป็น null
-        zetButton.interactable = true; // ทำให้ปุ่ม zet กดได้อีกครั้ง
-        Debug.Log("ResetPlayerData called.");
-        // รีเซ็ตข้อมูลผู้เล่นทั้งหมด
-        GameObject[] playerObjects = { player1, player2, player3, player4 };
-        foreach (var playerObject in playerObjects)
+        if (playerObject != null)
         {
-            if (playerObject != null)
+            PlayerCon2 playerCon = playerObject.GetComponent<PlayerCon2>();
+            if (playerCon != null)
             {
-                PlayerCon2 playerCon = playerObject.GetComponent<PlayerCon2>();
-                if (playerCon != null)
+                // รีเซ็ตข้อมูลใน PlayerCon2
+                playerCon.ResetScore();
+                playerCon.ResetZetStatus();
+                
+                // รีเซ็ตข้อมูลคะแนนใน CustomProperties ของ PhotonPlayer
+                int actorNumber = playerCon.ActorNumber;
+                ExitGames.Client.Photon.Hashtable newProperties = new ExitGames.Client.Photon.Hashtable
                 {
-                    string playerName = playerCon.NameText.text;
-                    playerCon.UpdatePlayerInfo(playerName, "score : 0", false);
-                    playerCon.DeactivateZetText();
-                }
+                    { "score", "score : 0" } // รีเซ็ตคะแนนเป็น "score : 0"
+                };
+
+                PhotonNetwork.PlayerList.FirstOrDefault(p => p.ActorNumber == actorNumber)?.SetCustomProperties(newProperties);
             }
         }
     }
+}
+
 
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
@@ -284,7 +296,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
-          Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
+        Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
         // ลบข้อมูลห้องจาก Firebase
         var task = databaseRef.RemoveValueAsync();  // databaseRef ใช้ตัวแปรที่ชี้ไปยังห้องใน Firebase
         yield return new WaitUntil(() => task.IsCompleted);
@@ -313,5 +325,6 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         // เข้าสู่หน้าเมนู
         SceneManager.LoadScene("Menu");  // เปลี่ยนชื่อ Scene เป็น "Menu" หรือตามที่คุณกำหนด
     }
+
 
 }

@@ -87,7 +87,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
             // If there are less than 12 cards and they form a set, the game continues
             if (isSet)
             {
-                //Debug.Log("The cards on the board form a set!");
+                Debug.Log("The cards on the board form a set!");
             }
             else
             {

@@ -85,7 +85,6 @@ public class EndGame2 : MonoBehaviour
     {
         Debug.Log("Fetching player data from Photon.");
 
-        // Clear all player objects first
         foreach (var playerObject in playerObjects)
         {
             playerObject.SetActive(false);
@@ -103,9 +102,8 @@ public class EndGame2 : MonoBehaviour
             string playerName = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
             string playerScoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
 
-            // Clean score string and parse it to integer
             int playerScore;
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(playerScoreStr, @"\D", ""); // Remove non-digit characters
+            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(playerScoreStr, @"\D", "");
 
             if (!int.TryParse(cleanScoreStr, out playerScore))
             {
@@ -115,7 +113,6 @@ public class EndGame2 : MonoBehaviour
 
             Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
 
-            // Check if this player has the highest score
             if (playerScore > highestScore)
             {
                 highestScore = playerScore;
@@ -127,25 +124,38 @@ public class EndGame2 : MonoBehaviour
                 highestScoreIndices.Add(index);
             }
 
-            // Update player results and set active
             playerResults[index].UpdatePlayerResult(playerName, "score: " + playerScore.ToString(), "");
             playerObjects[index].SetActive(true);
 
             index++;
         }
 
-        // Mark all players with the highest score as winners
-        foreach (int i in highestScoreIndices)
+        // อัปเดตข้อความ "Winner" หรือ "Draw"
+        if (highestScoreIndices.Count == 1)
         {
-            playerResults[i].UpdatePlayerResult(playerResults[i].NameText.text, playerResults[i].ScoreText.text, "Winner");
+            playerResults[highestScoreIndices[0]].UpdatePlayerResult(
+                playerResults[highestScoreIndices[0]].NameText.text,
+                playerResults[highestScoreIndices[0]].ScoreText.text,
+                "Winner"
+            );
         }
-
-
+        else
+        {
+            foreach (int i in highestScoreIndices)
+            {
+                playerResults[i].UpdatePlayerResult(
+                    playerResults[i].NameText.text,
+                    playerResults[i].ScoreText.text,
+                    "Draw"
+                );
+            }
+        }
     }
+
 
     IEnumerator DelayedUpdateGameResults()
     {
-        yield return new WaitForSeconds(2f); 
+        yield return new WaitForSeconds(2f);
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -194,15 +204,23 @@ public class EndGame2 : MonoBehaviour
                 }
             });
 
-            // ตรวจสอบว่าผู้เล่นคนนี้เป็นผู้ชนะหรือไม่
+            // ตรวจสอบว่าผู้เล่นคนนี้เป็นผู้ชนะ, แพ้, หรือเสมอ
             bool isWinner = false;
+            bool isDraw = false;
 
-            if (playerResults[i] != null && playerResults[i].WinText.text == "Winner")
+            if (playerResults[i] != null)
             {
-                isWinner = true;
+                if (playerResults[i].WinText.text == "Winner")
+                {
+                    isWinner = true;
+                }
+                else if (playerResults[i].WinText.text == "Draw")
+                {
+                    isDraw = true;
+                }
             }
 
-            // อัปเดตจำนวนชัยชนะหรือการแพ้
+            // อัปเดตจำนวนชัยชนะ, การแพ้, หรือเสมอ
             if (isWinner)
             {
                 userRef.Child("gameswin").RunTransaction(mutableData =>
@@ -219,6 +237,25 @@ public class EndGame2 : MonoBehaviour
                     else
                     {
                         Debug.LogError("Failed to update wins count.");
+                    }
+                });
+            }
+            else if (isDraw)
+            {
+                userRef.Child("gamesdraw").RunTransaction(mutableData =>
+                {
+                    int currentDraws = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
+                    mutableData.Value = currentDraws + 1;
+                    return TransactionResult.Success(mutableData);
+                }).ContinueWith(task =>
+                {
+                    if (task.IsCompleted)
+                    {
+                        Debug.Log("Draws count updated successfully.");
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to update draws count.");
                     }
                 });
             }
@@ -244,9 +281,10 @@ public class EndGame2 : MonoBehaviour
         }
     }
 
+
     private void OnBackToMenuButtonClicked()
     {
-        
+
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -287,7 +325,7 @@ public class EndGame2 : MonoBehaviour
         // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
         yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
 
-         LogServerConnectionStatus();
+        LogServerConnectionStatus();
         SceneManager.LoadScene("Menu");
     }
 
@@ -319,10 +357,10 @@ public class EndGame2 : MonoBehaviour
 
         // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
         yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
-         LogServerConnectionStatus();
+        LogServerConnectionStatus();
         // เปลี่ยนไปยังเมนู
         SceneManager.LoadScene("Menu");
 
-        
+
     }
 }

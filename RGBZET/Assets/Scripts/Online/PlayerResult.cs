@@ -21,7 +21,7 @@ public class PlayerResult : MonoBehaviourPunCallbacks
     public void UpdatePlayerResult(string name, string score, string win)
     {
         Debug.Log($"Updating Player Result: Name = {name}, Score = {score}, Win = {win}");
-        
+
         if (NameText != null)
         {
             NameText.text = name;
@@ -38,7 +38,11 @@ public class PlayerResult : MonoBehaviourPunCallbacks
 
             if (win == "Winner")
             {
-                WinText.color = Color.green; // เปลี่ยนเป็นสีเขียว
+                WinText.color = Color.green; // สีสำหรับ Winner
+            }
+            else if (win == "Draw")
+            {
+                WinText.color = Color.yellow; // สีสำหรับ Draw
             }
             else
             {

@@ -59,6 +59,16 @@ public class PlayerCon2 : MonoBehaviourPunCallbacks
         ScoreText.text = "Score: " + currentScore.ToString(); // แสดงคะแนนใหม่
     }
 
+    public void ResetScore()
+    {
+        currentScore = 0; // รีเซ็ตคะแนน
+        ScoreText.text = "Score: " + currentScore.ToString(); // อัปเดตคะแนนที่แสดง
+    }
+
+    public void ResetZetStatus()
+    {
+        zettext.SetActive(false); // ซ่อน zettext
+    }
     
     public void SetActorNumber(int actorNumber)
     {
