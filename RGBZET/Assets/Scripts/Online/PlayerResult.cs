@@ -9,18 +9,18 @@ public class PlayerResult : MonoBehaviourPunCallbacks
 {
     public TMP_Text NameText;
     public TMP_Text ScoreText;
-    public TMP_Text WinText;
+    public TMP_Text ResultText;
 
     void Start()
     {
-        if (NameText == null || ScoreText == null || WinText == null)
+        if (NameText == null || ScoreText == null || ResultText == null)
         {
             Debug.LogError("PlayerResult: One or more TMP_Text components are not assigned.");
         }
     }
-    public void UpdatePlayerResult(string name, string score, string win)
+    public void UpdatePlayerResult(string name, string score, string result)
     {
-        Debug.Log($"Updating Player Result: Name = {name}, Score = {score}, Win = {win}");
+        Debug.Log($"Updating Player Result: Name = {name}, Score = {score}, Win = {result}");
 
         if (NameText != null)
         {
@@ -32,11 +32,11 @@ public class PlayerResult : MonoBehaviourPunCallbacks
             ScoreText.text = score;
         }
 
-        if (WinText != null)
+        if (ResultText != null)
         {
-            WinText.text = win;
+            ResultText.text = result;
 
-            if (win == "Winner")
+          /*  if (win == "Winner")
             {
                 WinText.color = Color.green; // สีสำหรับ Winner
             }
@@ -47,7 +47,7 @@ public class PlayerResult : MonoBehaviourPunCallbacks
             else
             {
                 WinText.color = Color.white; // สีเริ่มต้น
-            }
+            }*/
         }
     }
 }

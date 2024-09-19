@@ -136,7 +136,7 @@ public class EndGame2 : MonoBehaviour
             playerResults[highestScoreIndices[0]].UpdatePlayerResult(
                 playerResults[highestScoreIndices[0]].NameText.text,
                 playerResults[highestScoreIndices[0]].ScoreText.text,
-                "Winner"
+                "Win"
             );
         }
         else
@@ -210,11 +210,11 @@ public class EndGame2 : MonoBehaviour
 
             if (playerResults[i] != null)
             {
-                if (playerResults[i].WinText.text == "Winner")
+                if (playerResults[i].ResultText.text == "WIN")
                 {
                     isWinner = true;
                 }
-                else if (playerResults[i].WinText.text == "Draw")
+                else if (playerResults[i].ResultText.text == "DRAW")
                 {
                     isDraw = true;
                 }

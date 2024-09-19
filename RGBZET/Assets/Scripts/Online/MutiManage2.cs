@@ -22,6 +22,10 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public static Player playerWhoActivatedZET = null;
     private DatabaseReference databaseRef;
     private string roomId;
+    private BoardCheck2 boardCheck;
+    private float gameDuration = 120f; // 5 นาทีในหน่วยวินาที (5 นาที = 300 วินาที)
+    private float timer;
+    public TextMeshProUGUI timerText; // เพิ่ม TextMeshProUGUI เพื่อแสดงเวลา
 
     void Start()
     {
@@ -32,6 +36,37 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         ResetPlayerData();
         zetButton.interactable = true;
         zetButton.onClick.AddListener(OnZetButtonPressed);
+        boardCheck = FindObjectOfType<BoardCheck2>(); // หา component ของ BoardCheck2
+        timer = gameDuration;
+        StartCoroutine(GameTimer());
+        UpdateTimerUI(); // อัปเดต UI เมื่อเริ่มเกม
+    }
+
+    void Update()
+    {
+            // ลดค่า timer ลงตามเวลาที่ผ่านไป
+            timer -= Time.deltaTime;
+            
+            UpdateTimerUI(); // อัปเดต UI เมื่อเริ่มเกม
+            // ตรวจสอบว่าเวลาเหลือ 0 หรือไม่
+            if (timer <= 0)
+            {
+                GoToEndScene(); // เรียกฟังก์ชันเปลี่ยนไปหน้า EndScene
+            }
+       
+    }
+
+    void UpdateTimerUI()
+    {
+        if (timerText != null)
+        {
+            // แปลงเวลาที่เหลือเป็นนาทีและวินาที
+            int minutes = Mathf.FloorToInt(timer / 60);
+            int seconds = Mathf.FloorToInt(timer % 60);
+
+            // แสดงผลเวลาในรูปแบบ mm:ss
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
     }
 
     void UpdatePlayerList()
@@ -326,5 +361,25 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");  // เปลี่ยนชื่อ Scene เป็น "Menu" หรือตามที่คุณกำหนด
     }
 
+     IEnumerator GameTimer()
+    {
+        // รอจนกว่าจะครบ 5 นาที
+        yield return new WaitForSeconds(gameDuration);
 
+        // เรียกใช้ฟังก์ชัน GoToEndScene เมื่อครบ 5 นาที
+        GoToEndScene();
+    }
+
+    void GoToEndScene()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("time up go to EndScene.");
+            boardCheck.photonView.RPC("RPC_LoadEndScene", RpcTarget.AllBuffered); // เรียกใช้ฟังก์ชัน RPC_LoadEndScene
+        }
+        else
+        {
+            return;
+        }
+    }
 }

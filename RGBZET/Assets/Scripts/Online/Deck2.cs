@@ -10,13 +10,14 @@ public class Deck2 : MonoBehaviourPunCallbacks
     public int x;
     public static int deckSize;
     public static List<Card> staticDeck = new List<Card>();
-
     public GameObject CardInDeck;
-
     public GameObject CardPrefab;
     public GameObject[] Clones;
     public GameObject Board;
     private BoardCheck2 boardCheckScript;
+    [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
+    [SerializeField] public AudioClip drawCardSound;  // เสียงที่ต้องการเล่นตอนจั่วการ์ด
+
 
 
     // Start is called before the first frame update
@@ -24,7 +25,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
     {
         boardCheckScript = FindObjectOfType<BoardCheck2>();
 
-       
+
 
         if (Board == null)
         {
@@ -34,7 +35,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             Debug.Log("This player is the MasterClient.");
-      
+
             InitializeDeck();
             // Convert deck to card IDs
             int[] deckCardIds = new int[deck.Count];
@@ -50,9 +51,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
         }
         else
         {
-
             Debug.Log("This player is NOT the MasterClient.");
-
         }
 
         if (Board.transform.childCount == 13)
@@ -86,10 +85,10 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
     IEnumerator StartGame()
     {
-        
+
         for (int i = 0; i < 12; i++)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.7f);
 
             if (deckSize > 0)
             {
@@ -97,7 +96,13 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 int viewID = newCard.GetComponent<PhotonView>().ViewID;
                 // เรียกใช้ RPC เพื่อให้ผู้เล่นอื่นๆ จัดการกับการ์ดที่ถูกสร้างใหม่
                 photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
-               // Debug.Log("Deck2: Card created and RPC_SetCardParent called with viewID: " + viewID);
+                // Debug.Log("Deck2: Card created and RPC_SetCardParent called with viewID: " + viewID);
+
+                // เล่นเสียงตอนจั่วการ์ด
+                if (audioSource != null && drawCardSound != null)
+                {
+                    audioSource.PlayOneShot(drawCardSound);
+                }
 
             }
             else
@@ -112,7 +117,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
     private void InitializeDeck()
     {
-        
+
         // Initialize deckSize and cardList if not already done
         deck = new List<Card>(CardData.cardList);
         deckSize = deck.Count;
@@ -167,7 +172,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
     public IEnumerator Draw(int x)
     {
-         Debug.Log("Deck2: Draw coroutine started with " + x + " cards to draw.");
+        Debug.Log("Deck2: Draw coroutine started with " + x + " cards to draw.");
         for (int i = 0; i < x; i++)
         {
             yield return new WaitForSeconds(1);
@@ -184,7 +189,13 @@ public class Deck2 : MonoBehaviourPunCallbacks
                 int viewID = newCard.GetComponent<PhotonView>().ViewID;
                 photonView.RPC("RPC_SetCardParent", RpcTarget.AllBuffered, viewID);
 
-              //  Debug.Log("Number of cards in deck: " + RemainingCardsCount());
+                 // เล่นเสียงตอนจั่วการ์ด
+                if (audioSource != null && drawCardSound != null)
+                {
+                    audioSource.PlayOneShot(drawCardSound);
+                }
+
+                //  Debug.Log("Number of cards in deck: " + RemainingCardsCount());
             }
             else
             {
@@ -210,7 +221,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
     [PunRPC]
     public void RequestDrawCardsFromMaster(int numberOfCards)
     {
-       // Debug.Log(" RequestDrawCardsFromMaster called");
+        // Debug.Log(" RequestDrawCardsFromMaster called");
         if (PhotonNetwork.IsMasterClient)
         {
             DrawCards(numberOfCards); // เรียกฟังก์ชันการจั่วการ์ด
