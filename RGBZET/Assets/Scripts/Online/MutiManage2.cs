@@ -26,6 +26,8 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     private float gameDuration = 120f; // 5 นาทีในหน่วยวินาที (5 นาที = 300 วินาที)
     private float timer;
     public TextMeshProUGUI timerText; // เพิ่ม TextMeshProUGUI เพื่อแสดงเวลา
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound; 
 
     void Start()
     {
@@ -174,6 +176,8 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     public void OnZetButtonPressed()
     {
+        audioSource.PlayOneShot(buttonSound);
+        
         if (photonView != null && !isZETActive)
         {
             photonView.RPC("RPC_ActivateZET", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
@@ -361,7 +365,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");  // เปลี่ยนชื่อ Scene เป็น "Menu" หรือตามที่คุณกำหนด
     }
 
-     IEnumerator GameTimer()
+    IEnumerator GameTimer()
     {
         // รอจนกว่าจะครบ 5 นาที
         yield return new WaitForSeconds(gameDuration);

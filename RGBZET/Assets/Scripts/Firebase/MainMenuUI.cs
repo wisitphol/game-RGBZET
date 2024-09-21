@@ -17,6 +17,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button logoutButton;
     [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private Button proButton;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     private DatabaseReference userRef;
     private string currentUsername;
@@ -35,15 +37,15 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        joinButton.onClick.AddListener(() => SceneManager.LoadScene("Joinroom"));
+        joinButton.onClick.AddListener(OnJoinButtonClicked);
         createQuickplayButton.onClick.AddListener(() => {/* TODO: Implement Quickplay functionality */});
-        createWithFriendButton.onClick.AddListener(() => SceneManager.LoadScene("CreateFriend"));
+        createWithFriendButton.onClick.AddListener(OnCreateButtonClicked);
         createTournamentButton.onClick.AddListener(() => SceneManager.LoadScene("Tournament"));
         logoutButton.onClick.AddListener(OnLogoutButtonClicked);
 
 
         proButton.onClick.AddListener(() => SceneManager.LoadScene("Profile"));
-        
+
     }
 
     void LoadUserData()
@@ -76,7 +78,25 @@ public class MainMenuUI : MonoBehaviour
         // Logout method in AuthManager already handles scene transition
     }
 
-    
+    void OnJoinButtonClicked()
+    {
+        if (audioSource != null)
+        {
+            Debug.Log("Button clicked, attempting to play button sound.");
+            audioSource.PlayOneShot(buttonSound);
+        }
+        SceneManager.LoadScene("Joinroom");
+    }
+
+    void OnCreateButtonClicked()
+    {
+        if (audioSource != null)
+        {
+            Debug.Log("Button clicked, attempting to play button sound.");
+            audioSource.PlayOneShot(buttonSound);
+        }
+        SceneManager.LoadScene("CreateFriend");
+    }
 
     public void DisplayFeedback(string message)
     {

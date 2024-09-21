@@ -88,7 +88,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
 
         for (int i = 0; i < 12; i++)
         {
-            yield return new WaitForSeconds(0.7f);
+            yield return new WaitForSeconds(0.6f);
 
             if (deckSize > 0)
             {
@@ -175,7 +175,7 @@ public class Deck2 : MonoBehaviourPunCallbacks
         Debug.Log("Deck2: Draw coroutine started with " + x + " cards to draw.");
         for (int i = 0; i < x; i++)
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.9f);
 
             if (deckSize > 0)
             {

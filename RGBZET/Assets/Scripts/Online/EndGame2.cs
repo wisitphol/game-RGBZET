@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Collections;
 using Firebase.Auth;
 using Firebase.Database;
-public class EndGame2 : MonoBehaviour
+public class EndGame2 : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button backToMenu;
     // Start is called before the first frame update
@@ -21,6 +21,9 @@ public class EndGame2 : MonoBehaviour
     private PlayerResult[] playerResults;
     private DatabaseReference databaseReference;
     private FirebaseUserId firebaseUserId;
+    [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
+    [SerializeField] public AudioClip endgameSound;  // เสียงที่ต้องการเล่นตอนจั่วการ์ด
+    [SerializeField] public AudioClip buttonSound; 
 
     void Start()
     {
@@ -73,6 +76,12 @@ public class EndGame2 : MonoBehaviour
         FetchPlayerDataFromPhoton();
 
         StartCoroutine(DelayedUpdateGameResults());
+
+        if (audioSource != null && endgameSound != null)
+        {
+            audioSource.PlayOneShot(endgameSound);
+        }
+
     }
 
     IEnumerator EnableBackButtonAfterDelay(float delay)
@@ -136,7 +145,7 @@ public class EndGame2 : MonoBehaviour
             playerResults[highestScoreIndices[0]].UpdatePlayerResult(
                 playerResults[highestScoreIndices[0]].NameText.text,
                 playerResults[highestScoreIndices[0]].ScoreText.text,
-                "Win"
+                "WIN"
             );
         }
         else
@@ -146,7 +155,7 @@ public class EndGame2 : MonoBehaviour
                 playerResults[i].UpdatePlayerResult(
                     playerResults[i].NameText.text,
                     playerResults[i].ScoreText.text,
-                    "Draw"
+                    "DRAW"
                 );
             }
         }
@@ -284,8 +293,8 @@ public class EndGame2 : MonoBehaviour
 
     private void OnBackToMenuButtonClicked()
     {
-
-
+        audioSource.PlayOneShot(buttonSound);
+        
         if (PhotonNetwork.IsMasterClient)
         {
             // ถ้าผู้เล่นเป็น host, ลบข้อมูลห้องและเปลี่ยนไปยังเมนู

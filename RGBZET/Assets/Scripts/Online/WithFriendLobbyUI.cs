@@ -19,6 +19,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
     public Button leaveRoomButton;
     public Button startGameButton;
     public Button readyButton;
+    public Button copyButton;
 
     private DatabaseReference databaseRef;
     private string roomId;
@@ -28,6 +29,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
 
     void Start()
     {
+
         auth = FirebaseAuth.DefaultInstance;
         roomId = PlayerPrefs.GetString("RoomId");
         hostUserId = PlayerPrefs.GetString("HostUserId");
@@ -47,6 +49,13 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
                 PhotonNetwork.LeaveRoom();
             }
         });
+
+        // เพิ่มการฟังการคลิกปุ่ม copyButton
+        copyButton.onClick.AddListener(() =>
+        {
+            CopyRoomIdToClipboard();
+        });
+
         UpdateUI();
     }
 
@@ -137,8 +146,8 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             // ตรวจสอบว่าจำนวนผู้เล่นครบหรือไม่
             if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
             {
-                // เริ่มเกมและเปลี่ยนไปยังหน้าเล่นเกม
-                photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);// ชื่อของ scene หน้าเล่นเกม
+                //StartCoroutine(LoadingScreen());
+                photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);
             }
             else
             {
@@ -151,11 +160,19 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
+    public IEnumerator LoadingScreen()
+    {
+        SceneManager.LoadScene("Loading");
+
+        yield return new WaitForSeconds(2f); // แสดงหน้า Loading เป็นเวลา 2 วินาที
+
+    }
+
     [PunRPC]
     void RPC_StartGame()
     {
-        // เปลี่ยนฉากสำหรับผู้เล่นทุกคน
-        PhotonNetwork.LoadLevel("Card sample 2"); // ชื่อของ scene หน้าเล่นเกม
+        Debug.Log("Starting game...");
+        PhotonNetwork.LoadLevel("Card sample 2");
     }
 
 
@@ -264,6 +281,13 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
             // ถ้าผู้เล่นไม่ใช่ host ไม่ต้องทำอะไร
             Debug.Log("Player is not the host, so the room will not be destroyed.");
         }
+    }
+
+    void CopyRoomIdToClipboard()
+    {
+        GUIUtility.systemCopyBuffer = roomId;  // ก๊อปปี้ roomId ไปที่คลิปบอร์ด
+        DisplayFeedback("Room ID copied.");
+        Debug.Log("Room ID copied: " + roomId);
     }
 
 }

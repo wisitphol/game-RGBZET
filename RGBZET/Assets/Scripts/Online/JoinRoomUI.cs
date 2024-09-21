@@ -13,6 +13,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 {
     public TMP_InputField roomCodeInputField;
     public Button joinRoomButton;
+    public Button cancelButton;
     public Button backButton;
     public TMP_Text feedbackText;
 
@@ -41,12 +42,18 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             }
         });
 
+        cancelButton.onClick.AddListener(() =>
+        {
+            roomCodeInputField.text = "";  // ลบข้อมูลใน input field
+            DisplayFeedback("Room code cleared.");  // แสดงข้อความ feedback ว่าข้อมูลถูกลบแล้ว
+        });
+
         backButton.onClick.AddListener(() =>
         {
             SceneManager.LoadScene("Menu");//ไป scene ก่อนหน้านี้
         });
 
-          // เชื่อมต่อกับ Master Server หากยังไม่ได้เชื่อมต่อ
+        // เชื่อมต่อกับ Master Server หากยังไม่ได้เชื่อมต่อ
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
