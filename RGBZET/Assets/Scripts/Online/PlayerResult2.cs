@@ -5,7 +5,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Collections;
 
-public class PlayerResult : MonoBehaviourPunCallbacks
+public class PlayerResult2 : MonoBehaviourPunCallbacks
 {
     public TMP_Text NameText;
     public TMP_Text ScoreText;

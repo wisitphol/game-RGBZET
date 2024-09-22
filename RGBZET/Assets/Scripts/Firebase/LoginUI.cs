@@ -14,13 +14,15 @@ public class LoginUI : MonoBehaviour
     [SerializeField] private TMP_InputField emailInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button loginButton;
-    [SerializeField] private Button goToRegisterButton;
+    [SerializeField] private Button RegisterButton;
     [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
 
     public void Start()
     {
-        loginButton.onClick.AddListener(OnLoginButtonClicked);
-        goToRegisterButton.onClick.AddListener(OnGoToRegisterButtonClicked);
+        loginButton.onClick.AddListener(() => SoundOnClick(OnLoginButtonClicked));
+        RegisterButton.onClick.AddListener(() => SoundOnClick(OnGoToRegisterButtonClicked));
     }
 
     private void OnLoginButtonClicked()
@@ -46,6 +48,28 @@ public class LoginUI : MonoBehaviour
 
     private void OnGoToRegisterButtonClicked()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Register");
+        SceneManager.LoadScene("Register");
+    }
+
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

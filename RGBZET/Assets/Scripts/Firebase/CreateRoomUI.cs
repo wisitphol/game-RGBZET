@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-public class CreateWithFriendUI : MonoBehaviourPunCallbacks
+public class CreateRoomUI : MonoBehaviourPunCallbacks
 {
     public TMP_Dropdown playerCountDropdown;
     public Button createRoomButton;

@@ -6,6 +6,8 @@ using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections;
 
 public class MainMenuUI : MonoBehaviour
 {
@@ -16,10 +18,9 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button createQuickplayButton;
     [SerializeField] private Button logoutButton;
     [SerializeField] private TMP_Text feedbackText;
-    [SerializeField] private Button proButton;
+    [SerializeField] private Button profileButton;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
-
     private DatabaseReference userRef;
     private string currentUsername;
 
@@ -37,14 +38,14 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        joinButton.onClick.AddListener(OnJoinButtonClicked);
-        createQuickplayButton.onClick.AddListener(() => {/* TODO: Implement Quickplay functionality */});
-        createWithFriendButton.onClick.AddListener(OnCreateButtonClicked);
-        createTournamentButton.onClick.AddListener(() => SceneManager.LoadScene("Tournament"));
-        logoutButton.onClick.AddListener(OnLogoutButtonClicked);
+        joinButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Joinroom")));
+        createQuickplayButton.onClick.AddListener(() => SoundOnClick(() => {/* TODO: Implement Quickplay functionality */}));
+        createWithFriendButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateFriend")));
+        createTournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
+        logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
 
 
-        proButton.onClick.AddListener(() => SceneManager.LoadScene("Profile"));
+       profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
 
     }
 
@@ -77,25 +78,27 @@ public class MainMenuUI : MonoBehaviour
         AuthManager.Instance.Logout();
         // Logout method in AuthManager already handles scene transition
     }
-
-    void OnJoinButtonClicked()
+       
+    void SoundOnClick(System.Action buttonAction)
     {
-        if (audioSource != null)
+        if (audioSource != null && buttonSound != null)
         {
-            Debug.Log("Button clicked, attempting to play button sound.");
             audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
         }
-        SceneManager.LoadScene("Joinroom");
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
     }
 
-    void OnCreateButtonClicked()
+    private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        if (audioSource != null)
-        {
-            Debug.Log("Button clicked, attempting to play button sound.");
-            audioSource.PlayOneShot(buttonSound);
-        }
-        SceneManager.LoadScene("CreateFriend");
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 
     public void DisplayFeedback(string message)

@@ -10,8 +10,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
+public class LobbyUI : MonoBehaviourPunCallbacks
 {
+    public GameObject player1;
+    public GameObject player2;
+    public GameObject player3;
+    public GameObject player4;
     public TMP_Text roomCodeText;
     public TMP_Text playerCountText;
     public TMP_Text playerListText;
@@ -76,25 +80,67 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
+    /* void UpdatePlayerList()
+     {
+         playerListText.text = "Player List:\n";
+         foreach (Player player in PhotonNetwork.PlayerList)
+         {
+             string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
+             bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
+             string readyStatus = isReady ? " (Ready)" : " (Not Ready)";
+
+             playerListText.text += username;
+             if (player.UserId == hostUserId)
+             {
+                 playerListText.text += " (Host)";
+             }
+             playerListText.text += maxPlayers > 1 ? readyStatus : "";
+             playerListText.text += "\n";
+         }
+         Debug.Log("Player list updated: " + playerListText.text);
+     }*/
+
     void UpdatePlayerList()
     {
-        playerListText.text = "Player List:\n";
-        foreach (Player player in PhotonNetwork.PlayerList)
-        {
-            string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
-            bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
-            string readyStatus = isReady ? " (Ready)" : " (Not Ready)";
+        GameObject[] playerObjects = { player1, player2, player3, player4 };
+        Player[] players = PhotonNetwork.PlayerList;
 
-            playerListText.text += username;
-            if (player.UserId == hostUserId)
+        for (int i = 0; i < playerObjects.Length; i++)
+        {
+            if (i < players.Length && playerObjects[i] != null)
             {
-                playerListText.text += " (Host)";
+                playerObjects[i].SetActive(true);
+
+                // เข้าถึง Playerlobby2 component ของ playerObject
+                PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
+                if (playerLobby != null)
+                {
+                    playerLobby.SetActorNumber(players[i].ActorNumber);
+
+                    // ดึงชื่อผู้เล่นจาก CustomProperties หรือ NickName
+                    string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
+
+                    // ตรวจสอบสถานะ ready
+                    bool isReady = players[i].CustomProperties.ContainsKey("IsReady") && (bool)players[i].CustomProperties["IsReady"];
+                    string readyStatus = isReady ? "Ready" : "Not Ready";
+
+                    // อัปเดตข้อมูลใน Playerlobby2
+                    playerLobby.UpdatePlayerInfo(username, readyStatus);
+
+                    Debug.Log($"Updating Player {i + 1}: Name={username}, Ready={readyStatus}");
+                }
             }
-            playerListText.text += maxPlayers > 1 ? readyStatus : "";
-            playerListText.text += "\n";
+            else
+            {
+                if (playerObjects[i] != null)
+                {
+                    playerObjects[i].SetActive(false);
+                }
+            }
         }
-        Debug.Log("Player list updated: " + playerListText.text);
     }
+
+
 
     void UpdateStartButtonVisibility()
     {
@@ -135,7 +181,7 @@ public class WithFriendLobbyUI : MonoBehaviourPunCallbacks
     void UpdateReadyButtonText()
     {
         bool isReady = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
         Debug.Log($"Ready button text updated: {readyButton.GetComponentInChildren<TMP_Text>().text}");
     }
 

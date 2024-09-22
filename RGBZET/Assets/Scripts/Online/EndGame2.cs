@@ -18,12 +18,12 @@ public class EndGame2 : MonoBehaviourPunCallbacks
     public GameObject player4;
 
     private GameObject[] playerObjects;
-    private PlayerResult[] playerResults;
+    private PlayerResult2[] playerResults;
     private DatabaseReference databaseReference;
     private FirebaseUserId firebaseUserId;
     [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
     [SerializeField] public AudioClip endgameSound;  // เสียงที่ต้องการเล่นตอนจั่วการ์ด
-    [SerializeField] public AudioClip buttonSound; 
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
@@ -42,7 +42,7 @@ public class EndGame2 : MonoBehaviourPunCallbacks
         }
 
         playerObjects = new GameObject[] { player1, player2, player3, player4 };
-        playerResults = new PlayerResult[playerObjects.Length];
+        playerResults = new PlayerResult2[playerObjects.Length];
 
         // เริ่มต้นคอมโพเนนต์ PlayerResult
         for (int i = 0; i < playerObjects.Length; i++)
@@ -50,7 +50,7 @@ public class EndGame2 : MonoBehaviourPunCallbacks
             if (playerObjects[i] != null)
             {
                 Debug.Log($"player{i + 1} is not null. Checking for PlayerResult component.");
-                playerResults[i] = playerObjects[i].GetComponent<PlayerResult>();
+                playerResults[i] = playerObjects[i].GetComponent<PlayerResult2>();
 
                 if (playerResults[i] != null)
                 {
@@ -294,15 +294,21 @@ public class EndGame2 : MonoBehaviourPunCallbacks
     private void OnBackToMenuButtonClicked()
     {
         audioSource.PlayOneShot(buttonSound);
-        
+
+        // รอเวลาให้เสียงเล่นจบก่อนเปลี่ยน Scene
+        StartCoroutine(WaitAndGoToMenu(1.0f)); // 1.0f คือเวลาของเสียงที่ต้องการให้เล่นจบ
+    }
+
+    private IEnumerator WaitAndGoToMenu(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+
         if (PhotonNetwork.IsMasterClient)
         {
-            // ถ้าผู้เล่นเป็น host, ลบข้อมูลห้องและเปลี่ยนไปยังเมนู
             StartCoroutine(DeleteRoomAndGoToMenu());
         }
         else
         {
-            // ถ้าผู้เล่นไม่ใช่ host, เปลี่ยนไปยังเมนูทันที
             StartCoroutine(LeaveRoomAndCheckConnection());
         }
     }

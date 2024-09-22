@@ -1,6 +1,14 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Firebase.Auth;
+using Firebase.Database;
+using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
+using System.Collections;
+using System.Collections.Generic;
+
 
 public class RegisterUI : MonoBehaviour
 {
@@ -9,13 +17,15 @@ public class RegisterUI : MonoBehaviour
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private TMP_InputField confirmPasswordInput;
     [SerializeField] private Button registerButton;
-    [SerializeField] private Button backToLoginButton;
+    [SerializeField] private Button LoginButton;
     [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
 
     public void Start()
     {
-        registerButton.onClick.AddListener(OnRegisterButtonClicked);
-        backToLoginButton.onClick.AddListener(OnBackToLoginButtonClicked);
+        registerButton.onClick.AddListener(() => SoundOnClick(OnRegisterButtonClicked));
+        LoginButton.onClick.AddListener(() => SoundOnClick(OnBackToLoginButtonClicked));
     }
 
     private void OnRegisterButtonClicked()
@@ -42,6 +52,28 @@ public class RegisterUI : MonoBehaviour
 
     private void OnBackToLoginButtonClicked()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Login");
+        SceneManager.LoadScene("Login");
+    }
+
+      void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

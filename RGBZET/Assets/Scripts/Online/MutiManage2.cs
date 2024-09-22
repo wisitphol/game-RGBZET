@@ -88,7 +88,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 playerObjects[i].SetActive(true);
 
                 // เข้าถึง PlayerCon2 component ของ playerObject
-                PlayerCon2 playerCon = playerObjects[i].GetComponent<PlayerCon2>();
+                PlayerControl2 playerCon = playerObjects[i].GetComponent<PlayerControl2>();
                 if (playerCon != null)
                 {
                     playerCon.SetActorNumber(players[i].ActorNumber);
@@ -199,14 +199,14 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
         // ค้นหา player object ที่สอดคล้องกับ playerActorNumber
         GameObject[] playerObjects = { player1, player2, player3, player4 };
-        PlayerCon2 activatedPlayerCon = null;
+        PlayerControl2 activatedPlayerCon = null;
         // ตรวจสอบว่า playerObjects และ PlayerList มีขนาดที่ตรงกัน
         int playerCount = Mathf.Min(playerObjects.Length, PhotonNetwork.PlayerList.Length);
 
         for (int i = 0; i < playerCount; i++)
         {
             Player player = PhotonNetwork.PlayerList[i];
-            PlayerCon2 playerCon = playerObjects[i].GetComponent<PlayerCon2>();
+            PlayerControl2 playerCon = playerObjects[i].GetComponent<PlayerControl2>();
 
             if (player.ActorNumber == playerActorNumber && playerCon != null)
             {
@@ -243,7 +243,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
         foreach (GameObject player in players)
         {
-            PlayerCon2 playerComponent = player.GetComponent<PlayerCon2>();
+            PlayerControl2 playerComponent = player.GetComponent<PlayerControl2>();
             if (playerComponent != null && playerComponent.ActorNumber == actorNumber)
             {
                 playerComponent.UpdateScore(newScore);
@@ -304,7 +304,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     {
         if (playerObject != null)
         {
-            PlayerCon2 playerCon = playerObject.GetComponent<PlayerCon2>();
+            PlayerControl2 playerCon = playerObject.GetComponent<PlayerControl2>();
             if (playerCon != null)
             {
                 // รีเซ็ตข้อมูลใน PlayerCon2
