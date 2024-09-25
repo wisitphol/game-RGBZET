@@ -1,11 +1,15 @@
 using UnityEngine;
-using Firebase.Auth;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Firebase.Auth;
 using Firebase.Database;
+using Firebase.Extensions;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
+
 
 public class AuthManager : MonoBehaviour
 {
@@ -72,7 +76,7 @@ public class AuthManager : MonoBehaviour
         {
             user = loginTask.Result.User;
 
-        
+
             // Check if the user is already logged in
             var userStatusTask = CheckUserLoginStatus(user.UserId);
             yield return new WaitUntil(() => userStatusTask.IsCompleted);
@@ -163,7 +167,7 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-     private void SetUserLoginStatusImmediate(string userId, bool status)
+    private void SetUserLoginStatusImmediate(string userId, bool status)
     {
         databaseRef.Child("users").Child(userId).Child("isLoggedIn").SetValueAsync(status).ContinueWith(task =>
         {
@@ -258,5 +262,6 @@ public class AuthManager : MonoBehaviour
             callback(false);
         }
     }
+
 
 }

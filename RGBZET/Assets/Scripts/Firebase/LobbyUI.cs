@@ -192,7 +192,10 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             // ตรวจสอบว่าจำนวนผู้เล่นครบหรือไม่
             if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
             {
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+                PhotonNetwork.CurrentRoom.IsVisible = false;
                 //StartCoroutine(LoadingScreen());
+                PhotonNetwork.IsMessageQueueRunning = false;
                 photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);
             }
             else
@@ -219,6 +222,8 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     {
         Debug.Log("Starting game...");
         PhotonNetwork.LoadLevel("Card sample 2");
+
+        PhotonNetwork.IsMessageQueueRunning = true;
     }
 
 

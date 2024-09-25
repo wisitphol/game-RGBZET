@@ -6,6 +6,8 @@ using Firebase.Database;
 using Firebase.Extensions;
 using TMPro;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 public class ProfileUi : MonoBehaviour
 {
     [SerializeField] private TMP_Text usernameText;
@@ -18,6 +20,10 @@ public class ProfileUi : MonoBehaviour
     [SerializeField] private TMP_Text drawText;
     [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private Button BackButton;
+    [SerializeField] private Button saveIconButton;
+    [SerializeField] private TMP_Dropdown iconDropdown;
+    [SerializeField] private Image playerIconImage;
+    [SerializeField] private Sprite[] iconSprites;
 
     private DatabaseReference userRef;
     private string currentUsername;
@@ -28,47 +34,60 @@ public class ProfileUi : MonoBehaviour
             string userId = AuthManager.Instance.GetCurrentUserId();
             userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
             LoadUserData();
+
+            PopulateIconDropdown();
         }
-         usernameInputField.interactable = false;
+        usernameInputField.interactable = false;
 
         BackButton.onClick.AddListener(() => SceneManager.LoadScene("Menu"));
         editUsernameButton.onClick.AddListener(OnEditUsernameButtonClicked);
         saveUsernameButton.onClick.AddListener(OnSaveUsernameButtonClicked);
 
-    }
- void LoadUserData()
-{
-    userRef.GetValueAsync().ContinueWithOnMainThread(task =>
-    {
-        if (task.IsCompleted && !task.IsFaulted && task.Result != null)
-        {
-            DataSnapshot snapshot = task.Result;
-            if (snapshot.Exists)
-            {
-                currentUsername = snapshot.Child("username").Value.ToString();
-                usernameText.text =   currentUsername;
+        saveIconButton.onClick.AddListener(OnSaveIconButtonClicked);  // เพิ่มการตั้งค่าให้กับปุ่มบันทึกไอคอน
 
-                // ดึงข้อมูลจำนวนเกมที่เล่น ชนะ แพ้ และเสมอ
-                // ดึงข้อมูลจำนวนเกมที่เล่น ชนะ แพ้ และเสมอ พร้อมแสดงข้อความที่ต้องการ
-                matchText.text = snapshot.Child("gamescount").Value != null ? "Matches: " + snapshot.Child("gamescount").Value.ToString() : "Matches: 0";
-                winText.text = snapshot.Child("gameswin").Value != null ? "Win: " + snapshot.Child("gameswin").Value.ToString() : "Win: 0";
-                loseText.text = snapshot.Child("gameslose").Value != null ? "Lose: " + snapshot.Child("gameslose").Value.ToString() : "Lose: 0";
-                drawText.text = snapshot.Child("gamesdraw").Value != null ? "Draw: " + snapshot.Child("gamesdraw").Value.ToString() : "Draw: 0";
+        // ตั้งค่าตัวเลือกใน dropdown ตามจำนวนไอคอน
+        iconDropdown.onValueChanged.AddListener(OnIconDropdownChanged);
+    }
+    void LoadUserData()
+    {
+        userRef.GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted && !task.IsFaulted && task.Result != null)
+            {
+                DataSnapshot snapshot = task.Result;
+                if (snapshot.Exists)
+                {
+                    currentUsername = snapshot.Child("username").Value.ToString();
+                    usernameText.text = currentUsername;
+
+                    // ดึงข้อมูลจำนวนเกมที่เล่น ชนะ แพ้ และเสมอ
+                    // ดึงข้อมูลจำนวนเกมที่เล่น ชนะ แพ้ และเสมอ พร้อมแสดงข้อความที่ต้องการ
+                    matchText.text = snapshot.Child("gamescount").Value != null ? "Matches: " + snapshot.Child("gamescount").Value.ToString() : "Matches: 0";
+                    winText.text = snapshot.Child("gameswin").Value != null ? "Win: " + snapshot.Child("gameswin").Value.ToString() : "Win: 0";
+                    loseText.text = snapshot.Child("gameslose").Value != null ? "Lose: " + snapshot.Child("gameslose").Value.ToString() : "Lose: 0";
+                    drawText.text = snapshot.Child("gamesdraw").Value != null ? "Draw: " + snapshot.Child("gamesdraw").Value.ToString() : "Draw: 0";
+
+                    if (snapshot.Child("icon").Value != null)
+                    {
+                        int iconId = int.Parse(snapshot.Child("icon").Value.ToString());
+                        playerIconImage.sprite = iconSprites[iconId];  // ตั้งค่าไอคอนใน UI
+                        iconDropdown.value = iconId;  // ตั้งค่าให้ dropdown แสดงค่าไอคอนที่ถูกเลือก
+                    }
+                }
+                else
+                {
+                    DisplayFeedback("Failed to load user data.");
+                }
             }
             else
             {
                 DisplayFeedback("Failed to load user data.");
             }
-        }
-        else
-        {
-            DisplayFeedback("Failed to load user data.");
-        }
-    });
-}
+        });
+    }
 
 
-    
+
     void OnEditUsernameButtonClicked()
     {
         usernameText.gameObject.SetActive(false);
@@ -78,8 +97,6 @@ public class ProfileUi : MonoBehaviour
 
         usernameInputField.interactable = true;
         usernameInputField.text = currentUsername;
-
-         
     }
 
     async void OnSaveUsernameButtonClicked()
@@ -120,16 +137,16 @@ public class ProfileUi : MonoBehaviour
 
     void UpdateUsername(string newUsername)
     {
-        AuthManager.Instance.UpdateUserProfile(newUsername, (success) => 
+        AuthManager.Instance.UpdateUserProfile(newUsername, (success) =>
         {
             if (success)
             {
-                userRef.Child("username").SetValueAsync(newUsername).ContinueWith(task => 
+                userRef.Child("username").SetValueAsync(newUsername).ContinueWith(task =>
                 {
                     if (task.IsCompleted && !task.IsFaulted)
                     {
                         currentUsername = newUsername;
-                        usernameText.text =  newUsername;
+                        usernameText.text = newUsername;
                         DisplayFeedback("Username updated successfully.");
                         CancelUsernameEdit();
                     }
@@ -154,6 +171,43 @@ public class ProfileUi : MonoBehaviour
         //saveUsernameButton.gameObject.SetActive(false);
 
         usernameInputField.interactable = false;
+    }
+
+    private void OnIconDropdownChanged(int iconId)
+    {
+        playerIconImage.sprite = iconSprites[iconId]; // อัปเดตรูปไอคอนใน UI
+    }
+
+    // ฟังก์ชันสำหรับบันทึกไอคอนที่เลือก
+    private void OnSaveIconButtonClicked()
+    {
+        int selectedIconId = iconDropdown.value; // รับค่าไอคอนที่เลือกจาก dropdown
+        userRef.Child("icon").SetValueAsync(selectedIconId).ContinueWith(task => // บันทึกค่า iconId ลง Firebase
+        {
+            if (task.IsCompleted && !task.IsFaulted)
+            {
+                // อัปเดตรูปไอคอนใน UI
+                playerIconImage.sprite = iconSprites[selectedIconId];
+                DisplayFeedback("Icon changed successfully.");
+            }
+            else
+            {
+                DisplayFeedback("Failed to change icon.");
+            }
+        });
+    }
+
+    private void PopulateIconDropdown()
+    {
+        iconDropdown.ClearOptions(); // ลบตัวเลือกเก่าออก
+        List<string> options = new List<string>();
+
+        for (int i = 0; i < iconSprites.Length; i++)
+        {
+            options.Add($"Icon {i + 1}"); // เพิ่มตัวเลือกตามจำนวนไอคอน
+        }
+
+        iconDropdown.AddOptions(options); // เพิ่มตัวเลือกใหม่ลงใน dropdown
     }
 
     public void DisplayFeedback(string message)

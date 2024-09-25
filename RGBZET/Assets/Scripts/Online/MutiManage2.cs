@@ -25,7 +25,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     private BoardCheck2 boardCheck;
     private float gameDuration = 120f; // 5 นาทีในหน่วยวินาที (5 นาที = 300 วินาที)
     private float timer;
-    public TextMeshProUGUI timerText; // เพิ่ม TextMeshProUGUI เพื่อแสดงเวลา
+    public TMP_Text timerText; // เพิ่ม TextMeshProUGUI เพื่อแสดงเวลา
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound; 
 
