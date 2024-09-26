@@ -7,6 +7,7 @@ using Photon.Pun;
 using TMPro;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 
 public class JoinRoomUI : MonoBehaviourPunCallbacks
@@ -21,6 +22,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     private FirebaseAuth auth;
     private string roomId;
     private string userId;
+    private string roomType;
 
     void Start()
     {
@@ -33,7 +35,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             roomId = roomCodeInputField.text;
             if (PhotonNetwork.IsConnectedAndReady)
             {
-                JoinRoom(roomId);
+                CheckRoomTypeAndJoin(roomId);
             }
             else
             {
@@ -63,7 +65,10 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         DisplayFeedback("Connected to Master Server.");
-        JoinRoom(roomId);
+        if (!string.IsNullOrEmpty(roomId))
+        {
+            CheckRoomTypeAndJoin(roomId);
+        }
     }
 
     void JoinRoom(string roomId)
@@ -91,7 +96,14 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         SetPlayerUsername(() =>
         {
             PlayerPrefs.SetString("RoomId", roomId);
-            SceneManager.LoadScene("Lobby");//เพิ่ม scene lobby
+            if (roomType == "tournament")
+            {
+                PhotonNetwork.LoadLevel("LobbyTournament");
+            }
+            else if (roomType == "withfriend")
+            {
+                PhotonNetwork.LoadLevel("Lobby");
+            }
         });
     }
 
@@ -134,4 +146,63 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             }
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }
+
+    void CheckRoomTypeAndJoin(string roomId)
+    {
+        if (string.IsNullOrEmpty(roomId))
+        {
+            DisplayFeedback("Please enter a valid room code.");
+            return;
+        }
+
+        StartCoroutine(CheckRoomTypeAndJoinCoroutine(roomId));
+    }
+
+    IEnumerator CheckRoomTypeAndJoinCoroutine(string roomId)
+    {
+        DisplayFeedback("Checking room type...");
+
+        // Check if the room is a tournament
+        var tournamentTask = FirebaseDatabase.DefaultInstance.GetReference("tournaments").GetValueAsync();
+        yield return new WaitUntil(() => tournamentTask.IsCompleted);
+
+        if (tournamentTask.Exception != null)
+        {
+            Debug.LogError($"Failed to get tournament data: {tournamentTask.Exception}");
+        }
+        else if (tournamentTask.Result != null && tournamentTask.Result.Exists)
+        {
+            foreach (var tournamentChild in tournamentTask.Result.Children)
+            {
+                if (tournamentChild.Child("tournamentId").Value.ToString() == roomId)
+                {
+                    roomType = "tournament";
+                    string tournamentName = tournamentChild.Child("name").Value.ToString();
+                    PlayerPrefs.SetString("TournamentName", tournamentName);
+                    PlayerPrefs.Save();
+                    JoinRoom(roomId);
+                    yield break;
+                }
+            }
+        }
+
+        // Check if the room is a withfriend room
+        var withfriendTask = databaseRef.Child(roomId).GetValueAsync();
+        yield return new WaitUntil(() => withfriendTask.IsCompleted);
+
+        if (withfriendTask.Exception != null)
+        {
+            Debug.LogError($"Failed to get withfriend room data: {withfriendTask.Exception}");
+        }
+        else if (withfriendTask.Result != null && withfriendTask.Result.Exists)
+        {
+            roomType = "withfriend";
+            JoinRoom(roomId);
+            yield break;
+        }
+
+        DisplayFeedback("Room not found. Please check the room code.");
+    }
+
+  
 }

@@ -36,9 +36,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Lobby.unity
     guid: 682c069a45f447346b15ef90b8f56469
   - enabled: 1
-    path: Assets/Scenes/Tournament.unity
-    guid: e70589b9903691a44acfb0ec98b224ab
-  - enabled: 1
     path: Assets/Scenes/Setting.unity
     guid: aa1b2d33e0eaffc4db5a44efb03d4aee
   - enabled: 1
@@ -53,6 +50,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CreateFriend.unity
     guid: 4a3da33eb7714544eb4b5066e1a6fd9e
+  - enabled: 1
+    path: Assets/Scenes/CreateTournament.unity
+    guid: a6f3b258505bef64bbf7595c885d36a8
+  - enabled: 1
+    path: Assets/Scenes/LobbyTournament.unity
+    guid: 8edc63b6ca09e3d449ecaf7a74571b84
+  - enabled: 1
+    path: Assets/Scenes/TournamentBracket.unity
+    guid: 129338f006d39d847adf7d0b6abdb5d3
+  - enabled: 1
+    path: Assets/Scenes/MatchLobby.unity
+    guid: 2fbc9bb9cde752247b82f3547f9116d6
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: de1e4e24ab5bd6c42be43de0760b0103, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 92ef5e6794481416f9934958382e2622, type: 2}

@@ -86,8 +86,6 @@ public class ProfileUi : MonoBehaviour
         });
     }
 
-
-
     void OnEditUsernameButtonClicked()
     {
         usernameText.gameObject.SetActive(false);
@@ -202,9 +200,12 @@ public class ProfileUi : MonoBehaviour
         iconDropdown.ClearOptions(); // ลบตัวเลือกเก่าออก
         List<string> options = new List<string>();
 
-        for (int i = 0; i < iconSprites.Length; i++)
+        // ตัวอย่างการตั้งชื่อสำหรับแต่ละไอคอน
+        string[] iconNames = { "man1", "woman1", "man2", "woman2" };
+
+        for (int i = 0; i < iconSprites.Length && i < iconNames.Length; i++)
         {
-            options.Add($"Icon {i + 1}"); // เพิ่มตัวเลือกตามจำนวนไอคอน
+            options.Add(iconNames[i]); // เพิ่มชื่อที่ต้องการลงใน dropdown
         }
 
         iconDropdown.AddOptions(options); // เพิ่มตัวเลือกใหม่ลงใน dropdown

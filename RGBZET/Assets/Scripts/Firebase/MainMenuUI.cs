@@ -41,11 +41,9 @@ public class MainMenuUI : MonoBehaviour
         joinButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Joinroom")));
         createQuickplayButton.onClick.AddListener(() => SoundOnClick(() => {/* TODO: Implement Quickplay functionality */}));
         createWithFriendButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateFriend")));
-        createTournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
+        createTournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateTournament")));
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
-
-
-       profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
+        profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
 
     }
 
@@ -60,6 +58,7 @@ public class MainMenuUI : MonoBehaviour
                 {
                     currentUsername = snapshot.Child("username").Value.ToString();
                     usernameText.text = "Welcome, " + currentUsername;
+
                 }
                 else
                 {
@@ -78,7 +77,7 @@ public class MainMenuUI : MonoBehaviour
         AuthManager.Instance.Logout();
         // Logout method in AuthManager already handles scene transition
     }
-       
+
     void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)

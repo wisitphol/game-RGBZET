@@ -113,7 +113,10 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
                 // เข้าถึง Playerlobby2 component ของ playerObject
                 PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
-                if (playerLobby != null)
+
+              //  PlayerIcon playerIcon = playerObjects[i].GetComponent<PlayerIcon>(); // ใช้ PlayerIcon
+
+                if (playerLobby != null /* && playerIcon != null*/)
                 {
                     playerLobby.SetActorNumber(players[i].ActorNumber);
 
@@ -127,6 +130,10 @@ public class LobbyUI : MonoBehaviourPunCallbacks
                     // อัปเดตข้อมูลใน Playerlobby2
                     playerLobby.UpdatePlayerInfo(username, readyStatus);
 
+                    //StartCoroutine(LoadPlayerIcon(players[i].UserId, playerLobby));
+
+                   //playerIcon.LoadUserIcon();
+
                     Debug.Log($"Updating Player {i + 1}: Name={username}, Ready={readyStatus}");
                 }
             }
@@ -139,8 +146,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             }
         }
     }
-
-
 
     void UpdateStartButtonVisibility()
     {
@@ -225,7 +230,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
         PhotonNetwork.IsMessageQueueRunning = true;
     }
-
 
     void LeaveRoom()
     {
@@ -340,5 +344,31 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         DisplayFeedback("Room ID copied.");
         Debug.Log("Room ID copied: " + roomId);
     }
+
+  /*  IEnumerator LoadPlayerIcon(string userId, PlayerLobby2 playerLobby)
+    {
+        DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
+        var task = userRef.GetValueAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.IsFaulted || task.IsCanceled)
+        {
+            Debug.LogError("Failed to load player icon from Firebase.");
+            yield break;
+        }
+
+        DataSnapshot snapshot = task.Result;
+        if (snapshot.Exists && snapshot.Child("icon").Exists)
+        {
+            int iconId = int.Parse(snapshot.Child("icon").Value.ToString());
+            playerLobby.UpdatePlayerIcon(iconId);
+        }
+        else
+        {
+            Debug.LogWarning("Player icon not found for user: " + userId);
+        }
+    }*/
+
+
 
 }
