@@ -92,8 +92,8 @@ public class TournamentBracketUI : MonoBehaviour
 
     void ArrangeBracketUI()
     {
-        float xOffset = 500f;
-        float yOffset = 500f;
+        float xOffset = 50f;
+        float yOffset = 100f;
         foreach (var match in matches.Values)
         {
             string[] matchInfo = match.matchId.Split('_');

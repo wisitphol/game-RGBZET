@@ -43,11 +43,16 @@ public class DisplayCard2 : MonoBehaviour
         //Debug.Log("CardList Count: " + CardData.cardList.Count);
         //Debug.Log("DisplayId: " + displayId);
 
+
+        if (CardData.cardList == null || CardData.cardList.Count == 0)
+        {
+            Debug.LogError("CardData.cardList is null or empty.");
+            return;
+        }
+
         if (displayId >= 0 && displayId < CardData.cardList.Count)
         {
             displayCard.Add(CardData.cardList[displayId]);
-            //displayCard[0] = CardData.cardList[displayId];
-
         }
         else
         {
