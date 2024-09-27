@@ -165,14 +165,14 @@ GameObject:
   - component: {fileID: 5607673061620671138}
   - component: {fileID: 2403702562035550942}
   - component: {fileID: 6104227728429595561}
-  - component: {fileID: 1691506012599538589}
   - component: {fileID: 455554338689931451}
-  - component: {fileID: 7565365075251685378}
   - component: {fileID: 4469313066164800266}
   - component: {fileID: 1536491071652994407}
-  - component: {fileID: 3457896127261191312}
+  - component: {fileID: 177111647266994376}
+  - component: {fileID: 2571022661299094233}
+  - component: {fileID: -838240196407476142}
   m_Layer: 0
-  m_Name: CardBoard2
+  m_Name: CardBoardT
   m_TagString: Clone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -277,31 +277,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1691506012599538589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5607673061620671136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b7ff6b51aa8276438e30a6384b79f1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayCard: []
-  displayId: 0
-  Id: 0
-  LetterType: 
-  ColorType: 
-  AmountType: 
-  FontType: 
-  Point: 0
-  Spriteimg: {fileID: 0}
-  ArtImage: {fileID: 5607673060376406715}
-  cardBack: 0
-  Board: {fileID: 0}
-  numberOfCardInDeck: 0
 --- !u!114 &455554338689931451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,21 +290,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardBack: {fileID: 3695626017689113206, guid: 844465b857efeae4097d7b807a74f3f6, type: 3}
---- !u!114 &7565365075251685378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5607673061620671136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c1d98a20b9737c49900a50417da6d33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentToReturnTo: {fileID: 0}
-  outline: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!114 &4469313066164800266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,7 +401,47 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &3457896127261191312
+--- !u!114 &177111647266994376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5607673061620671136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a2b0b99c5f22214d80048311ee91eeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayCard: []
+  displayId: 0
+  Id: 0
+  LetterType: 
+  ColorType: 
+  AmountType: 
+  FontType: 
+  Point: 0
+  Spriteimg: {fileID: 0}
+  ArtImage: {fileID: 0}
+  cardBack: 0
+  Board: {fileID: 5607673060376406713}
+  numberOfCardInDeck: 0
+--- !u!114 &2571022661299094233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5607673061620671136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea357fb257832b74787f75f20cce83b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentToReturnTo: {fileID: 0}
+  outline: {fileID: 4469313066164800266}
+  audioSource: {fileID: 1536491071652994407}
+--- !u!114 &-838240196407476142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

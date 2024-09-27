@@ -146,7 +146,7 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
     {
         Debug.Log("Photon Room created successfully");
         SaveTournamentInfoToPlayerPrefs();
-        SceneManager.LoadScene("LobbyTournament");
+        SceneManager.LoadScene("TournamentLobby");
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

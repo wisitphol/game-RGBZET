@@ -4,16 +4,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 
-public class BoardCheck2 : MonoBehaviourPunCallbacks
+public class BoardCheckT : MonoBehaviourPunCallbacks
 {
-    private Drop2 dropScript;
-    private Deck2 deck;
+    private DropT dropScript;
+    private DeckT deck;
     public GameObject Board;
 
     public void Start()
     {
-        dropScript = FindObjectOfType<Drop2>();
-        deck = FindObjectOfType<Deck2>();
+        dropScript = FindObjectOfType<DropT>();
+        deck = FindObjectOfType<DeckT>();
         Board = GameObject.Find("Boardzone");
     }
 
@@ -24,7 +24,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
         // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
-            DisplayCard2 displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard2>();
+            DisplayCardT displayCard = Board.transform.GetChild(i).GetComponent<DisplayCardT>();
             if (displayCard != null && displayCard.displayCard.Count > 0)
             {
                 Card card = displayCard.displayCard[0];
@@ -71,7 +71,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
         // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
-            DisplayCard2 displayCard = Board.transform.GetChild(i).GetComponent<DisplayCard2>();
+            DisplayCardT displayCard = Board.transform.GetChild(i).GetComponent<DisplayCardT>();
             if (displayCard != null && displayCard.displayCard.Count > 0)
             {
                 Card card = displayCard.displayCard[0];
@@ -104,7 +104,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
     [PunRPC]
     public void RPC_LoadEndScene()
     {
-       PhotonNetwork.LoadLevel("Endscene");
+       PhotonNetwork.LoadLevel("ResultTournament");
     }
 
 

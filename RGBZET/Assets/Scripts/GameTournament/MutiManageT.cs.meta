@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: f44d43eeed4a2154e88ee253b41ea430
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - player1: {instanceID: 0}
+  - player2: {instanceID: 0}
+  - player3: {instanceID: 0}
+  - player4: {instanceID: 0}
+  - zetButton: {instanceID: 0}
+  - timerText: {instanceID: 0}
+  - audioSource: {instanceID: 0}
+  - buttonSound: {fileID: 8300000, guid: 9db8bd8da6b319146a24a31d94da2ce8, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

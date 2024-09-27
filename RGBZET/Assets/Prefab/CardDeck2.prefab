@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 7629831665280262987}
   - component: {fileID: 8703629565376866413}
   - component: {fileID: 1614091641321527508}
+  - component: {fileID: 8048061418697194728}
   m_Layer: 0
   m_Name: CardDeck2
   m_TagString: Clone
@@ -249,6 +250,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentToReturnTo: {fileID: 0}
+  outline: {fileID: 0}
+  audioSource: {fileID: 0}
+--- !u!114 &8048061418697194728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3695626017689113206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &7497955081822477325
 GameObject:
   m_ObjectHideFlags: 0

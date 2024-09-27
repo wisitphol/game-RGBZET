@@ -199,7 +199,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
     void StartGame()
     {
-        PhotonNetwork.LoadLevel("Card Sample 2");
+        PhotonNetwork.LoadLevel("Card sample Tournament");
     }
 
     void BackToBracket()

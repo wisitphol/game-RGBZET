@@ -45,23 +45,29 @@ EditorBuildSettings:
     path: Assets/Scenes/Card sample 2.unity
     guid: 65fe9ae85bca05c47a3418ea273fff1f
   - enabled: 1
-    path: Assets/Scenes/Endscene.unity
+    path: Assets/Scenes/Result.unity
     guid: 6e07ee7e02677cf42b22d3caff3e3314
   - enabled: 1
     path: Assets/Scenes/CreateFriend.unity
     guid: 4a3da33eb7714544eb4b5066e1a6fd9e
   - enabled: 1
-    path: Assets/Scenes/CreateTournament.unity
+    path: Assets/Scenes/TournamentMode/CreateTournament.unity
     guid: a6f3b258505bef64bbf7595c885d36a8
   - enabled: 1
-    path: Assets/Scenes/LobbyTournament.unity
+    path: Assets/Scenes/TournamentMode/TournamentLobby.unity
     guid: 8edc63b6ca09e3d449ecaf7a74571b84
   - enabled: 1
-    path: Assets/Scenes/TournamentBracket.unity
+    path: Assets/Scenes/TournamentMode/TournamentBracket.unity
     guid: 129338f006d39d847adf7d0b6abdb5d3
   - enabled: 1
-    path: Assets/Scenes/MatchLobby.unity
+    path: Assets/Scenes/TournamentMode/MatchLobby.unity
     guid: 2fbc9bb9cde752247b82f3547f9116d6
+  - enabled: 1
+    path: Assets/Scenes/TournamentMode/Card sample Tournament.unity
+    guid: b78083a21d4c5654096678c749a413c3
+  - enabled: 1
+    path: Assets/Scenes/TournamentMode/ResultTournament.unity
+    guid: 1e2c0e6cb190e114f9d77d2dcacd4d00
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: de1e4e24ab5bd6c42be43de0760b0103, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 92ef5e6794481416f9934958382e2622, type: 2}

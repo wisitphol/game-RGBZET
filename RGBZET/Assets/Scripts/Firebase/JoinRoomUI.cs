@@ -157,7 +157,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             PlayerPrefs.SetString("RoomId", roomId);
             if (roomType == "tournament")
             {
-                PhotonNetwork.LoadLevel("LobbyTournament");
+                PhotonNetwork.LoadLevel("TournamentLobby");
             }
             else if (roomType == "withfriend")
             {
