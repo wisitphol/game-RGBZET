@@ -19,7 +19,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
     private GameObject[] playerObjects;
     private PlayerResultT[] playerResults;
-    private DatabaseReference databaseReference;
+//    private DatabaseReference databaseReference;
     private FirebaseUserId firebaseUserId;
     [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
     [SerializeField] public AudioClip endgameSound;  // เสียงที่ต้องการเล่นตอนจั่วการ์ด
@@ -68,13 +68,13 @@ public class EndGameT : MonoBehaviourPunCallbacks
         }
 
         // เริ่มต้นการเชื่อมต่อ Firebase กับโหนดของ tournament
-        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
+//        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
 
         LogServerConnectionStatus();
 
         FetchPlayerDataFromPhoton();
 
-        StartCoroutine(DelayedUpdateGameResults());
+        //StartCoroutine(DelayedUpdateGameResults());
 
         if (audioSource != null && endgameSound != null)
         {
@@ -165,7 +165,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-            UpdateGameResultsInDatabase(); //**** ฟังชั่นอัพเดตข้อมูลขึ้น firebase ****
+            //UpdateGameResultsInDatabase(); //**** ฟังชั่นอัพเดตข้อมูลขึ้น firebase ****
 
         }
 
@@ -173,7 +173,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
 
     //**** ฟังชั่นอัพเดตข้อมูลขึ้น firebase ****
-    void UpdateGameResultsInDatabase()
+/*    void UpdateGameResultsInDatabase()
     {
         Debug.Log("Updating game results in database.");
 
@@ -288,7 +288,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
                 });
             }
         }
-    }
+    }*/
 
 
     private void OnBackToMenuButtonClicked()
@@ -314,7 +314,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
     private IEnumerator DeleteRoomAndGoToMenu()
     {
         // ลบข้อมูลห้องจาก Firebase
-        var task = databaseReference.RemoveValueAsync();
+/*        var task = databaseReference.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
         if (task.IsFaulted || task.IsCanceled)
@@ -324,7 +324,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
         else
         {
             Debug.Log("Can delete room from Firebase.");
-        }
+        }*/
 
         // ออกจากห้อง Photon
         PhotonNetwork.LeaveRoom();

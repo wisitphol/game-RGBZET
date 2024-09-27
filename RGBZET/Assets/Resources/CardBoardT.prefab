@@ -422,9 +422,9 @@ MonoBehaviour:
   FontType: 
   Point: 0
   Spriteimg: {fileID: 0}
-  ArtImage: {fileID: 0}
+  ArtImage: {fileID: 5607673060376406715}
   cardBack: 0
-  Board: {fileID: 5607673060376406713}
+  Board: {fileID: 0}
   numberOfCardInDeck: 0
 --- !u!114 &2571022661299094233
 MonoBehaviour:
