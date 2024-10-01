@@ -91,7 +91,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
             }
             else
             {
-                photonView.RPC("RPC_LoadEndScene", RpcTarget.AllBuffered);
+                photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered);
             }
         }
         else
@@ -102,7 +102,7 @@ public class BoardCheck2 : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RPC_LoadEndScene()
+    public void RPC_LoadResult()
     {
        PhotonNetwork.LoadLevel("Result");
     }

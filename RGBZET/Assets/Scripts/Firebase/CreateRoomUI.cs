@@ -15,6 +15,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     public Button createRoomButton;
     public Button backButton;
     public TMP_Text feedbackText;
+    public TMP_Dropdown timeDropdown; // เพิ่ม dropdown สำหรับเวลา
 
     private DatabaseReference databaseRef;
     private FirebaseAuth auth;
@@ -29,6 +30,9 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
 
         playerCountDropdown.ClearOptions();
         playerCountDropdown.AddOptions(new List<string> { "1", "2", "3", "4" });
+
+        timeDropdown.ClearOptions();
+        timeDropdown.AddOptions(new List<string> { "1", "5", "10", "Unlimit" }); // เวลาในนาที
 
         createRoomButton.onClick.AddListener(() =>
         {
@@ -64,11 +68,14 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     {
         roomId = GenerateRoomId();
 
+         int selectedTime = timeDropdown.value == timeDropdown.options.Count - 1 ? -1 : int.Parse(timeDropdown.options[timeDropdown.value].text);
+
         Dictionary<string, object> withfriendsData = new Dictionary<string, object>
         {
             { "roomId", roomId },
             { "playerCount", playerCount },
-            { "hostUserId", userId }
+            { "hostUserId", userId },
+            { "gameTime", selectedTime } // เพิ่มเวลาในข้อมูลห้อง
         };
 
         databaseRef.Child("withfriends").Child(roomId).SetValueAsync(withfriendsData).ContinueWith(task =>
@@ -82,7 +89,20 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
             {
                 DisplayFeedback("Room created successfully.");
                 Debug.Log($"Room created successfully: roomId={roomId}, playerCount={playerCount}, hostUserId={userId}");
-                PhotonNetwork.CreateRoom(roomId, new Photon.Realtime.RoomOptions { MaxPlayers = (byte)playerCount });
+                 // เพิ่มเวลาที่เลือกใน Custom Room Properties ของ Photon
+                ExitGames.Client.Photon.Hashtable roomProperties = new ExitGames.Client.Photon.Hashtable
+                {
+                    { "gameTime", selectedTime }
+                };
+
+                Photon.Realtime.RoomOptions roomOptions = new Photon.Realtime.RoomOptions
+                {
+                    MaxPlayers = (byte)playerCount,
+                    CustomRoomProperties = roomProperties,
+                    CustomRoomPropertiesForLobby = new string[] { "gameTime" }
+                };
+
+                PhotonNetwork.CreateRoom(roomId, roomOptions);
                 PlayerPrefs.SetString("RoomId", roomId);
                 PlayerPrefs.SetString("HostUserId", userId);
             }
