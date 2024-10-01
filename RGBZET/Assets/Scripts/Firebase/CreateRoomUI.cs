@@ -32,7 +32,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         playerCountDropdown.AddOptions(new List<string> { "1", "2", "3", "4" });
 
         timeDropdown.ClearOptions();
-        timeDropdown.AddOptions(new List<string> { "1", "5", "10", "Unlimit" }); // เวลาในนาที
+        timeDropdown.AddOptions(new List<string> { "1", "3", "5", "Unlimit" }); // เวลาในนาที
 
         createRoomButton.onClick.AddListener(() =>
         {

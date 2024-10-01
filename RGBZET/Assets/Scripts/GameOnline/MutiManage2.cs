@@ -149,6 +149,13 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                     // อัปเดตข้อมูลใน PlayerCon2
                     playerCon.UpdatePlayerInfo(username, score, zetActive);
 
+                    // อัปเดตรูปไอคอนตาม Custom Properties ของ Photon
+                    if (players[i].CustomProperties.ContainsKey("iconId"))
+                    {
+                        int iconId = (int)players[i].CustomProperties["iconId"];
+                        playerCon.UpdatePlayerIcon(iconId);
+                    }
+
                     Debug.Log($"Updating Player {i + 1}: Name={username}, Score={score}, ZetActive={zetActive}");
                 }
             }

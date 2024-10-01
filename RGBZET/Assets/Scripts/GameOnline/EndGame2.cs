@@ -122,6 +122,13 @@ public class EndGame2 : MonoBehaviourPunCallbacks
 
             Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
 
+            if (player.CustomProperties.ContainsKey("iconId"))
+            {
+                int iconId = (int)player.CustomProperties["iconId"];
+                playerResults[index].UpdatePlayerIcon(iconId); // อัปเดตรูปภาพ
+            }
+
+
             if (playerScore > highestScore)
             {
                 highestScore = playerScore;
@@ -137,7 +144,10 @@ public class EndGame2 : MonoBehaviourPunCallbacks
             playerObjects[index].SetActive(true);
 
             index++;
+
+           
         }
+
 
         // อัปเดตข้อความ "Winner" หรือ "Draw"
         if (highestScoreIndices.Count == 1)
