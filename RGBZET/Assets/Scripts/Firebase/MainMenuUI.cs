@@ -17,8 +17,10 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button createTournamentButton;
     [SerializeField] private Button createQuickplayButton;
     [SerializeField] private Button logoutButton;
-    [SerializeField] private TMP_Text feedbackText;
     [SerializeField] private Button profileButton;
+    [SerializeField] private Button settingButton;
+    [SerializeField] private Button guideButton;
+    [SerializeField] private TMP_Text feedbackText;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
     private DatabaseReference userRef;
@@ -44,6 +46,7 @@ public class MainMenuUI : MonoBehaviour
         createTournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateTournament")));
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
         profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
+        settingButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Setting")));
 
     }
 

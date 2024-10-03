@@ -24,6 +24,8 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     private string roomId;
     private string userId;
     private string roomType;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
@@ -31,7 +33,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         userId = auth.CurrentUser.UserId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends");
 
-        joinRoomButton.onClick.AddListener(() =>
+        joinRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             roomId = roomCodeInputField.text;
             if (PhotonNetwork.IsConnectedAndReady)
@@ -43,18 +45,18 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
                 DisplayFeedback("Connecting to Master Server...");
                 PhotonNetwork.ConnectUsingSettings();
             }
-        });
+        }));
 
-        cancelButton.onClick.AddListener(() =>
+        cancelButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             roomCodeInputField.text = "";  // ลบข้อมูลใน input field
             DisplayFeedback("Room code cleared.");  // แสดงข้อความ feedback ว่าข้อมูลถูกลบแล้ว
-        });
+        }));
 
-        backButton.onClick.AddListener(() =>
+        backButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             SceneManager.LoadScene("Menu");//ไป scene ก่อนหน้านี้
-        });
+        }));
 
         // เชื่อมต่อกับ Master Server หากยังไม่ได้เชื่อมต่อ
         if (!PhotonNetwork.IsConnected)
@@ -215,7 +217,27 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         DisplayFeedback($"Disconnected from Photon: {cause}");
     }
 
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
 
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
+    }
 
 
 

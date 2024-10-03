@@ -30,6 +30,8 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     private string hostUserId;
     private FirebaseAuth auth;
     private int maxPlayers;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
@@ -40,9 +42,9 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         roomCodeText.text = "Room Code: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
-        startGameButton.onClick.AddListener(StartGame);
-        readyButton.onClick.AddListener(ToggleReady);
-        leaveRoomButton.onClick.AddListener(() =>
+        startGameButton.onClick.AddListener(() => SoundOnClick(StartGame));
+        readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
+        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             if (auth.CurrentUser.UserId == hostUserId)
             {
@@ -52,13 +54,13 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.LeaveRoom();
             }
-        });
+        }));
 
         // เพิ่มการฟังการคลิกปุ่ม copyButton
-        copyButton.onClick.AddListener(() =>
+        copyButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             CopyRoomIdToClipboard();
-        });
+        }));
 
         UpdateUI();
     }
@@ -325,5 +327,27 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         GUIUtility.systemCopyBuffer = roomId;  // ก๊อปปี้ roomId ไปที่คลิปบอร์ด
         DisplayFeedback("Room ID copied.");
         Debug.Log("Room ID copied: " + roomId);
+    }
+
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

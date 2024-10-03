@@ -7,6 +7,7 @@ using Photon.Pun;
 using TMPro;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 
 public class CreateRoomUI : MonoBehaviourPunCallbacks
@@ -22,6 +23,8 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     private int playerCount;
     private string userId;
     private string roomId;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
@@ -34,11 +37,12 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         timeDropdown.ClearOptions();
         timeDropdown.AddOptions(new List<string> { "1", "3", "5", "Unlimit" }); // เวลาในนาที
 
-        createRoomButton.onClick.AddListener(() =>
+        createRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             playerCount = playerCountDropdown.value + 1;
             userId = auth.CurrentUser.UserId;
             Debug.Log($"Create Room Button Clicked: playerCount={playerCount}, userId={userId}");
+
             if (PhotonNetwork.IsConnectedAndReady)
             {
                 CreateRoom();
@@ -48,12 +52,9 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
                 DisplayFeedback("Connecting to Master Server...");
                 PhotonNetwork.ConnectUsingSettings();
             }
-        });
+        }));
 
-        backButton.onClick.AddListener(() =>
-        {
-            SceneManager.LoadScene("Menu");//Scene ก่อนหน้า
-        });
+        backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
 
     }
 
@@ -68,7 +69,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     {
         roomId = GenerateRoomId();
 
-         int selectedTime = timeDropdown.value == timeDropdown.options.Count - 1 ? -1 : int.Parse(timeDropdown.options[timeDropdown.value].text);
+        int selectedTime = timeDropdown.value == timeDropdown.options.Count - 1 ? -1 : int.Parse(timeDropdown.options[timeDropdown.value].text);
 
         Dictionary<string, object> withfriendsData = new Dictionary<string, object>
         {
@@ -89,7 +90,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
             {
                 DisplayFeedback("Room created successfully.");
                 Debug.Log($"Room created successfully: roomId={roomId}, playerCount={playerCount}, hostUserId={userId}");
-                 // เพิ่มเวลาที่เลือกใน Custom Room Properties ของ Photon
+                // เพิ่มเวลาที่เลือกใน Custom Room Properties ของ Photon
                 ExitGames.Client.Photon.Hashtable roomProperties = new ExitGames.Client.Photon.Hashtable
                 {
                     { "gameTime", selectedTime }
@@ -177,5 +178,27 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("OnJoinedRoom called");
+    }
+
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }
