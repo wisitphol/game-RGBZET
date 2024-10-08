@@ -192,7 +192,11 @@ public class AuthManager : MonoBehaviour
 
     public string GetCurrentUsername()
     {
-        return auth.CurrentUser != null ? auth.CurrentUser.DisplayName : null;
+        if (auth.CurrentUser != null)
+        {
+            return auth.CurrentUser.DisplayName ?? auth.CurrentUser.Email;
+        }
+        return null;
     }
 
     public async Task<string> GetUserIdByUsername(string username)

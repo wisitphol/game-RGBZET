@@ -31,7 +31,7 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         playerCountDropdown.AddOptions(new List<string> { "4", "8" });
 
         createTournamentButton.onClick.AddListener(CreateTournament);
-        backButton.onClick.AddListener(() => SceneManager.LoadScene("Menu"));
+        backButton.onClick.AddListener(() => SceneManager.LoadScene("Tournament"));
 
         if (!PhotonNetwork.IsConnected)
         {

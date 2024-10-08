@@ -9,11 +9,13 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
     private DropT dropScript;
     private DeckT deck;
     public GameObject Board;
+    private MutiManageT mutiManageT;
 
     public void Start()
     {
         dropScript = FindObjectOfType<DropT>();
         deck = FindObjectOfType<DeckT>();
+        mutiManageT = FindObjectOfType<MutiManageT>();
         Board = GameObject.Find("Boardzone");
     }
 
@@ -21,7 +23,6 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
     {
         List<Card> cardsOnBoard = new List<Card>();
 
-        // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
             DisplayCardT displayCard = Board.transform.GetChild(i).GetComponent<DisplayCardT>();
@@ -32,7 +33,6 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
             }
         }
 
-        // Count only the cards that are shown on the board when running
         if (cardsOnBoard.Count == 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
@@ -47,12 +47,10 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
 
                 if (PhotonNetwork.IsMasterClient)
                 {
-
                     deck.DrawCards(3);
                 }
                 else
                 {
-                    // photonView.RPC("RemoveCardByMasterClient", RpcTarget.MasterClient);
                     deck.photonView.RPC("RequestDrawCardsFromMaster", RpcTarget.MasterClient, 3);
                 }
             }
@@ -61,14 +59,12 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
         {
             Debug.Log("Not enough cards on the board to check for a set.");
         }
-
     }
 
     public void CheckBoardEnd()
     {
         List<Card> cardsOnBoard = new List<Card>();
 
-        // Check cards in Boardzone
         for (int i = 0; i < Board.transform.childCount; i++)
         {
             DisplayCardT displayCard = Board.transform.GetChild(i).GetComponent<DisplayCardT>();
@@ -79,26 +75,18 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
             }
         }
 
-        // Check if there are less than 12 cards on the board
         if (cardsOnBoard.Count < 12)
         {
             bool isSet = CheckSetForAllCards(cardsOnBoard);
 
-            // If there are less than 12 cards and they form a set, the game continues
-            if (isSet)
+            if (!isSet)
             {
-                Debug.Log("The cards on the board form a set!");
-            }
-            else
-            {
-                photonView.RPC("RPC_LoadEndScene", RpcTarget.AllBuffered);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    mutiManageT.EndGame();
+                }
             }
         }
-        else
-        {
-            // If there are 12 cards on the board, the game continues
-        }
-
     }
 
     [PunRPC]
@@ -107,11 +95,8 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
        PhotonNetwork.LoadLevel("ResultTournament");
     }
 
-
-
     private bool CheckSetForAllCards(List<Card> cards)
     {
-        // Check for sets of cards across all 12 cards
         for (int i = 0; i < cards.Count - 2; i++)
         {
             for (int j = i + 1; j < cards.Count - 1; j++)
@@ -121,14 +106,11 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
                     bool isSet = dropScript.CheckCardsAreSet(cards[i], cards[j], cards[k]);
                     if (isSet)
                     {
-                        return true; // Return true when a set is found
+                        return true;
                     }
                 }
             }
         }
-        return false; // Return false if no set is found
+        return false;
     }
-
-
-
 }

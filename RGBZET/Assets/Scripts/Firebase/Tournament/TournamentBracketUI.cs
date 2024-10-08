@@ -6,8 +6,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using Photon.Realtime;
+using System.Linq;
 
-public class TournamentBracketUI : MonoBehaviour
+public class TournamentBracketUI : MonoBehaviourPunCallbacks
 {
     public GameObject matchPrefab;
     public Transform bracketContainer;
@@ -20,27 +22,55 @@ public class TournamentBracketUI : MonoBehaviour
     private string currentUsername;
     private Dictionary<string, MatchUI> matches = new Dictionary<string, MatchUI>();
     private string currentUserMatchId;
+    private Coroutine updateUICoroutine;
 
     void Start()
     {
-        // Disconnect from Photon if connected
         if (PhotonNetwork.IsConnected)
         {
-            PhotonNetwork.Disconnect();
+            StartCoroutine(DisconnectFromPhoton());
         }
+        else
+        {
+            InitializeTournamentBracket();
+        }
+    }
 
+    IEnumerator DisconnectFromPhoton()
+    {
+        PhotonNetwork.Disconnect();
+        while (PhotonNetwork.IsConnected)
+        {
+            yield return null;
+        }
+        Debug.Log("Disconnected from Photon");
+        InitializeTournamentBracket();
+    }
+
+    void InitializeTournamentBracket()
+    {   
         tournamentId = PlayerPrefs.GetString("TournamentId");
         string tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
         currentUsername = AuthManager.Instance.GetCurrentUsername();
 
-        tournamentNameText.text = "Tournament: " + tournamentName;
+        if (tournamentNameText != null)
+        {
+            tournamentNameText.text = "Tournament: " + tournamentName;
+        }
+
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
 
-        backButton.onClick.AddListener(() => SceneManager.LoadScene("Menu"));
-        enterLobbyButton.onClick.AddListener(OnEnterLobbyButtonClicked);
-        enterLobbyButton.gameObject.SetActive(true);  // Always show the button
+        if (backButton != null)
+        {
+            backButton.onClick.AddListener(() => SceneManager.LoadScene("Menu"));
+        }
 
-        // Move the ValueChanged registration here
+        if (enterLobbyButton != null)
+        {
+            enterLobbyButton.onClick.AddListener(OnEnterLobbyButtonClicked);
+            enterLobbyButton.gameObject.SetActive(false);
+        }
+
         if (tournamentRef != null)
         {
             tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
@@ -70,7 +100,7 @@ public class TournamentBracketUI : MonoBehaviour
         CreateBracketUI(bracketSnapshot);
         CheckCurrentUserMatch(bracketSnapshot);
     }
-    
+
     void CreateBracketUI(DataSnapshot bracketSnapshot)
     {
         foreach (var matchSnapshot in bracketSnapshot.Children)
@@ -92,22 +122,49 @@ public class TournamentBracketUI : MonoBehaviour
 
     void ArrangeBracketUI()
     {
-        float xOffset = 500f;
-        float yOffset = 200f;
+        float roundWidth = 300f; // ความกว้างของแต่ละรอบ
+        float matchHeight = 150f; // ความสูงของแต่ละแมทช์
+        float verticalSpacing = 50f; // ระยะห่างระหว่างแต่ละแมทช์ในรอบเดียวกัน
+
+        Dictionary<int, int> roundMatchCounts = new Dictionary<int, int>(); // เก็บจำนวนแมทช์ต่อรอบเพื่อนับลำดับ
+
         foreach (var match in matches.Values)
         {
             string[] matchInfo = match.matchId.Split('_');
-            int round = int.Parse(matchInfo[1]);
-            int matchNumber = int.Parse(matchInfo[3]);
-            
-            RectTransform rectTransform = match.GetComponent<RectTransform>();
-            rectTransform.anchoredPosition = new Vector2(round * xOffset, -matchNumber * yOffset);
+            if (matchInfo.Length >= 4)
+            {
+                if (int.TryParse(matchInfo[1], out int round) && int.TryParse(matchInfo[3], out int matchNumber))
+                {
+                    if (!roundMatchCounts.ContainsKey(round))
+                    {
+                        roundMatchCounts[round] = 0;
+                    }
+
+                    int currentMatchIndex = roundMatchCounts[round];
+                    float yPosition = -currentMatchIndex * (matchHeight + verticalSpacing); // คำนวณตำแหน่ง Y ของแต่ละแมทช์ในรอบ
+                    float xPosition = round * roundWidth; // คำนวณตำแหน่ง X ของแต่ละรอบ
+
+                    RectTransform rectTransform = match.GetComponent<RectTransform>();
+                    if (rectTransform != null)
+                    {
+                        rectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
+                    }
+
+                    roundMatchCounts[round]++;
+                }
+            }
         }
     }
 
     void CheckCurrentUserMatch(DataSnapshot bracketSnapshot)
     {
-        foreach (var matchSnapshot in bracketSnapshot.Children)
+        string latestMatchId = null;
+        bool isPlayerInActiveTournament = false;
+
+        var sortedMatches = bracketSnapshot.Children.OrderByDescending(match => 
+            int.Parse(match.Key.Split('_')[1]));
+
+        foreach (var matchSnapshot in sortedMatches)
         {
             Dictionary<string, object> matchData = matchSnapshot.Value as Dictionary<string, object>;
             if (matchData == null) continue;
@@ -122,10 +179,30 @@ public class TournamentBracketUI : MonoBehaviour
 
                 if (player1Username == currentUsername || player2Username == currentUsername)
                 {
-                    currentUserMatchId = matchSnapshot.Key;
-                    return;
+                    if (!matchData.ContainsKey("winner") || string.IsNullOrEmpty(matchData["winner"] as string))
+                    {
+                        latestMatchId = matchSnapshot.Key;
+                        isPlayerInActiveTournament = true;
+                        break;
+                    }
                 }
             }
+        }
+
+        currentUserMatchId = latestMatchId;
+
+        if (enterLobbyButton != null)
+        {
+            enterLobbyButton.gameObject.SetActive(isPlayerInActiveTournament);
+        }
+
+        if (isPlayerInActiveTournament)
+        {
+            DisplayFeedback("You have an active match. Click 'Enter Lobby' to continue.");
+        }
+        else if (latestMatchId == null)
+        {
+            DisplayFeedback("Your tournament has ended.");
         }
     }
 
@@ -139,26 +216,34 @@ public class TournamentBracketUI : MonoBehaviour
         else
         {
             Debug.LogWarning("No active match found for the current user.");
-        }
-    }
-
-    void OnDisable()
-    {
-        if (tournamentRef != null)
-        {
-            tournamentRef.Child("bracket").ValueChanged -= OnBracketDataChanged;
+            DisplayFeedback("No active match found.");
         }
     }
 
     private void OnBracketDataChanged(object sender, ValueChangedEventArgs args)
     {
+        if (this == null) return;
+
         if (args.DatabaseError != null)
         {
             Debug.LogError($"Failed to read bracket data: {args.DatabaseError.Message}");
             return;
         }
 
-        foreach (var childSnapshot in args.Snapshot.Children)
+        if (updateUICoroutine != null)
+        {
+            StopCoroutine(updateUICoroutine);
+        }
+
+        updateUICoroutine = StartCoroutine(UpdateUINextFrame(args.Snapshot));
+    }
+
+    private IEnumerator UpdateUINextFrame(DataSnapshot snapshot)
+    {
+        yield return null;
+        if (this == null) yield break;
+
+        foreach (var childSnapshot in snapshot.Children)
         {
             string matchId = childSnapshot.Key;
             if (matches.TryGetValue(matchId, out MatchUI matchUI))
@@ -167,6 +252,34 @@ public class TournamentBracketUI : MonoBehaviour
             }
         }
 
-        CheckCurrentUserMatch(args.Snapshot);
+        CheckCurrentUserMatch(snapshot);
+    }
+
+    public void DisplayFeedback(string message)
+    {
+        Debug.Log(message); // You can replace this with UI text update if you have a feedback text field
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.Log($"Disconnected from Photon: {cause}");
+    }
+
+    void OnDestroy()
+    {
+        if (tournamentRef != null)
+        {
+            tournamentRef.Child("bracket").ValueChanged -= OnBracketDataChanged;
+        }
+
+        if (backButton != null)
+        {
+            backButton.onClick.RemoveAllListeners();
+        }
+
+        if (enterLobbyButton != null)
+        {
+            enterLobbyButton.onClick.RemoveAllListeners();
+        }
     }
 }

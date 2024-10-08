@@ -48,21 +48,14 @@ public class MatchUI : MonoBehaviour
 
     private void UpdatePlayerText(TMP_Text playerText, Dictionary<string, object> playerData)
     {
-        if (playerData == null)
-        {
-            playerText.text = "TBD";
-            playerText.color = Color.gray;
-            return;
-        }
-
-        string username = playerData["username"] as string;
-        if (string.IsNullOrEmpty(username))
+        if (playerData == null || !playerData.ContainsKey("username") || string.IsNullOrEmpty(playerData["username"] as string))
         {
             playerText.text = "TBD";
             playerText.color = Color.gray;
         }
         else
         {
+            string username = playerData["username"] as string;
             playerText.text = username;
             playerText.color = (username == currentUsername) ? Color.green : Color.white;
         }
@@ -70,11 +63,11 @@ public class MatchUI : MonoBehaviour
 
     private void UpdatePlayerStatus(Image statusImage, Dictionary<string, object> playerData)
     {
-        if (statusImage == null) return; // ตรวจสอบว่า statusImage ไม่เป็น null
+        if (statusImage == null) return;
 
-        if (playerData == null)
+        if (playerData == null || !playerData.ContainsKey("username") || string.IsNullOrEmpty(playerData["username"] as string))
         {
-            statusImage.color = Color.red; // Default status if data is null
+            statusImage.color = Color.gray;
             return;
         }
 
@@ -82,7 +75,7 @@ public class MatchUI : MonoBehaviour
         statusImage.color = inLobby ? Color.green : Color.red;
     }
 
-   private void UpdateWinnerText()
+    private void UpdateWinnerText()
     {
         if (winnerText == null)
         {
@@ -90,32 +83,25 @@ public class MatchUI : MonoBehaviour
             return;
         }
 
-        // ตรวจสอบว่ามี key 'winner' หรือไม่ และว่าค่านั้นเป็น null หรือไม่
-        if (matchData.ContainsKey("winner"))
+        if (matchData.ContainsKey("winner") && matchData["winner"] is string winner && !string.IsNullOrEmpty(winner))
         {
-            string winner = matchData["winner"] as string;
+            winnerText.text = "Winner: " + winner;
+            winnerText.gameObject.SetActive(true);
 
-            if (!string.IsNullOrEmpty(winner))
-            {
-                winnerText.text = "Winner: " + winner;
-                winnerText.gameObject.SetActive(true);
-            }
-            else
-            {
-                // หาก winner เป็นค่า null หรือว่าง, ซ่อน Text นี้
-                winnerText.gameObject.SetActive(false);
-            }
+            if (player1Text.text == winner)
+                player1Text.color = Color.yellow;
+            else if (player2Text.text == winner)
+                player2Text.color = Color.yellow;
         }
         else
         {
-            // ถ้าไม่มี key 'winner', ซ่อน Text นี้
             winnerText.gameObject.SetActive(false);
         }
     }
 
     private void UpdateRoundInfo()
     {
-        if (roundText != null) // ตรวจสอบว่า roundText ไม่เป็น null
+        if (roundText != null)
         {
             string[] matchInfo = matchId.Split('_');
             if (matchInfo.Length >= 2)
@@ -128,38 +114,54 @@ public class MatchUI : MonoBehaviour
                 roundText.text = "Final";
             }
         }
-        else
-        {
-            Debug.LogWarning("roundText is null, skipping update."); // แสดงข้อความเตือนหาก roundText เป็น null
-        }
     }
 
     public bool IsPlayerInMatch(string username)
     {
-        if (matchData == null) return false; // ตรวจสอบว่า matchData ไม่เป็น null
+        if (matchData == null) return false;
 
         Dictionary<string, object> player1Data = matchData["player1"] as Dictionary<string, object>;
         Dictionary<string, object> player2Data = matchData["player2"] as Dictionary<string, object>;
 
-        return (player1Data["username"] as string == username) || (player2Data["username"] as string == username);
+        return (player1Data != null && player1Data["username"] as string == username) ||
+               (player2Data != null && player2Data["username"] as string == username);
     }
 
     public bool IsPlayerInLobby(string username)
     {
-        if (matchData == null) return false; // ตรวจสอบว่า matchData ไม่เป็น null
+        if (matchData == null) return false;
 
         Dictionary<string, object> player1Data = matchData["player1"] as Dictionary<string, object>;
         Dictionary<string, object> player2Data = matchData["player2"] as Dictionary<string, object>;
 
-        if (player1Data["username"] as string == username)
+        if (player1Data != null && player1Data["username"] as string == username)
         {
             return player1Data.ContainsKey("inLobby") && (bool)player1Data["inLobby"];
         }
-        else if (player2Data["username"] as string == username)
+        else if (player2Data != null && player2Data["username"] as string == username)
         {
             return player2Data.ContainsKey("inLobby") && (bool)player2Data["inLobby"];
         }
 
         return false;
+    }
+
+    public bool IsMatchCompleted()
+    {
+        return matchData != null && matchData.ContainsKey("winner") && !string.IsNullOrEmpty(matchData["winner"] as string);
+    }
+
+    public void SetWinnerLoser(string winner)
+    {
+        if (player1Text.text == winner)
+        {
+            player1Text.color = Color.green;
+            player2Text.color = Color.red;
+        }
+        else if (player2Text.text == winner)
+        {
+            player2Text.color = Color.green;
+            player1Text.color = Color.red;
+        }
     }
 }

@@ -238,7 +238,4 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
     }
-
-
-
 }

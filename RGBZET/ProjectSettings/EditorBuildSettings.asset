@@ -18,10 +18,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Register.unity
     guid: 99f15d59122c3f244bad223656607504
   - enabled: 1
-    path: Assets/Scenes/Menu.unity
+    path: Assets/Scenes/menu.unity
     guid: f0e3792fe5f51884bb8498ab6bb3a473
   - enabled: 1
-    path: Assets/Scenes/Createroom.unity
+    path: Assets/Scenes/ModeCreateroom.unity
     guid: 9c1c31b5daef59241b437b0a64f9915b
   - enabled: 1
     path: Assets/Scenes/Loading.unity
@@ -68,6 +68,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TournamentMode/ResultTournament.unity
     guid: 1e2c0e6cb190e114f9d77d2dcacd4d00
+  - enabled: 1
+    path: Assets/Scenes/QuickplayLobby.unity
+    guid: 644a7e3c01bd0bc4d84268b6f616460c
+  - enabled: 1
+    path: Assets/Scenes/TournamentMode/Tournament.unity
+    guid: 05e2f04e78e3fa947a70c993b194eff3
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: de1e4e24ab5bd6c42be43de0760b0103, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 92ef5e6794481416f9934958382e2622, type: 2}
