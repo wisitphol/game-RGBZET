@@ -11,6 +11,8 @@ public class PlayerControl2 : MonoBehaviourPunCallbacks
     public TMP_Text NameText;
     public TMP_Text ScoreText;
     public GameObject zettext;
+    public Image playerIconImage; 
+    public Sprite[] iconSprites;    
 
     public int ActorNumber { get; private set; }
     private int currentScore = 0; // เก็บคะแนนของผู้เล่น
@@ -73,5 +75,17 @@ public class PlayerControl2 : MonoBehaviourPunCallbacks
     public void SetActorNumber(int actorNumber)
     {
         ActorNumber = actorNumber;
+    }
+
+     public void UpdatePlayerIcon(int iconId)
+    {
+        if (iconId >= 0 && iconId < iconSprites.Length)
+        {
+            playerIconImage.sprite = iconSprites[iconId];
+        }
+        else
+        {
+            Debug.LogError("Invalid iconId. Unable to update player icon.");
+        }
     }
 }

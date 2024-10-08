@@ -4,14 +4,15 @@ using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
-using System.Collections.Generic;
 using System.Collections;
-using Firebase.Auth;
+using System.Collections.Generic;
 using Firebase.Database;
+using System.Linq;
+
 public class EndGameT : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button backToMenu;
-    // Start is called before the first frame update
+    [SerializeField] private Button nextRoundButton;
     public GameObject player1;
     public GameObject player2;
     public GameObject player3;
@@ -19,80 +20,48 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
     private GameObject[] playerObjects;
     private PlayerResultT[] playerResults;
-//    private DatabaseReference databaseReference;
-    private FirebaseUserId firebaseUserId;
-    [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
-    [SerializeField] public AudioClip endgameSound;  // เสียงที่ต้องการเล่นตอนจั่วการ์ด
+    private DatabaseReference databaseReference;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip endgameSound;
     [SerializeField] public AudioClip buttonSound;
+
+    private string tournamentId;
+    private string currentMatchId;
+    private Player winningPlayer;
 
     void Start()
     {
         backToMenu.interactable = false;
+        nextRoundButton.gameObject.SetActive(false);
         StartCoroutine(EnableBackButtonAfterDelay(3f));
         backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
+        nextRoundButton.onClick.AddListener(OnNextRoundButtonClicked);
 
-        firebaseUserId = FindObjectOfType<FirebaseUserId>();
-        if (firebaseUserId == null)
-        {
-            Debug.LogError("FirebaseUserId script not found in the scene.");
-        }
-        else
-        {
-            Debug.Log("FirebaseUserId script found successfully.");
-        }
+        tournamentId = PlayerPrefs.GetString("TournamentId");
+        currentMatchId = PlayerPrefs.GetString("CurrentMatchId");
+        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
 
         playerObjects = new GameObject[] { player1, player2, player3, player4 };
         playerResults = new PlayerResultT[playerObjects.Length];
 
-        // เริ่มต้นคอมโพเนนต์ PlayerResult
         for (int i = 0; i < playerObjects.Length; i++)
         {
             if (playerObjects[i] != null)
             {
-                Debug.Log($"player{i + 1} is not null. Checking for PlayerResult component.");
                 playerResults[i] = playerObjects[i].GetComponent<PlayerResultT>();
-
-                if (playerResults[i] != null)
-                {
-                    Debug.Log($"PlayerResult component found on player{i + 1}.");
-                }
-                else
-                {
-                    Debug.LogWarning($"PlayerResult component NOT found on player{i + 1}.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"player{i + 1} is null.");
             }
         }
 
-        // เริ่มต้นการเชื่อมต่อ Firebase กับโหนดของ tournament
-//        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
-
-        LogServerConnectionStatus();
-
         FetchPlayerDataFromPhoton();
-
-        //StartCoroutine(DelayedUpdateGameResults());
 
         if (audioSource != null && endgameSound != null)
         {
             audioSource.PlayOneShot(endgameSound);
         }
-
-    }
-
-    IEnumerator EnableBackButtonAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        backToMenu.interactable = true;  // Enable the button after delay
     }
 
     void FetchPlayerDataFromPhoton()
     {
-        Debug.Log("Fetching player data from Photon.");
-
         foreach (var playerObject in playerObjects)
         {
             playerObject.SetActive(false);
@@ -119,13 +88,12 @@ public class EndGameT : MonoBehaviourPunCallbacks
                 playerScore = 0;
             }
 
-            Debug.Log($"Player {index + 1}: Name = {playerName}, Score = {playerScore}");
-
             if (playerScore > highestScore)
             {
                 highestScore = playerScore;
                 highestScoreIndices.Clear();
                 highestScoreIndices.Add(index);
+                winningPlayer = player;
             }
             else if (playerScore == highestScore)
             {
@@ -137,7 +105,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
             index++;
         }
-        // อัปเดตข้อความ "Winner" หรือ "Draw"
+
         if (highestScoreIndices.Count == 1)
         {
             playerResults[highestScoreIndices[0]].UpdatePlayerResult(
@@ -145,6 +113,10 @@ public class EndGameT : MonoBehaviourPunCallbacks
                 playerResults[highestScoreIndices[0]].ScoreText.text,
                 "WIN"
             );
+            if (PhotonNetwork.LocalPlayer == winningPlayer)
+            {
+                nextRoundButton.gameObject.SetActive(true);
+            }
         }
         else
         {
@@ -156,145 +128,113 @@ public class EndGameT : MonoBehaviourPunCallbacks
                     "DRAW"
                 );
             }
+            // Handle draw situation (e.g., replay the match or use a tiebreaker)
         }
+
+        UpdateTournamentBracket();
     }
 
-    IEnumerator DelayedUpdateGameResults()
+    void UpdateTournamentBracket()
     {
-        yield return new WaitForSeconds(2f);
-
         if (PhotonNetwork.IsMasterClient)
         {
-            //UpdateGameResultsInDatabase(); //**** ฟังชั่นอัพเดตข้อมูลขึ้น firebase ****
-
+            string winnerUsername = winningPlayer.CustomProperties["username"].ToString();
+            databaseReference.Child("bracket").Child(currentMatchId).Child("winner").SetValueAsync(winnerUsername)
+                .ContinueWith(task =>
+                {
+                    if (task.IsCompleted && !task.IsFaulted)
+                    {
+                        MoveWinnerToNextMatch(winnerUsername);
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to update winner in the database: " + task.Exception);
+                    }
+                });
         }
-
     }
 
-
-    //**** ฟังชั่นอัพเดตข้อมูลขึ้น firebase ****
-/*    void UpdateGameResultsInDatabase()
+    void MoveWinnerToNextMatch(string winnerUsername)
     {
-        Debug.Log("Updating game results in database.");
-
-        Player[] players = PhotonNetwork.PlayerList;
-
-        for (int i = 0; i < players.Length; i++)
+        databaseReference.Child("bracket").Child(currentMatchId).Child("nextMatchId").GetValueAsync().ContinueWith(task =>
         {
-            string userId = players[i].CustomProperties.ContainsKey("FirebaseUserId") ? players[i].CustomProperties["FirebaseUserId"].ToString() : null;
-
-            if (string.IsNullOrEmpty(userId))
+            if (task.IsCompleted && !task.IsFaulted && task.Result.Value != null)
             {
-                Debug.LogWarning($"UserId is null or empty for player {i}, skipping update.");
-                continue;
-            }
-            else
-            {
-                Debug.Log($"FirebaseUserId for player {i}: {userId}");
-            }
-
-            DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
-
-            // เพิ่มจำนวนเกมที่เล่นโดยใช้ Transaction
-            userRef.Child("gamescount").RunTransaction(mutableData =>
-            {
-                int currentGamesPlayed = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                mutableData.Value = currentGamesPlayed + 1;
-                return TransactionResult.Success(mutableData);
-            }).ContinueWith(task =>
-            {
-                if (task.IsCompleted)
+                string nextMatchId = task.Result.Value.ToString();
+                if (nextMatchId != "final")
                 {
-                    Debug.Log("Game count updated successfully.");
+                    UpdateNextMatch(nextMatchId, winnerUsername);
                 }
                 else
                 {
-                    Debug.LogError("Failed to update game count.");
+                    HandleTournamentEnd(winnerUsername);
                 }
-            });
-
-            // ตรวจสอบว่าผู้เล่นคนนี้เป็นผู้ชนะ, แพ้, หรือเสมอ
-            bool isWinner = false;
-            bool isDraw = false;
-
-            if (playerResults[i] != null)
-            {
-                if (playerResults[i].ResultText.text == "WIN")
-                {
-                    isWinner = true;
-                }
-                else if (playerResults[i].ResultText.text == "DRAW")
-                {
-                    isDraw = true;
-                }
-            }
-
-            // อัปเดตจำนวนชัยชนะ, การแพ้, หรือเสมอ
-            if (isWinner)
-            {
-                userRef.Child("gameswin").RunTransaction(mutableData =>
-                {
-                    int currentWins = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                    mutableData.Value = currentWins + 1;
-                    return TransactionResult.Success(mutableData);
-                }).ContinueWith(task =>
-                {
-                    if (task.IsCompleted)
-                    {
-                        Debug.Log("Wins count updated successfully.");
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to update wins count.");
-                    }
-                });
-            }
-            else if (isDraw)
-            {
-                userRef.Child("gamesdraw").RunTransaction(mutableData =>
-                {
-                    int currentDraws = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                    mutableData.Value = currentDraws + 1;
-                    return TransactionResult.Success(mutableData);
-                }).ContinueWith(task =>
-                {
-                    if (task.IsCompleted)
-                    {
-                        Debug.Log("Draws count updated successfully.");
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to update draws count.");
-                    }
-                });
             }
             else
             {
-                userRef.Child("gameslose").RunTransaction(mutableData =>
-                {
-                    int currentLosses = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                    mutableData.Value = currentLosses + 1;
-                    return TransactionResult.Success(mutableData);
-                }).ContinueWith(task =>
-                {
-                    if (task.IsCompleted)
-                    {
-                        Debug.Log("Losses count updated successfully.");
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to update losses count.");
-                    }
-                });
+                Debug.LogError("Failed to get next match ID: " + task.Exception);
             }
-        }
-    }*/
+        });
+    }
 
+    void UpdateNextMatch(string nextMatchId, string winnerUsername)
+    {
+        databaseReference.Child("bracket").Child(nextMatchId).RunTransaction(mutableData =>
+        {
+            Dictionary<string, object> match = mutableData.Value as Dictionary<string, object>;
+            if (match != null)
+            {
+                if (match["player1"] is Dictionary<string, object> player1 && string.IsNullOrEmpty(player1["username"] as string))
+                {
+                    player1["username"] = winnerUsername;
+                }
+                else if (match["player2"] is Dictionary<string, object> player2 && string.IsNullOrEmpty(player2["username"] as string))
+                {
+                    player2["username"] = winnerUsername;
+                }
+                mutableData.Value = match;
+            }
+            return TransactionResult.Success(mutableData);
+        }).ContinueWith(task =>
+        {
+            if (task.IsCompleted && !task.IsFaulted)
+            {
+                PlayerPrefs.SetString("CurrentMatchId", nextMatchId);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                Debug.LogError("Failed to update next match: " + task.Exception);
+            }
+        });
+    }
+
+    void HandleTournamentEnd(string winnerUsername)
+    {
+        databaseReference.Child("winner").SetValueAsync(winnerUsername).ContinueWith(task =>
+        {
+            if (task.IsCompleted && !task.IsFaulted)
+            {
+                Debug.Log("Tournament ended. Winner: " + winnerUsername);
+                // Update UI or transition to a tournament end screen
+            }
+            else
+            {
+                Debug.LogError("Failed to set tournament winner: " + task.Exception);
+            }
+        });
+    }
 
     private void OnBackToMenuButtonClicked()
     {
         audioSource.PlayOneShot(buttonSound);
-        StartCoroutine(WaitAndGoToMenu(1.0f)); // 1.0f คือเวลาของเสียงที่ต้องการให้เล่นจบ
+        StartCoroutine(WaitAndGoToMenu(1.0f));
+    }
+
+    private void OnNextRoundButtonClicked()
+    {
+        audioSource.PlayOneShot(buttonSound);
+        SceneManager.LoadScene("TournamentBracket");
     }
 
     private IEnumerator WaitAndGoToMenu(float waitTime)
@@ -303,7 +243,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.IsMasterClient)
         {
-            StartCoroutine(DeleteRoomAndGoToMenu());
+            StartCoroutine(LeaveRoomAndGoToMenu());
         }
         else
         {
@@ -311,46 +251,15 @@ public class EndGameT : MonoBehaviourPunCallbacks
         }
     }
 
-    private IEnumerator DeleteRoomAndGoToMenu()
+    private IEnumerator LeaveRoomAndGoToMenu()
     {
-        // ลบข้อมูลห้องจาก Firebase
-/*        var task = databaseReference.RemoveValueAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.IsFaulted || task.IsCanceled)
-        {
-            Debug.LogError("Can't delete room from Firebase.");
-        }
-        else
-        {
-            Debug.Log("Can delete room from Firebase.");
-        }*/
-
-        // ออกจากห้อง Photon
         PhotonNetwork.LeaveRoom();
         yield return new WaitUntil(() => !PhotonNetwork.InRoom);
 
         PhotonNetwork.Disconnect();
         yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
 
-        LogServerConnectionStatus();
         SceneManager.LoadScene("Menu");
-    }
-
-    private void LogServerConnectionStatus()
-    {
-        if (PhotonNetwork.InLobby)
-        {
-            Debug.Log("Currently connected to Master Server.");
-        }
-        else if (PhotonNetwork.InRoom)
-        {
-            Debug.Log("Currently connected to Game Server.");
-        }
-        else
-        {
-            Debug.Log("Not connected to Master Server or Game Server.");
-        }
     }
 
     private IEnumerator LeaveRoomAndCheckConnection()
@@ -361,9 +270,12 @@ public class EndGameT : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
         yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
 
-        LogServerConnectionStatus();
         SceneManager.LoadScene("Menu");
+    }
 
-
+    IEnumerator EnableBackButtonAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        backToMenu.interactable = true;
     }
 }

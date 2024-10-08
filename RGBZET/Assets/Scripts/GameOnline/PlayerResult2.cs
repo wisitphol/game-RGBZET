@@ -10,6 +10,8 @@ public class PlayerResult2 : MonoBehaviourPunCallbacks
     public TMP_Text NameText;
     public TMP_Text ScoreText;
     public TMP_Text ResultText;
+    public Image playerIconImage; 
+    public Sprite[] iconSprites;    
 
     void Start()
     {
@@ -48,6 +50,18 @@ public class PlayerResult2 : MonoBehaviourPunCallbacks
             {
                 WinText.color = Color.white; // สีเริ่มต้น
             }*/
+        }
+    }
+
+    public void UpdatePlayerIcon(int iconId)
+    {
+        if (iconId >= 0 && iconId < iconSprites.Length)
+        {
+            playerIconImage.sprite = iconSprites[iconId];
+        }
+        else
+        {
+            Debug.LogError("Invalid iconId. Unable to update player icon.");
         }
     }
 }

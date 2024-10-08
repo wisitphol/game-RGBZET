@@ -5,7 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using Firebase.Database;
 using System.Collections;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 public class MatchLobbyUI : MonoBehaviourPunCallbacks
@@ -14,12 +14,14 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
     public TMP_Text player1Text;
     public TMP_Text player2Text;
     public Button backToBracketButton;
-    public Button startButton; // ปุ่มเริ่มเกม
+    public Button startButton;
+    public Button readyButton;
     public TMP_Text statusText;
 
     private string matchId;
     private DatabaseReference matchRef;
     private string currentUsername;
+    private bool isReady = false;
 
     void Start()
     {
@@ -27,14 +29,22 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         string tournamentId = PlayerPrefs.GetString("TournamentId");
         currentUsername = AuthManager.Instance.GetCurrentUsername();
 
+        if (string.IsNullOrEmpty(matchId) || string.IsNullOrEmpty(tournamentId))
+        {
+            Debug.LogError("matchId or tournamentId is null or empty.");
+            return;
+        }
+
         if (matchIdText != null)
             matchIdText.text = "Match ID: " + matchId;
 
         matchRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId).Child("bracket").Child(matchId);
 
         backToBracketButton.onClick.AddListener(BackToBracket);
-        startButton.onClick.AddListener(StartGame); // เพิ่ม Listener สำหรับปุ่มเริ่มเกม
-        startButton.gameObject.SetActive(false); // ซ่อนปุ่มเริ่มเกมเริ่มต้น
+        startButton.onClick.AddListener(StartGame);
+        readyButton.onClick.AddListener(ToggleReady);
+
+        startButton.gameObject.SetActive(false);
         SetPlayerInLobby(true);
 
         LoadMatchData();
@@ -43,7 +53,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
     void ConnectToPhoton()
     {
-        PhotonNetwork.NickName = currentUsername; // ตั้งชื่อผู้เล่นจาก Photon
+        PhotonNetwork.NickName = currentUsername;
         statusText.text = "Connecting to server...";
         PhotonNetwork.ConnectUsingSettings();
     }
@@ -81,46 +91,46 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         }
 
         UpdateUIForPlayers();
-
-        // อัปเดตปุ่มเริ่มเกม
-        UpdateStartButton();
+        UpdateStartButtonVisibility();
     }
-    
+
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("New player joined: " + newPlayer.NickName);
-
-        // อัปเดต UI ของผู้เล่นทั้งหมดเมื่อมีคนเข้ามาในห้อง
         UpdateUIForPlayers();
     }
 
     void UpdateUIForPlayers()
     {
-        // อัปเดตชื่อ Player 1
         if (PhotonNetwork.PlayerList.Length > 0)
         {
-            player1Text.text = PhotonNetwork.PlayerList[0].NickName; // ตั้งชื่อ Player 1
+            player1Text.text = PhotonNetwork.PlayerList[0].NickName;
+            bool isPlayer1Ready = PhotonNetwork.PlayerList[0].CustomProperties.TryGetValue("IsReady", out object isReady1) && (bool)isReady1;
+            player1Text.text += isPlayer1Ready ? " (Ready)" : " (Not Ready)";
+
+            if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[0])
+            {
+                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer1Ready ? "Cancel Ready" : "Ready";
+            }
         }
 
-        // อัปเดตชื่อ Player 2
         if (PhotonNetwork.PlayerList.Length > 1)
         {
-            player2Text.text = PhotonNetwork.PlayerList[1].NickName; // ตั้งชื่อ Player 2
+            player2Text.text = PhotonNetwork.PlayerList[1].NickName;
+            bool isPlayer2Ready = PhotonNetwork.PlayerList[1].CustomProperties.TryGetValue("IsReady", out object isReady2) && (bool)isReady2;
+            player2Text.text += isPlayer2Ready ? " (Ready)" : " (Not Ready)";
+
+            if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[1])
+            {
+                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer2Ready ? "Cancel Ready" : "Ready";
+            }
         }
         else
         {
-            player2Text.text = "Waiting..."; // ถ้าไม่มีผู้เล่นที่สอง แสดง "Waiting..."
+            player2Text.text = "Waiting for opponent...";
         }
 
-        // ถ้า Player 1 (Master Client) อยู่ในห้องแล้วแสดงปุ่ม Start เมื่อมีผู้เล่น 2 คน
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 2)
-        {
-            startButton.gameObject.SetActive(true); // แสดงปุ่ม Start
-        }
-        else
-        {
-            startButton.gameObject.SetActive(false); // ซ่อนปุ่ม Start ถ้าจำนวนผู้เล่นไม่ครบ
-        }
+        UpdateStartButtonVisibility();
 
         Debug.Log("Player 1: " + player1Text.text);
         Debug.Log("Player 2: " + player2Text.text);
@@ -150,22 +160,30 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         Debug.Log("Joined room: " + PhotonNetwork.CurrentRoom.Name);
         statusText.text = "Joined room. Waiting for opponent...";
 
-        // อัปเดต UI สำหรับผู้เล่น
         UpdateUIForPlayers();
-
-        // อัปเดตปุ่มเริ่มเกม
-        UpdateStartButton();
+        UpdateStartButtonVisibility();
     }
 
-    void UpdateStartButton()
+    void UpdateStartButtonVisibility()
     {
-        if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
+        bool allPlayersReady = true;
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
-            startButton.gameObject.SetActive(PhotonNetwork.IsMasterClient); // แสดงปุ่มเริ่มเกมถ้าเป็น Master Client
+            if (!player.CustomProperties.TryGetValue("IsReady", out object isReady) || !(bool)isReady)
+            {
+                allPlayersReady = false;
+                break;
+            }
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startButton.gameObject.SetActive(allPlayersReady && PhotonNetwork.CurrentRoom.PlayerCount == 2);
+            startButton.interactable = allPlayersReady && PhotonNetwork.CurrentRoom.PlayerCount == 2;
         }
         else
         {
-            startButton.gameObject.SetActive(false); // ซ่อนปุ่มเริ่มเกมถ้ายังไม่ครบ
+            startButton.gameObject.SetActive(false);
         }
     }
 
@@ -179,32 +197,62 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
     IEnumerator GetPlayerPathCoroutine(System.Action<string> callback)
     {
-        var player1Task = matchRef.Child("player1").Child("username").GetValueAsync();
-        var player2Task = matchRef.Child("player2").Child("username").GetValueAsync();
-        
-        yield return new WaitUntil(() => player1Task.IsCompleted && player2Task.IsCompleted);
+        if (matchRef == null)
+        {
+            Debug.LogError("matchRef is null. Make sure it's properly initialized.");
+            yield break;
+        }
 
-        if (player1Task.Exception == null && player2Task.Exception == null)
+        for (int retry = 0; retry < 3; retry++)
         {
-            string player1Username = player1Task.Result.Value.ToString();
-            string player2Username = player2Task.Result.Value.ToString();
+            var player1Task = matchRef.Child("player1").Child("username").GetValueAsync();
+            var player2Task = matchRef.Child("player2").Child("username").GetValueAsync();
             
-            callback(player1Username == currentUsername ? "player1" : "player2");
+            yield return new WaitUntil(() => player1Task.IsCompleted && player2Task.IsCompleted);
+
+            if (player1Task.Exception != null || player2Task.Exception != null)
+            {
+                Debug.LogError($"Error fetching player paths: {player1Task.Exception ?? player2Task.Exception}");
+                yield break;
+            }
+
+            if (player1Task.Result.Exists && player2Task.Result.Exists)
+            {
+                string player1Username = player1Task.Result.Value.ToString();
+                string player2Username = player2Task.Result.Value.ToString();
+                
+                if (string.IsNullOrEmpty(currentUsername))
+                {
+                    Debug.LogError("currentUsername is null or empty.");
+                    yield break;
+                }
+
+                string playerPath = player1Username == currentUsername ? "player1" : "player2";
+                callback(playerPath);
+                yield break;
+            }
+
+            Debug.LogWarning("Retrying to fetch player data...");
+            yield return new WaitForSeconds(1f); // Retry after 1 second
         }
-        else
-        {
-            Debug.LogError("Error fetching player paths");
-        }
+
+        Debug.LogError("Player data is missing after retries.");
+        yield break;
     }
 
     void StartGame()
     {
-        PhotonNetwork.LoadLevel("Card sample Tournament");
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PhotonNetwork.LoadLevel("Card sample Tournament");
+        }
     }
 
     void BackToBracket()
     {
-        if (PhotonNetwork.CurrentRoom != null)
+        if (PhotonNetwork.InRoom)
         {   
             SetPlayerInLobby(false);
             PhotonNetwork.LeaveRoom();
@@ -217,11 +265,28 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        if (PhotonNetwork.CurrentRoom != null)
-        {
-            Debug.Log("Left room: " + PhotonNetwork.CurrentRoom.Name);
-        }
-
         SceneManager.LoadScene("TournamentBracket");
+    }
+
+    void ToggleReady()
+    {
+        isReady = !isReady;
+        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", isReady } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        UpdateUIForPlayers();
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (targetPlayer == PhotonNetwork.LocalPlayer)
+        {
+            if (changedProps.TryGetValue("IsReady", out object isReady))
+            {
+                readyButton.GetComponentInChildren<TMP_Text>().text = (bool)isReady ? "Cancel Ready" : "Ready";
+            }
+        }
+        
+        UpdateUIForPlayers();
     }
 }

@@ -355,7 +355,4 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
             cardPhotonView.transform.localPosition = Vector3.zero;
         }
     }
-
-
-
 }

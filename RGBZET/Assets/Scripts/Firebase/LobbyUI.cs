@@ -30,6 +30,8 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     private string hostUserId;
     private FirebaseAuth auth;
     private int maxPlayers;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
@@ -40,9 +42,9 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         roomCodeText.text = "Room Code: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
-        startGameButton.onClick.AddListener(StartGame);
-        readyButton.onClick.AddListener(ToggleReady);
-        leaveRoomButton.onClick.AddListener(() =>
+        startGameButton.onClick.AddListener(() => SoundOnClick(StartGame));
+        readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
+        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             if (auth.CurrentUser.UserId == hostUserId)
             {
@@ -52,13 +54,13 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.LeaveRoom();
             }
-        });
+        }));
 
         // เพิ่มการฟังการคลิกปุ่ม copyButton
-        copyButton.onClick.AddListener(() =>
+        copyButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             CopyRoomIdToClipboard();
-        });
+        }));
 
         UpdateUI();
     }
@@ -80,26 +82,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         }
     }
 
-    /* void UpdatePlayerList()
-     {
-         playerListText.text = "Player List:\n";
-         foreach (Player player in PhotonNetwork.PlayerList)
-         {
-             string username = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
-             bool isReady = player.CustomProperties.ContainsKey("IsReady") && (bool)player.CustomProperties["IsReady"];
-             string readyStatus = isReady ? " (Ready)" : " (Not Ready)";
-
-             playerListText.text += username;
-             if (player.UserId == hostUserId)
-             {
-                 playerListText.text += " (Host)";
-             }
-             playerListText.text += maxPlayers > 1 ? readyStatus : "";
-             playerListText.text += "\n";
-         }
-         Debug.Log("Player list updated: " + playerListText.text);
-     }*/
-
     void UpdatePlayerList()
     {
         GameObject[] playerObjects = { player1, player2, player3, player4 };
@@ -113,8 +95,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
                 // เข้าถึง Playerlobby2 component ของ playerObject
                 PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
-
-              //  PlayerIcon playerIcon = playerObjects[i].GetComponent<PlayerIcon>(); // ใช้ PlayerIcon
 
                 if (playerLobby != null /* && playerIcon != null*/)
                 {
@@ -130,9 +110,13 @@ public class LobbyUI : MonoBehaviourPunCallbacks
                     // อัปเดตข้อมูลใน Playerlobby2
                     playerLobby.UpdatePlayerInfo(username, readyStatus);
 
-                    //StartCoroutine(LoadPlayerIcon(players[i].UserId, playerLobby));
+                    // อัปเดตรูปไอคอนตาม Custom Properties ของ Photon
+                    if (players[i].CustomProperties.ContainsKey("iconId"))
+                    {
+                        int iconId = (int)players[i].CustomProperties["iconId"];
+                        playerLobby.UpdatePlayerIcon(iconId);
+                    }
 
-                   //playerIcon.LoadUserIcon();
 
                     Debug.Log($"Updating Player {i + 1}: Name={username}, Ready={readyStatus}");
                 }
@@ -199,7 +183,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
                 PhotonNetwork.CurrentRoom.IsVisible = false;
-                //StartCoroutine(LoadingScreen());
+
                 PhotonNetwork.IsMessageQueueRunning = false;
                 photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);
             }
@@ -345,30 +329,25 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         Debug.Log("Room ID copied: " + roomId);
     }
 
-  /*  IEnumerator LoadPlayerIcon(string userId, PlayerLobby2 playerLobby)
+    void SoundOnClick(System.Action buttonAction)
     {
-        DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
-        var task = userRef.GetValueAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.IsFaulted || task.IsCanceled)
+        if (audioSource != null && buttonSound != null)
         {
-            Debug.LogError("Failed to load player icon from Firebase.");
-            yield break;
-        }
-
-        DataSnapshot snapshot = task.Result;
-        if (snapshot.Exists && snapshot.Child("icon").Exists)
-        {
-            int iconId = int.Parse(snapshot.Child("icon").Value.ToString());
-            playerLobby.UpdatePlayerIcon(iconId);
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            Debug.LogWarning("Player icon not found for user: " + userId);
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
         }
-    }*/
+    }
 
-
-
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
+    }
 }
