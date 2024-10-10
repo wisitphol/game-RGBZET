@@ -13,6 +13,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button backToMenu;
     [SerializeField] private Button nextRoundButton;
+    [SerializeField] private Button sumTournament;
     public GameObject player1;
     public GameObject player2;
     public GameObject player3;
@@ -58,6 +59,9 @@ public class EndGameT : MonoBehaviourPunCallbacks
         {
             audioSource.PlayOneShot(endgameSound);
         }
+       // sumTournament.gameObject.SetActive(false);
+       // CheckIfFinalRound(); // ตรวจสอบว่ารอบนี้เป็นรอบสุดท้ายหรือไม่
+       // sumTournament.onClick.AddListener(SumTournamnet);
     }
 
     void FetchPlayerDataFromPhoton()
@@ -278,4 +282,38 @@ public class EndGameT : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(delay);
         backToMenu.interactable = true;
     }
+
+   /* private void CheckIfFinalRound()
+    {
+        if (PhotonNetwork.IsMasterClient) // ตรวจสอบว่าผู้เล่นคนนี้เป็น Master Client หรือไม่
+        {
+            databaseReference.Child("bracket").Child(currentMatchId).Child("nextMatchId").GetValueAsync().ContinueWith(task =>
+            {
+                if (task.IsCompleted && !task.IsFaulted && task.Result.Value != null) // ตรวจสอบว่าการดึงข้อมูลเสร็จสิ้น
+                {
+                    string nextMatchId = task.Result.Value.ToString(); // ดึง Match ID ถัดไป
+                    if (nextMatchId == "final") // ถ้า Match ID ถัดไปเป็น "final"
+                    {
+                        ShowEndTournamentButton(); // เรียกฟังก์ชันเพื่อแสดงปุ่ม endTournament
+                    }
+                }
+            });
+        }
+    }
+
+    private void ShowEndTournamentButton()
+    {
+        sumTournament.gameObject.SetActive(true); // แสดงปุ่ม endTournament
+    }
+
+    public void SumTournamnet()
+    {
+        photonView.RPC("RPC_SumTournament", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void RPC_SumTournament()
+    {
+        PhotonNetwork.LoadLevel("SumTournament");
+    }*/
 }

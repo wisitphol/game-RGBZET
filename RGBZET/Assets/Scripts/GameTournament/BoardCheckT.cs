@@ -90,7 +90,7 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void RPC_LoadEndScene()
+    public void RPC_LoadResultTournament()
     {
        PhotonNetwork.LoadLevel("ResultTournament");
     }

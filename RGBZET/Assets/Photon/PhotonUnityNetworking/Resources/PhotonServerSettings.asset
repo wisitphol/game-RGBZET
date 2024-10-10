@@ -122,6 +122,9 @@ MonoBehaviour:
   - RPC_ReceiveGameState
   - RPC_SyncDeck
   - RPC_SyncDropZone
+  - RPC_LoadResult
+  - RPC_LoadResultTournament
+  - RPC_SumTournament
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

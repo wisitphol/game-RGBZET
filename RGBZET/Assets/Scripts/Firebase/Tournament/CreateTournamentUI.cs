@@ -48,10 +48,10 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         DisplayFeedback("Connected to Photon Master Server");
         createTournamentButton.interactable = true;
     }
-    
+
 
     void CreateTournament()
-    {   
+    {
         if (!PhotonNetwork.IsConnected)
         {
             DisplayFeedback("Not connected to Photon. Please wait...");
@@ -104,12 +104,21 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             for (int match = 0; match < matchesInRound; match++)
             {
                 string matchId = $"round_{round}_match_{match}";
+
+                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final";
+
+                if (matchesInRound == 1) // ถ้ารอบนี้มีแค่แมตช์เดียวถือว่าเป็นรอบชิงชนะเลิศ
+                {
+                    nextMatchId = "final"; // รอบสุดท้ายเป็น "final"
+                    Debug.Log("This is the final match! Setting nextMatchId to final.");
+                }
+
                 bracket[matchId] = new Dictionary<string, object>
                 {
                     { "player1", new Dictionary<string, object> { { "username", "" }, { "inLobby", false } } },
                     { "player2", new Dictionary<string, object> { { "username", "" }, { "inLobby", false } } },
                     { "winner", "" },
-                    { "nextMatchId", round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final" }
+                    { "nextMatchId", nextMatchId }
                 };
             }
         }
@@ -196,8 +205,8 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
         SetPlayerProperties();
     }
-    
-     public override void OnDisconnected(DisconnectCause cause)
+
+    public override void OnDisconnected(DisconnectCause cause)
     {
         DisplayFeedback($"Disconnected from Photon: {cause}. Attempting to reconnect...");
         createTournamentButton.interactable = false;

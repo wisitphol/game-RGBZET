@@ -122,9 +122,9 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     void ArrangeBracketUI()
     {
-        float roundWidth = 300f; // ความกว้างของแต่ละรอบ
-        float matchHeight = 150f; // ความสูงของแต่ละแมทช์
-        float verticalSpacing = 50f; // ระยะห่างระหว่างแต่ละแมทช์ในรอบเดียวกัน
+        float roundWidth = 400f; // ความกว้างของแต่ละรอบ
+        float matchHeight = 200f; // ความสูงของแต่ละแมทช์
+        float verticalSpacing = 100f; // ระยะห่างระหว่างแต่ละแมทช์ในรอบเดียวกัน
 
         Dictionary<int, int> roundMatchCounts = new Dictionary<int, int>(); // เก็บจำนวนแมทช์ต่อรอบเพื่อนับลำดับ
 
