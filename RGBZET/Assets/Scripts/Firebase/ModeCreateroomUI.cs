@@ -5,6 +5,10 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Collections;
+using Firebase.Auth;
+using Firebase.Database;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ModeCreateroomUI : MonoBehaviourPunCallbacks
 {
@@ -15,8 +19,16 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonSound;
 
+    private DatabaseReference databaseRef;
+    private FirebaseAuth auth;
+    private string userId;
+
     void Start()
     {
+        auth = FirebaseAuth.DefaultInstance;
+        databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
+        userId = auth.CurrentUser.UserId;
+
         SetupButtons();
     }
 
@@ -64,19 +76,78 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         DisplayFeedback("Creating new Quickplay room...");
+        CreateQuickplayRoom();
+    }
+
+    void CreateQuickplayRoom()
+    {
+        string roomId = GenerateRoomId();
         RoomOptions roomOptions = new RoomOptions
         {
             MaxPlayers = 4,
             CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { "GameType", "Quickplay" } },
             CustomRoomPropertiesForLobby = new string[] { "GameType" }
         };
-        PhotonNetwork.CreateRoom(null, roomOptions);
+
+        // Create room in Firebase
+        Dictionary<string, object> roomData = new Dictionary<string, object>
+        {
+            { "roomId", roomId },
+            { "playerCount", 1 },
+            { "hostUserId", userId },
+            { "gameType", "Quickplay" }
+        };
+
+        databaseRef.Child("quickplay").Child(roomId).SetValueAsync(roomData).ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+            {
+                DisplayFeedback("Failed to create Quickplay room in Firebase.");
+            }
+            else
+            {
+                PhotonNetwork.CreateRoom(roomId, roomOptions);
+            }
+        });
     }
 
     public override void OnJoinedRoom()
     {
+        string roomId = PhotonNetwork.CurrentRoom.Name;
+        PlayerPrefs.SetString("RoomId", roomId);
+        PlayerPrefs.Save();
+
+        // Update player count in Firebase
+        UpdatePlayerCountInFirebase(roomId);
+
         DisplayFeedback("Joined Quickplay room. Loading lobby...");
         SceneManager.LoadScene("QuickplayLobby");
+    }
+
+    private void UpdatePlayerCountInFirebase(string roomId)
+    {
+        DatabaseReference roomRef = databaseRef.Child("quickplay").Child(roomId);
+        roomRef.RunTransaction(mutableData =>
+        {
+            Dictionary<string, object> roomData = mutableData.Value as Dictionary<string, object>;
+            if (roomData != null)
+            {
+                if (roomData.ContainsKey("playerCount"))
+                {
+                    roomData["playerCount"] = PhotonNetwork.CurrentRoom.PlayerCount;
+                }
+                mutableData.Value = roomData;
+            }
+            return TransactionResult.Success(mutableData);
+        });
+    }
+
+    private string GenerateRoomId(int length = 6)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        System.Random random = new System.Random();
+        return new string(System.Linq.Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 
     void SoundOnClick(System.Action buttonAction)
@@ -101,6 +172,7 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
     public void DisplayFeedback(string message)
     {
         feedbackText.text = message;
+        Debug.Log($"Feedback: {message}");
     }
 
     void OnDestroy()
@@ -108,5 +180,15 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         createRoomButton.onClick.RemoveAllListeners();
         quickplayButton.onClick.RemoveAllListeners();
         backButton.onClick.RemoveAllListeners();
+    }
+
+    public override void OnLeftRoom()
+    {
+        // Remove room from Firebase when the last player leaves
+        if (PhotonNetwork.CountOfPlayersInRooms == 0)
+        {
+            string roomId = PlayerPrefs.GetString("RoomId");
+            databaseRef.Child("quickplay").Child(roomId).RemoveValueAsync();
+        }
     }
 }

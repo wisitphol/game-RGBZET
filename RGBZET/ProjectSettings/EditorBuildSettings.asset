@@ -68,12 +68,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TournamentMode/ResultTournament.unity
     guid: 1e2c0e6cb190e114f9d77d2dcacd4d00
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/QuickplayLobby.unity
     guid: 644a7e3c01bd0bc4d84268b6f616460c
   - enabled: 1
     path: Assets/Scenes/TournamentMode/Tournament.unity
     guid: 05e2f04e78e3fa947a70c993b194eff3
+  - enabled: 1
+    path: Assets/Scenes/Quickplay/QuickplayLobby.unity
+    guid: 84c4d8fdece67814b8a55491e3fbf545
+  - enabled: 1
+    path: Assets/Scenes/Quickplay/Card Sample Q.unity
+    guid: 3c1429b6c4e98174cae3bd7814f09b7b
+  - enabled: 1
+    path: Assets/Scenes/Quickplay/ResultQ.unity
+    guid: 2c328ed6619726643a80e86ac6712746
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: de1e4e24ab5bd6c42be43de0760b0103, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 92ef5e6794481416f9934958382e2622, type: 2}
