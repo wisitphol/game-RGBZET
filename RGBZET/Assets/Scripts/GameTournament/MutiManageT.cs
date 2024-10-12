@@ -31,7 +31,6 @@ public class MutiManageT : MonoBehaviourPunCallbacks
 
     private float gameTime = 180f; // 3 minutes in seconds
     private bool isGameActive = false;
-    private bool isSuddenDeath = false;
     private List<Player> suddenDeathPlayers = new List<Player>();
     private Player winningPlayer;
 
@@ -51,6 +50,36 @@ public class MutiManageT : MonoBehaviourPunCallbacks
             photonView.RPC("StartGameTimer", RpcTarget.All);
         }
     }
+
+    void Update()
+    {
+        if (isGameActive && PhotonNetwork.IsMasterClient)
+        {
+            gameTime -= Time.deltaTime;
+
+            if (gameTime <= 0)
+            {
+                gameTime = 0;
+                photonView.RPC("UpdateGameTimer", RpcTarget.All, gameTime);
+
+                // ตรวจสอบคะแนนเมื่อเวลาหมด
+
+                if (!CheckIfPlayersHaveSameScore())
+                {
+                    EndGame();
+                }
+                else
+                {
+                    StartCoroutine(WaitForWinner());
+                }
+            }
+            else
+            {
+                photonView.RPC("UpdateGameTimer", RpcTarget.All, gameTime);
+            }
+        }
+    }
+
 
     public void OnZetButtonPressed()
     {
@@ -101,22 +130,6 @@ public class MutiManageT : MonoBehaviourPunCallbacks
         zetButton.interactable = true;
     }
 
-    void Update()
-    {
-        if (isGameActive && PhotonNetwork.IsMasterClient)
-        {
-            if (!isSuddenDeath)
-            {
-                gameTime -= Time.deltaTime;
-                if (gameTime <= 0)
-                {
-                    gameTime = 0;
-                    CheckForTie();
-                }
-                photonView.RPC("UpdateGameTimer", RpcTarget.All, gameTime);
-            }
-        }
-    }
 
     void UpdatePlayerList()
     {
@@ -191,7 +204,7 @@ public class MutiManageT : MonoBehaviourPunCallbacks
             photonView.RPC("RPC_LoadEndGameScene", RpcTarget.All, winningPlayer.ActorNumber);
         }
     }
-    
+
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         Debug.Log("MasterClient has left the room.");
@@ -254,12 +267,7 @@ public class MutiManageT : MonoBehaviourPunCallbacks
         });
     }
 
-    [PunRPC]
-    private void RPC_LoadEndGameScene(int winnerActorNumber)
-    {
-        PlayerPrefs.SetInt("WinnerActorNumber", winnerActorNumber);
-        SceneManager.LoadScene("ResultTournament");
-    }
+
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
@@ -315,109 +323,42 @@ public class MutiManageT : MonoBehaviourPunCallbacks
     void UpdateGameTimer(float currentTime)
     {
         gameTime = currentTime;
+
         if (timerText != null)
         {
-            if (!isSuddenDeath)
+            if (gameTime <= 0)
             {
+                // ถ้าเวลาเหลือเป็น 0
+                if (CheckIfPlayersHaveSameScore())
+                {
+                    timerText.text = "Sudden Death!";
+                }
+                else
+                {
+                    // แสดงคะแนนตามปกติหรือตัดสินผลเกม
+                    EndGame();
+                }
+            }
+            else
+            {
+                // อัปเดตเวลา
                 int minutes = Mathf.FloorToInt(gameTime / 60);
                 int seconds = Mathf.FloorToInt(gameTime % 60);
                 timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
             }
-            else
-            {
-                timerText.text = "Sudden Death!";
-            }
         }
     }
 
-    private void CheckForTie()
+
+
+
+    public void EndGame()
     {
-        Player[] topPlayers = GetTopPlayers();
-        if (topPlayers.Length > 1)
+        if (PhotonNetwork.IsMasterClient)
         {
-            StartSuddenDeath(topPlayers);
-        }
-        else
-        {
-            EndGame();
-        }
-    }
+            isGameActive = false;
 
-    private Player[] GetTopPlayers()
-    {
-        int highestScore = int.MinValue;
-        List<Player> topPlayers = new List<Player>();
-
-        foreach (Player player in PhotonNetwork.PlayerList)
-        {
-            if (player.CustomProperties.TryGetValue("score", out object scoreObj) && scoreObj is string scoreStr)
-            {
-                if (int.TryParse(scoreStr.Replace("score : ", ""), out int score))
-                {
-                    if (score > highestScore)
-                    {
-                        highestScore = score;
-                        topPlayers.Clear();
-                        topPlayers.Add(player);
-                    }
-                    else if (score == highestScore)
-                    {
-                        topPlayers.Add(player);
-                    }
-                }
-            }
-        }
-
-        return topPlayers.ToArray();
-    }
-
-    private void StartSuddenDeath(Player[] tiePlayers)
-    {
-        isSuddenDeath = true;
-        suddenDeathPlayers = new List<Player>(tiePlayers);
-        photonView.RPC("RPC_StartSuddenDeath", RpcTarget.All, tiePlayers.Select(p => p.ActorNumber).ToArray());
-    }
-
-    [PunRPC]
-    private void RPC_StartSuddenDeath(int[] suddenDeathPlayerActorNumbers)
-    {
-        isSuddenDeath = true;
-        suddenDeathPlayers = suddenDeathPlayerActorNumbers.Select(actorNumber => PhotonNetwork.CurrentRoom.GetPlayer(actorNumber)).ToList();
-        
-        // Reset scores for sudden death players
-        foreach (Player player in suddenDeathPlayers)
-        {
-            UpdatePlayerScore(player.ActorNumber, 0);
-        }
-
-        // Disable ZET button for non-sudden death players
-        zetButton.interactable = suddenDeathPlayers.Contains(PhotonNetwork.LocalPlayer);
-
-        // Show sudden death message
-        if (timerText != null)
-        {
-            timerText.text = "Sudden Death!";
-        }
-    }
-
-    private Player GetWinningPlayer()
-    {
-        if (isSuddenDeath)
-        {
-            foreach (Player player in suddenDeathPlayers)
-            {
-                if (player.CustomProperties.TryGetValue("score", out object scoreObj) && scoreObj is string scoreStr)
-                {
-                    if (int.Parse(scoreStr.Replace("score : ", "")) > 0)
-                    {
-                        return player;
-                    }
-                }
-            }
-            return null; // No winner yet in sudden death
-        }
-        else
-        {
+            // หาผู้ชนะจาก PlayerList
             Player winner = null;
             int highestScore = int.MinValue;
 
@@ -433,18 +374,109 @@ public class MutiManageT : MonoBehaviourPunCallbacks
                 }
             }
 
-            return winner;
-        }
-    }
-
-    public void EndGame()
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            isGameActive = false;
-            Player winner = GetWinningPlayer();
+            // อัปเดตผลการแข่งขัน
             UpdateMatchResult(winner);
             photonView.RPC("RPC_LoadEndGameScene", RpcTarget.All, winner.ActorNumber);
         }
+    }
+
+    [PunRPC]
+    private void RPC_LoadEndGameScene(int winnerActorNumber)
+    {
+        PlayerPrefs.SetInt("WinnerActorNumber", winnerActorNumber);
+        SceneManager.LoadScene("ResultTournament");
+    }
+
+    bool CheckIfPlayersHaveSameScore()
+    {
+        Debug.Log("check score call");
+        Player[] players = PhotonNetwork.PlayerList;
+        List<int> scores = new List<int>();
+
+        foreach (Player player in players)
+        {
+            // ดึงคะแนนจาก CustomProperties
+            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
+            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
+            int score;
+
+            // ตรวจสอบว่า score เป็นตัวเลขหรือไม่ ถ้าไม่ใช่ให้ default เป็น 0
+            if (!int.TryParse(cleanScoreStr, out score))
+            {
+                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
+                score = 0;
+            }
+
+            // แสดงคะแนนของแต่ละผู้เล่นใน Console เพื่อ Debug
+            Debug.Log($"Player: {player.NickName}, Score: {score}");
+
+            // เพิ่มคะแนนลงใน list
+            scores.Add(score);
+        }
+
+        // เช็คว่ามีคะแนนที่เท่ากันหรือไม่
+        for (int i = 0; i < scores.Count; i++)
+        {
+            for (int j = i + 1; j < scores.Count; j++)
+            {
+                if (scores[i] == scores[j])
+                {
+                    Debug.Log($"Players have the same score: {scores[i]}");
+                    return true; // ถ้าพบคะแนนซ้ำกัน
+                }
+            }
+        }
+
+        return false; // ถ้าไม่มีคะแนนซ้ำกัน
+    }
+
+    IEnumerator WaitForWinner()
+    {
+        //yield return new WaitForSeconds(3f); // รอ 3 วินาที
+        while (true)
+        {
+            if (CheckForWinner()) // เช็คถ้ามีผู้เล่นที่มีคะแนนมากกว่าผู้เล่นอื่น ๆ
+            {
+                EndGame();
+                yield break;
+            }
+            yield return new WaitForSeconds(1f); // เช็คทุกๆ 1 วินาที
+        }
+    }
+
+    bool CheckForWinner()
+    {
+        Player[] players = PhotonNetwork.PlayerList;
+        int highestScore = int.MinValue;
+        int highestCount = 0;
+
+        foreach (Player player in players)
+        {
+            // ดึงคะแนนจาก CustomProperties
+            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
+            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
+            int score;
+
+            // ตรวจสอบว่า score เป็นตัวเลขหรือไม่ ถ้าไม่ใช่ให้ default เป็น 0
+            if (!int.TryParse(cleanScoreStr, out score))
+            {
+                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
+                score = 0;
+            }
+
+            // หา highest score และนับจำนวนผู้เล่นที่มีคะแนนสูงสุด
+            if (score > highestScore)
+            {
+                highestScore = score;
+                highestCount = 1;
+            }
+            else if (score == highestScore)
+            {
+                highestCount++;
+            }
+        }
+
+        // ถ้าผู้เล่นที่ได้คะแนนสูงสุดมีเพียงคนเดียว
+        return highestCount == 1;
     }
 }
