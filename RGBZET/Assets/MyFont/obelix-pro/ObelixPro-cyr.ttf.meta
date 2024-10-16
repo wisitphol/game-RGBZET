@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 5b132b9bfeaa2594382a9b7065d0795a
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - ObelixPro
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 95c236aa9d74a9542ab70a52ecfa0efa, type: 3}
+  - {fileID: 12800000, guid: 1ad1891c2c0a33a4caed68becbc406e0, type: 3}
+  - {fileID: 12800000, guid: da017af96703ebe47867543b0b0ab004, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
