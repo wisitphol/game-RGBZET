@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
 using Photon.Pun;
@@ -24,54 +25,84 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     private string roomId;
     private string userId;
     private string roomType;
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioClip buttonSound;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
+
+    private bool isPhotonConnected = false;
+    private bool isFirebaseInitialized = false;
 
     void Start()
     {
-        auth = FirebaseAuth.DefaultInstance;
-        userId = auth.CurrentUser.UserId;
-        databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends");
+        joinRoomButton.interactable = false;
+        cancelButton.interactable = false;
+
+        StartCoroutine(InitializeServices());
 
         joinRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             roomId = roomCodeInputField.text;
-            if (PhotonNetwork.IsConnectedAndReady)
-            {
-                CheckRoomTypeAndJoin(roomId);
-            }
-            else
-            {
-                DisplayFeedback("Connecting to Master Server...");
-                PhotonNetwork.ConnectUsingSettings();
-            }
+            CheckRoomTypeAndJoin(roomId);
         }));
 
         cancelButton.onClick.AddListener(() => SoundOnClick(() =>
         {
-            roomCodeInputField.text = "";  // ลบข้อมูลใน input field
-            DisplayFeedback("Room code cleared.");  // แสดงข้อความ feedback ว่าข้อมูลถูกลบแล้ว
+            roomCodeInputField.text = "";
+            DisplayFeedback("Room code cleared.");
         }));
 
         backButton.onClick.AddListener(() => SoundOnClick(() =>
         {
-            SceneManager.LoadScene("Menu");//ไป scene ก่อนหน้านี้
+            SceneManager.LoadScene("Menu");
         }));
+    }
 
-        // เชื่อมต่อกับ Master Server หากยังไม่ได้เชื่อมต่อ
+    IEnumerator InitializeServices()
+    {
+        DisplayFeedback("Initializing services...");
+
+        // Initialize Firebase
+        yield return StartCoroutine(InitializeFirebase());
+
+        // Connect to Photon
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
+        }
+        else
+        {
+            isPhotonConnected = true;
+        }
+
+        // Wait for both Firebase and Photon to be ready
+        yield return new WaitUntil(() => isFirebaseInitialized && isPhotonConnected);
+
+        DisplayFeedback("Services initialized. Ready to join a room.");
+        joinRoomButton.interactable = true;
+        cancelButton.interactable = true;
+    }
+
+    IEnumerator InitializeFirebase()
+    {
+        var task = FirebaseApp.CheckAndFixDependenciesAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Result == DependencyStatus.Available)
+        {
+            auth = FirebaseAuth.DefaultInstance;
+            userId = auth.CurrentUser.UserId;
+            databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends");
+            isFirebaseInitialized = true;
+        }
+        else
+        {
+            Debug.LogError("Could not resolve all Firebase dependencies: " + task.Result);
         }
     }
 
     public override void OnConnectedToMaster()
     {
-        DisplayFeedback("Connected to Master Server.");
-        if (!string.IsNullOrEmpty(roomId))
-        {
-            CheckRoomTypeAndJoin(roomId);
-        }
+        isPhotonConnected = true;
+        DisplayFeedback("Connected to Photon Master Server.");
     }
 
     void CheckRoomTypeAndJoin(string roomId)
@@ -131,7 +162,6 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         DisplayFeedback("Room not found. Please check the room code.");
     }
 
-
     void JoinRoom(string roomId)
     {
         if (string.IsNullOrEmpty(roomId))
@@ -140,15 +170,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (PhotonNetwork.IsConnectedAndReady)
-        {
-            PhotonNetwork.JoinRoom(roomId);
-        }
-        else
-        {
-            DisplayFeedback("Connecting to Master Server...");
-            PhotonNetwork.ConnectUsingSettings();
-        }
+        PhotonNetwork.JoinRoom(roomId);
     }
 
     public override void OnJoinedRoom()
@@ -177,6 +199,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     {
         feedbackText.text = message;
     }
+
     private void SetPlayerUsername(System.Action onComplete = null)
     {
         string userId = auth.CurrentUser.UserId;
@@ -214,7 +237,10 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
+        isPhotonConnected = false;
         DisplayFeedback($"Disconnected from Photon: {cause}");
+        joinRoomButton.interactable = false;
+        StartCoroutine(InitializeServices());
     }
 
     void SoundOnClick(System.Action buttonAction)
@@ -222,19 +248,16 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         if (audioSource != null && buttonSound != null)
         {
             audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
             buttonAction.Invoke();
         }
     }
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
     }

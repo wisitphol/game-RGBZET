@@ -8,7 +8,7 @@ using Photon.Realtime;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System;
 
 public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
 {
@@ -20,13 +20,28 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     public TMP_Text playerCountText;
     public TMP_Text feedbackText;
     public Button leaveRoomButton;
-    public Button startGameButton;
+    public TMP_Text notificationText;
+    
+    [SerializeField] private GameObject timerUI;
+    [SerializeField] private Image timerFillImage;
+    [SerializeField] private TextMeshProUGUI timerText;
+    
+    [SerializeField] private GameObject countdownUI;
+    [SerializeField] private Image countdownFillImage;
+    [SerializeField] private TextMeshProUGUI countdownText;
 
     private DatabaseReference databaseRef;
     private string roomId;
     private FirebaseAuth auth;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
+
+    private const float LOBBY_TIME = 180f; // 3 minutes
+    private float remainingLobbyTime;
+    private bool isLobbyTimerRunning = true;
+    private bool isInRoom = false;
+    private float notificationDuration = 5f;
+    private Coroutine currentNotificationCoroutine;
 
     void Start()
     {
@@ -35,20 +50,35 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
         roomCodeText.text = "Room Code: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(roomId);
 
-        startGameButton.onClick.AddListener(() => SoundOnClick(StartGame));
-        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() =>
-        {
-            PhotonNetwork.LeaveRoom();
-        }));
+        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() => LeaveRoom()));
 
-        UpdateUI();
+        countdownUI.SetActive(false);
+
+        if (PhotonNetwork.InRoom)
+        {
+            isInRoom = true;
+            if (PhotonNetwork.IsMasterClient)
+            {
+                InitializeLobbyTimer();
+            }
+            UpdateUI();
+        }
+    }
+
+    void Update()
+    {
+        if (!isInRoom) return;
+
+        if (isLobbyTimerRunning)
+        {
+            UpdateLobbyTimer();
+        }
     }
 
     void UpdateUI()
     {
         UpdatePlayerCount();
         UpdatePlayerList();
-        UpdateStartButtonVisibility();
     }
 
     void UpdatePlayerCount()
@@ -56,6 +86,11 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom != null)
         {
             playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / 4";
+
+            if (PhotonNetwork.CurrentRoom.PlayerCount == 4 && PhotonNetwork.IsMasterClient)
+            {
+                photonView.RPC("StartGameCountdown", RpcTarget.All);
+            }
         }
     }
 
@@ -69,89 +104,155 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
             if (i < players.Length && playerObjects[i] != null)
             {
                 playerObjects[i].SetActive(true);
-
                 PlayerLobbyQ playerLobby = playerObjects[i].GetComponent<PlayerLobbyQ>();
-
                 if (playerLobby != null)
                 {
                     playerLobby.SetActorNumber(players[i].ActorNumber);
-
                     string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
-
-                    playerLobby.UpdatePlayerInfo(username, players[i].IsMasterClient ? "Host" : "Waiting");
-
+                    playerLobby.UpdatePlayerInfo(username, "Waiting");
                     if (players[i].CustomProperties.ContainsKey("iconId"))
                     {
                         int iconId = (int)players[i].CustomProperties["iconId"];
                         playerLobby.UpdatePlayerIcon(iconId);
                     }
-
-                    Debug.Log($"Updating Player {i + 1}: Name={username}, IsMasterClient={players[i].IsMasterClient}");
                 }
             }
-            else
+            else if (playerObjects[i] != null)
             {
-                if (playerObjects[i] != null)
-                {
-                    playerObjects[i].SetActive(false);
-                }
+                playerObjects[i].SetActive(false);
             }
-        }
-    }
-
-    void UpdateStartButtonVisibility()
-    {
-        bool allPlayersJoined = PhotonNetwork.CurrentRoom.PlayerCount == 4;
-        startGameButton.gameObject.SetActive(PhotonNetwork.IsMasterClient && allPlayersJoined);
-
-        string statusMessage = !allPlayersJoined ? "Waiting for more players to join..." :
-                               PhotonNetwork.IsMasterClient ? "Ready to start the game!" :
-                               "Waiting for host to start the game...";
-        DisplayFeedback(statusMessage);
-    }
-
-    void StartGame()
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            if (PhotonNetwork.CurrentRoom.PlayerCount == 4)
-            {
-                PhotonNetwork.CurrentRoom.IsOpen = false;
-                PhotonNetwork.CurrentRoom.IsVisible = false;
-
-                PhotonNetwork.IsMessageQueueRunning = false;
-                photonView.RPC("RPC_StartGame", RpcTarget.AllBuffered);
-            }
-            else
-            {
-                DisplayFeedback("Not all players have joined yet.");
-            }
-        }
-        else
-        {
-            DisplayFeedback("Only the host can start the game.");
         }
     }
 
     [PunRPC]
-    void RPC_StartGame()
+    void StartGameCountdown()
     {
-        Debug.Log("Starting game...");
-        PhotonNetwork.LoadLevel("Card sample Q");
-        PhotonNetwork.IsMessageQueueRunning = true;
+        isLobbyTimerRunning = false;
+        timerUI.SetActive(false);
+        countdownUI.SetActive(true);
+        StartCoroutine(GameStartCountdown());
+    }
+
+    private IEnumerator GameStartCountdown()
+    {
+        float countdownTime = 5f;
+        while (countdownTime > 0)
+        {
+            countdownTime -= Time.deltaTime;
+            int secondsLeft = Mathf.CeilToInt(countdownTime);
+            countdownText.text = secondsLeft.ToString();
+            countdownFillImage.fillAmount = countdownTime / 5f;
+            yield return null;
+        }
+        StartGame();
+    }
+
+    void StartGame()
+    {
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+        SceneManager.LoadScene("Card sample Q");
+    }
+
+    void InitializeLobbyTimer()
+    {
+        if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("LobbyStartTime"))
+        {
+            ExitGames.Client.Photon.Hashtable customProperties = new ExitGames.Client.Photon.Hashtable
+            {
+                { "LobbyStartTime", PhotonNetwork.Time }
+            };
+            PhotonNetwork.CurrentRoom.SetCustomProperties(customProperties);
+        }
+        remainingLobbyTime = LOBBY_TIME;
+        UpdateLobbyTimerUI();
+    }
+
+    void UpdateLobbyTimer()
+    {
+        if (!isInRoom || !PhotonNetwork.InRoom) return;
+
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("LobbyStartTime", out object startTimeObj))
+        {
+            double startTime = (double)startTimeObj;
+            double elapsedTime = PhotonNetwork.Time - startTime;
+            remainingLobbyTime = Mathf.Max(0, LOBBY_TIME - (float)elapsedTime);
+
+            UpdateLobbyTimerUI();
+
+            if (remainingLobbyTime <= 0)
+            {
+                isLobbyTimerRunning = false;
+                ReturnToMenu();
+            }
+        }
+    }
+
+    void UpdateLobbyTimerUI()
+    {
+        if (timerText != null)
+        {
+            int minutes = Mathf.FloorToInt(remainingLobbyTime / 60);
+            int seconds = Mathf.FloorToInt(remainingLobbyTime % 60);
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+
+        if (timerFillImage != null)
+        {
+            float fillAmount = remainingLobbyTime / LOBBY_TIME;
+            timerFillImage.fillAmount = fillAmount;
+        }
+    }
+
+    void ReturnToMenu()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            DeleteRoomFromFirebase();
+        }
+        LeaveRoom();
+    }
+
+    void LeaveRoom()
+    {
+        isInRoom = false;
+        isLobbyTimerRunning = false;
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnJoinedRoom()
+    {
+        isInRoom = true;
+        string username = AuthManager.Instance.GetCurrentUsername();
+        bool isHost = PhotonNetwork.IsMasterClient;
+
+        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            { "username", username },
+            { "isHost", isHost }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
+
+        UpdateUI();
+        
+        if (isHost)
+        {
+            UpdateRoomInfoInFirebase();
+            InitializeLobbyTimer();
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdateUI();
-        DisplayFeedback($"{newPlayer.NickName} has joined the room.");
+        ShowNotification($"{newPlayer.NickName} has joined the room.");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         UpdateUI();
-        DisplayFeedback($"{otherPlayer.NickName} has left the room.");
-        
+        ShowNotification($"{otherPlayer.NickName} has left the room.");
+
         if (PhotonNetwork.IsMasterClient)
         {
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
@@ -160,40 +261,34 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
             }
             else
             {
-                // Update room info in Firebase
                 UpdateRoomInfoInFirebase();
             }
         }
     }
 
+    private void ShowNotification(string message)
+    {
+        if (currentNotificationCoroutine != null)
+        {
+            StopCoroutine(currentNotificationCoroutine);
+        }
+        currentNotificationCoroutine = StartCoroutine(ShowNotificationCoroutine(message));
+    }
+
+    private IEnumerator ShowNotificationCoroutine(string message)
+    {
+        notificationText.text = message;
+        notificationText.gameObject.SetActive(true);
+        
+        yield return new WaitForSeconds(notificationDuration);
+        
+        notificationText.gameObject.SetActive(false);
+        currentNotificationCoroutine = null;
+    }
+
     public override void OnLeftRoom()
     {
-        if (PhotonNetwork.CountOfPlayersInRooms == 0)
-        {
-            DeleteRoomFromFirebase();
-        }
         SceneManager.LoadScene("Menu");
-    }
-
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        Debug.Log($"Disconnected from Photon: {cause}");
-        if (PhotonNetwork.CountOfPlayersInRooms == 0)
-        {
-            DeleteRoomFromFirebase();
-        }
-        SceneManager.LoadScene("Menu");
-    }
-
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        Debug.Log($"Master Client switched to: {newMasterClient.NickName}");
-        UpdateUI();
-        if (newMasterClient.IsLocal)
-        {
-            DisplayFeedback("You are now the host!");
-            UpdateRoomInfoInFirebase();
-        }
     }
 
     void DeleteRoomFromFirebase()
@@ -230,27 +325,6 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
                 Debug.Log("Room info updated in Firebase");
             }
         });
-    }
-
-    public override void OnJoinedRoom()
-    {
-        string username = AuthManager.Instance.GetCurrentUsername();
-        bool isHost = PhotonNetwork.IsMasterClient;
-
-        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
-        {
-            { "username", username },
-            { "isHost", isHost }
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-
-        Debug.Log($"Joined room. Username: {username}, IsHost: {isHost}");
-        UpdateUI();
-        
-        if (isHost)
-        {
-            UpdateRoomInfoInFirebase();
-        }
     }
 
     public void DisplayFeedback(string message)
