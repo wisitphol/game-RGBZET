@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1df68ed520d3ae5499426101f84e7382
+guid: da017af96703ebe47867543b0b0ab004
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -11,7 +11,8 @@ TrueTypeFontImporter:
   fontNames:
   - ObelixPro
   fallbackFontReferences:
-  - {fileID: 12800000, guid: ab037d88a50aaf24c92d0add842357fd, type: 3}
+  - {fileID: 12800000, guid: 95c236aa9d74a9542ab70a52ecfa0efa, type: 3}
+  - {fileID: 12800000, guid: 1ad1891c2c0a33a4caed68becbc406e0, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

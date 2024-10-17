@@ -32,11 +32,15 @@ public class SettingUI : MonoBehaviour
         accountPanel.SetActive(false);
         quitPanel.SetActive(false);
 
+        float savedVolume = PlayerPrefs.GetFloat("volume", 1f); // ดึงค่าที่บันทึกไว้, ถ้าไม่มีจะใช้ค่าเริ่มต้นเป็น 1
+        volumeSlider.value = savedVolume;
+        AudioListener.volume = savedVolume; // ตั้งค่าเริ่มต้นให้ตรงกับระดับเสียงที่บันทึกไว้
+
         soundButton.onClick.AddListener(() => SoundOnClick(ToggleSound));
         accountButton.onClick.AddListener(() => SoundOnClick(ToggleAccount));
         quitButton.onClick.AddListener(() => SoundOnClick(ToggleQuit));
 
-            // ตั้งค่า Slider เริ่มต้น
+        // ตั้งค่า Slider เริ่มต้น
         volumeSlider.onValueChanged.AddListener(AdjustVolume);
         volumeSlider.value = AudioListener.volume; // ตั้งค่าเริ่มต้นให้ตรงกับระดับเสียงปัจจุบัน
 
@@ -79,12 +83,14 @@ public class SettingUI : MonoBehaviour
         accountPanel.SetActive(false);
     }
 
-       void AdjustVolume(float value)
+    void AdjustVolume(float value)
     {
         AudioListener.volume = value; // ปรับระดับเสียงตามค่า Slider
+        PlayerPrefs.SetFloat("volume", value); // บันทึกค่าเสียง
+        PlayerPrefs.Save(); // บันทึกการเปลี่ยนแปลงใน PlayerPrefs
     }
 
-        void OnLogoutButtonClicked()
+    void OnLogoutButtonClicked()
     {
         AuthManager.Instance.Logout();
         // Logout method in AuthManager already handles scene transition
@@ -112,7 +118,7 @@ public class SettingUI : MonoBehaviour
         buttonAction.Invoke();
     }
 
-     void QuitGame()
+    void QuitGame()
     {
         Application.Quit(); // ออกจากเกม
         // สำหรับการทดสอบใน Unity Editor คุณสามารถใช้

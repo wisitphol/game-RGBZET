@@ -1067,7 +1067,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2012,8 +2012,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: createroom
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: fafa318f0b65f154185d3c1bdec7e6ba, type: 2}
-  m_sharedMaterial: {fileID: 381877641179427680, guid: fafa318f0b65f154185d3c1bdec7e6ba, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 82618b95c46cc9842a52cdcbdace5353, type: 2}
+  m_sharedMaterial: {fileID: 7920136983242258733, guid: 82618b95c46cc9842a52cdcbdace5353, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3219,7 +3219,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 23c987f424fc5564aa8140895439145c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ada34af2668bfd849843b62fd7c88475, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -3238,8 +3238,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1289538467}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.056, y: -0.0082, z: 0}
-  m_LocalScale: {x: 0.3873668, y: 0.3358725, z: 1}
+  m_LocalPosition: {x: -0.0025, y: 0.0428, z: 0}
+  m_LocalScale: {x: 1.392227, y: 1.3856162, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
