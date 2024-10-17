@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d39ee29b4ddb21f4ea7b0b267db3d80e
+guid: 78a45d71c30647a45b87516a4bbda0ec
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 19_0
+      name: button-4_0
       rect:
         serializedVersion: 2
-        x: 160
-        y: 35
-        width: 1600
-        height: 1010
+        x: 131
+        y: 540
+        width: 650
+        height: 450
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,71 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 144c40ee17f077b4a89a3a2803c25355
-      internalID: -509990786
+      spriteID: d50eaa67b6974e1488c7634506d8c615
+      internalID: 2136632922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button-4_1
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 540
+        width: 650
+        height: 450
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86cdd53201c8956479451658664b717f
+      internalID: 124275653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button-4_2
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 49
+        width: 650
+        height: 450
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a2bc2e9498a5d2c41b01d7ef069f1151
+      internalID: -844927642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: button-4_3
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 49
+        width: 650
+        height: 450
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 01f6bfd8960c1954b86211d7d926befb
+      internalID: 691997451
       vertices: []
       indices: 
       edges: []
@@ -160,7 +223,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      19_0: -509990786
+      button-4_0: 2136632922
+      button-4_1: 124275653
+      button-4_2: -844927642
+      button-4_3: 691997451
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

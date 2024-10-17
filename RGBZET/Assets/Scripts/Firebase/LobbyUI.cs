@@ -18,7 +18,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     public GameObject player4;
     public TMP_Text roomCodeText;
     public TMP_Text playerCountText;
-    public TMP_Text playerListText;
     public TMP_Text feedbackText;
     public Button leaveRoomButton;
     public Button startGameButton;

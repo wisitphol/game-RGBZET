@@ -22,6 +22,10 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
     private int playerCount;
     private string creatorUsername;
 
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
+
+
     void Start()
     {
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
@@ -30,8 +34,8 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         playerCountDropdown.ClearOptions();
         playerCountDropdown.AddOptions(new List<string> { "4", "8" });
 
-        createTournamentButton.onClick.AddListener(CreateTournament);
-        backButton.onClick.AddListener(() => SceneManager.LoadScene("Tournament"));
+        createTournamentButton.onClick.AddListener(() => SoundOnClick(CreateTournament));
+        backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
 
         if (!PhotonNetwork.IsConnected)
         {
@@ -211,5 +215,27 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         DisplayFeedback($"Disconnected from Photon: {cause}. Attempting to reconnect...");
         createTournamentButton.interactable = false;
         PhotonNetwork.ConnectUsingSettings();
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }
