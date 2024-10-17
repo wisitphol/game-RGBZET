@@ -11,10 +11,17 @@ using UnityEngine.SceneManagement;
 
 public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 {
+    public GameObject player1;
+    public GameObject player2;
+    public GameObject player3;
+    public GameObject player4;
+    public GameObject player5;
+    public GameObject player6;
+    public GameObject player7;
+    public GameObject player8;
     public TMP_Text tournamentNameText;
     public TMP_Text tournamentIdText;
     public TMP_Text playerCountText;
-    public TMP_Text playerListText;
     public Button startTournamentButton;
     public Button leaveTournamentButton;
     public Button readyButton;
@@ -26,6 +33,9 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
     private string tournamentName;
     private bool isReady = false;
     private string currentUsername;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
+
 
     void Start()
     {
@@ -46,10 +56,10 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         tournamentNameText.text = "Tournament: " + tournamentName;
         tournamentIdText.text = "ID: " + tournamentId;
 
-        startTournamentButton.onClick.AddListener(StartTournament);
-        leaveTournamentButton.onClick.AddListener(LeaveTournament);
-        readyButton.onClick.AddListener(ToggleReady);
-        
+        startTournamentButton.onClick.AddListener(() => SoundOnClick(StartTournament));
+        leaveTournamentButton.onClick.AddListener(() => SoundOnClick(LeaveTournament));
+        readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
+
         SetPlayerProperties();
 
         if (PhotonNetwork.IsConnected)
@@ -63,10 +73,13 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
         PhotonNetwork.AutomaticallySyncScene = true;
 
-         copyButton.onClick.AddListener(() =>
+        copyButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             CopyRoomIdToClipboard();
-        });
+        }));
+        
+        
+        UpdateUI();
     }
 
     void SetPlayerProperties()
@@ -119,20 +132,54 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         UpdatePlayerList();
     }
 
+
     void UpdatePlayerList()
     {
-        playerListText.text = "Players:\n";
-        foreach (Player player in PhotonNetwork.PlayerList)
+        GameObject[] playerObjects = { player1, player2, player3, player4, player5, player6, player7, player8 };
+        Player[] players = PhotonNetwork.PlayerList;
+
+        for (int i = 0; i < playerObjects.Length; i++)
         {
-            string username = player.CustomProperties.ContainsKey("username") 
-                ? player.CustomProperties["username"].ToString() 
-                : player.NickName;
-            string readyStatus = player.CustomProperties.TryGetValue("IsReady", out object isReady) && (bool)isReady 
-                ? " (Ready)" 
-                : " (Not Ready)";
-            playerListText.text += username + readyStatus + "\n";
+            if (i < players.Length && playerObjects[i] != null)
+            {
+                playerObjects[i].SetActive(true);
+
+                // เข้าถึง Playerlobby2 component ของ playerObject
+                PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
+
+                if (playerLobby != null /* && playerIcon != null*/)
+                {
+                    playerLobby.SetActorNumber(players[i].ActorNumber);
+
+                    // ดึงชื่อผู้เล่นจาก CustomProperties หรือ NickName
+                    string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
+
+                    // ตรวจสอบสถานะ ready
+                    bool isReady = players[i].CustomProperties.ContainsKey("IsReady") && (bool)players[i].CustomProperties["IsReady"];
+                    string readyStatus = isReady ? "Ready" : "Not Ready";
+
+                    // อัปเดตข้อมูลใน Playerlobby2
+                    playerLobby.UpdatePlayerInfo(username, readyStatus);
+
+                    // อัปเดตรูปไอคอนตาม Custom Properties ของ Photon
+                    if (players[i].CustomProperties.ContainsKey("iconId"))
+                    {
+                        int iconId = (int)players[i].CustomProperties["iconId"];
+                        playerLobby.UpdatePlayerIcon(iconId);
+                    }
+
+
+                    Debug.Log($"Updating Player {i + 1}: Name={username}, Ready={readyStatus}");
+                }
+            }
+            else
+            {
+                if (playerObjects[i] != null)
+                {
+                    playerObjects[i].SetActive(false);
+                }
+            }
         }
-        Debug.Log("Player list updated: " + playerListText.text);
     }
 
     void ToggleReady()
@@ -140,7 +187,7 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         isReady = !isReady;
         ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", isReady } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
     }
 
     bool AreAllPlayersReady()
@@ -368,10 +415,32 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
             readyButton.onClick.RemoveAllListeners();
     }
 
-     void CopyRoomIdToClipboard()
+    void CopyRoomIdToClipboard()
     {
         GUIUtility.systemCopyBuffer = tournamentId;  // ก๊อปปี้ roomId ไปที่คลิปบอร์ด
         //DisplayFeedback("Room ID copied.");
         Debug.Log("Room ID copied: " + tournamentId);
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

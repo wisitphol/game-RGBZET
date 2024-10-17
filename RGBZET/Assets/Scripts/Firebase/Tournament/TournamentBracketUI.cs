@@ -23,6 +23,9 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     private Dictionary<string, MatchUI> matches = new Dictionary<string, MatchUI>();
     private string currentUserMatchId;
     private Coroutine updateUICoroutine;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
+
 
     void Start()
     {
@@ -48,7 +51,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     }
 
     void InitializeTournamentBracket()
-    {   
+    {
         tournamentId = PlayerPrefs.GetString("TournamentId");
         string tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
         currentUsername = AuthManager.Instance.GetCurrentUsername();
@@ -62,12 +65,12 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
         if (backButton != null)
         {
-            backButton.onClick.AddListener(() => SceneManager.LoadScene("Menu"));
+            backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
         }
 
         if (enterLobbyButton != null)
         {
-            enterLobbyButton.onClick.AddListener(OnEnterLobbyButtonClicked);
+            enterLobbyButton.onClick.AddListener(() => SoundOnClick(OnEnterLobbyButtonClicked));
             enterLobbyButton.gameObject.SetActive(false);
         }
 
@@ -122,11 +125,8 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     void ArrangeBracketUI()
     {
-        float roundWidth = 400f; // ความกว้างของแต่ละรอบ
-        float matchHeight = 200f; // ความสูงของแต่ละแมทช์
-        float verticalSpacing = 100f; // ระยะห่างระหว่างแต่ละแมทช์ในรอบเดียวกัน
-
-        Dictionary<int, int> roundMatchCounts = new Dictionary<int, int>(); // เก็บจำนวนแมทช์ต่อรอบเพื่อนับลำดับ
+        int playerCount = GetPlayerCount(); // ตรวจสอบจำนวนผู้เล่น (4 หรือ 8 คน)
+        Debug.Log("Player Count: " + playerCount);
 
         foreach (var match in matches.Values)
         {
@@ -135,33 +135,91 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             {
                 if (int.TryParse(matchInfo[1], out int round) && int.TryParse(matchInfo[3], out int matchNumber))
                 {
-                    if (!roundMatchCounts.ContainsKey(round))
-                    {
-                        roundMatchCounts[round] = 0;
-                    }
-
-                    int currentMatchIndex = roundMatchCounts[round];
-                    float yPosition = -currentMatchIndex * (matchHeight + verticalSpacing); // คำนวณตำแหน่ง Y ของแต่ละแมทช์ในรอบ
-                    float xPosition = round * roundWidth; // คำนวณตำแหน่ง X ของแต่ละรอบ
-
                     RectTransform rectTransform = match.GetComponent<RectTransform>();
-                    if (rectTransform != null)
-                    {
-                        rectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
-                    }
+                    Debug.Log($"Arranging match: Round {round}, MatchNumber {matchNumber}");
 
-                    roundMatchCounts[round]++;
+                    if (playerCount == 4)
+                    {
+                        if (round == 0) // semi-final
+                        {
+                            if (matchNumber == 0)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 100f)");
+                            }
+                            else if (matchNumber == 1)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -100f)");
+                            }
+                        }
+                        else if (round == 1) // final
+                        {
+                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
+                            Debug.Log("Final match placed at (640f, 0f)");
+                        }
+                    }
+                    else if (playerCount == 8)
+                    {
+                        if (round == 0) // quarterfinals
+                        {
+                            switch (matchNumber)
+                            {
+                                case 0:
+                                    rectTransform.anchoredPosition = new Vector2(-640f, 190f);
+                                    Debug.Log("Quarterfinal match 1 placed at (-640f, 190f)");
+                                    break;
+                                case 1:
+                                    rectTransform.anchoredPosition = new Vector2(-640f, 40f);
+                                    Debug.Log("Quarterfinal match 2 placed at (-640f, 40f)");
+                                    break;
+                                case 2:
+                                    rectTransform.anchoredPosition = new Vector2(-640f, -120f);
+                                    Debug.Log("Quarterfinal match 3 placed at (-640f, -120f)");
+                                    break;
+                                case 3:
+                                    rectTransform.anchoredPosition = new Vector2(-640f, -270f);
+                                    Debug.Log("Quarterfinal match 4 placed at (-640f, -270f)");
+                                    break;
+                            }
+                        }
+                        else if (round == 1) // semi-final
+                        {
+                            if (matchNumber == 0)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 100f)");
+                            }
+                            else if (matchNumber == 1)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -100f)");
+                            }
+                        }
+                        else if (round == 2) // final
+                        {
+                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
+                            Debug.Log("Final match placed at (640f, 0f)");
+                        }
+                    }
                 }
             }
         }
     }
+
+    int GetPlayerCount()
+    {
+        // ฟังก์ชันคืนค่าจำนวนผู้เล่นในทัวร์นาเมนต์ (4 หรือ 8 คน)
+        return PlayerPrefs.GetInt("TournamentPlayerCount", 4); // เริ่มต้นที่ 4 แต่สามารถเปลี่ยนเป็น 8 ได้
+    }
+
 
     void CheckCurrentUserMatch(DataSnapshot bracketSnapshot)
     {
         string latestMatchId = null;
         bool isPlayerInActiveTournament = false;
 
-        var sortedMatches = bracketSnapshot.Children.OrderByDescending(match => 
+        var sortedMatches = bracketSnapshot.Children.OrderByDescending(match =>
             int.Parse(match.Key.Split('_')[1]));
 
         foreach (var matchSnapshot in sortedMatches)
@@ -281,5 +339,27 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             enterLobbyButton.onClick.RemoveAllListeners();
         }
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }
