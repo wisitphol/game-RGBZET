@@ -122,6 +122,6 @@ public class SettingUI : MonoBehaviour
     {
         Application.Quit(); // ออกจากเกม
         // สำหรับการทดสอบใน Unity Editor คุณสามารถใช้
-        UnityEditor.EditorApplication.isPlaying = false;
+        //UnityEditor.EditorApplication.isPlaying = false;
     }
 }

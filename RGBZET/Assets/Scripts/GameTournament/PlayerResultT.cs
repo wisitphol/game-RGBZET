@@ -50,4 +50,32 @@ public class PlayerResultT : MonoBehaviourPunCallbacks
             }*/
         }
     }
+
+    public void UpdatePlayerResultT(string name, string score, string result)
+    {
+        Debug.Log($"Updating Player Result: Name = {name}, Win = {result}");
+
+        if (NameText != null)
+        {
+            NameText.text = name;
+        }
+
+        if (ResultText != null)
+        {
+            ResultText.text = result;
+
+          /*  if (win == "Winner")
+            {
+                WinText.color = Color.green; // สีสำหรับ Winner
+            }
+            else if (win == "Draw")
+            {
+                WinText.color = Color.yellow; // สีสำหรับ Draw
+            }
+            else
+            {
+                WinText.color = Color.white; // สีเริ่มต้น
+            }*/
+        }
+    }
 }

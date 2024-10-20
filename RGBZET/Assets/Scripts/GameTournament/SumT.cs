@@ -13,8 +13,8 @@ public class SumT : MonoBehaviour
     [SerializeField] private Button backToMenu;
     // Start is called before the first frame update
 
-    private GameObject[] playerObjects;
-    private PlayerResult2[] playerResults;
+   
+    public GameObject playervictory;
     private DatabaseReference databaseReference;
     private FirebaseUserId firebaseUserId;
     private string tournamentId;
@@ -57,14 +57,8 @@ public class SumT : MonoBehaviour
     {
         yield return new WaitForSeconds(waitTime);
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            StartCoroutine(DeleteRoomAndGoToMenu());
-        }
-        else
-        {
-            StartCoroutine(LeaveRoomAndCheckConnection());
-        }
+        StartCoroutine(DeleteRoomAndGoToMenu());
+        
     }
 
     private IEnumerator DeleteRoomAndGoToMenu()
@@ -97,22 +91,5 @@ public class SumT : MonoBehaviour
         SceneManager.LoadScene("Menu");
     }
 
-    private IEnumerator LeaveRoomAndCheckConnection()
-    {
-        PhotonNetwork.LeaveRoom();
-
-        // รอให้การออกจากห้องเสร็จสมบูรณ์
-        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
-
-        // ยกเลิกการเชื่อมต่อจาก Game Server
-        PhotonNetwork.Disconnect();
-
-        // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
-        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
-
-        // เปลี่ยนไปยังเมนู
-        SceneManager.LoadScene("Menu");
-
-
-    }
+   
 }

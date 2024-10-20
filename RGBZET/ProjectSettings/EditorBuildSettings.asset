@@ -6,14 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Login.unity
+    guid: 3fc8acdd13e6c734bafef6554d6fdbcd
+  - enabled: 0
     path: Assets/Scenes/play.unity
     guid: 31e6c4b7187cb37438ac3bb0e87fb234
   - enabled: 1
     path: Assets/Scenes/Card sample.unity
     guid: 3b092d0d8df21864491e8200c77f4159
-  - enabled: 1
-    path: Assets/Scenes/Login.unity
-    guid: 3fc8acdd13e6c734bafef6554d6fdbcd
   - enabled: 1
     path: Assets/Scenes/Register.unity
     guid: 99f15d59122c3f244bad223656607504
@@ -68,9 +68,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TournamentMode/ResultTournament.unity
     guid: 1e2c0e6cb190e114f9d77d2dcacd4d00
-  - enabled: 0
-    path: Assets/Scenes/QuickplayLobby.unity
-    guid: 644a7e3c01bd0bc4d84268b6f616460c
   - enabled: 1
     path: Assets/Scenes/TournamentMode/Tournament.unity
     guid: 05e2f04e78e3fa947a70c993b194eff3
