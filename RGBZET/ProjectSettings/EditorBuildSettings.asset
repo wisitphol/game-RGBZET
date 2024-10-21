@@ -8,9 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Login.unity
     guid: 3fc8acdd13e6c734bafef6554d6fdbcd
-  - enabled: 0
-    path: Assets/Scenes/play.unity
-    guid: 31e6c4b7187cb37438ac3bb0e87fb234
   - enabled: 1
     path: Assets/Scenes/Card sample.unity
     guid: 3b092d0d8df21864491e8200c77f4159
@@ -29,9 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Joinroom.unity
     guid: 2fca0c55aa62a994fa68db872e0db51c
-  - enabled: 1
-    path: Assets/Scenes/CreateJoin.unity
-    guid: 3d8ee722ac1aa4202aece73e69ea0a51
   - enabled: 1
     path: Assets/Scenes/Lobby.unity
     guid: 682c069a45f447346b15ef90b8f56469
