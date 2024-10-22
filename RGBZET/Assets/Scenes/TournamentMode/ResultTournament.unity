@@ -227,7 +227,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -478812667, guid: c86caeb8d854d0c4499033f33f7b9685, type: 3}
+  m_Sprite: {fileID: 1711347782, guid: 020d8540630bb0841852d61e6efd3d54, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -599,6 +599,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 383079584}
   m_CullTransparentMesh: 1
+--- !u!114 &531543095 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4012695864014558293, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+  m_PrefabInstance: {fileID: 627650273}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 627650278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &583986142
 GameObject:
   m_ObjectHideFlags: 0
@@ -959,6 +970,12 @@ MonoBehaviour:
   NameText: {fileID: 627650277}
   ScoreText: {fileID: 627650276}
   ResultText: {fileID: 307194914}
+  playerIconImage: {fileID: 531543095}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}
 --- !u!1 &727915676
 GameObject:
   m_ObjectHideFlags: 0
@@ -1085,7 +1102,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &821647596
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1127,7 +1144,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 903545231, guid: a24723c483e04964197e33eccd442ffd, type: 3}
+  m_Sprite: {fileID: -342679402, guid: d40d2585603e3dc47a4b921db36aac7f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1189,6 +1206,17 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1092149278 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4012695864014558293, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+  m_PrefabInstance: {fileID: 1422932951}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422932956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1105783726
 GameObject:
   m_ObjectHideFlags: 0
@@ -1402,6 +1430,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1187833535}
   m_CullTransparentMesh: 1
+--- !u!114 &1189244470 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4012695864014558293, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+  m_PrefabInstance: {fileID: 1894354805}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894354810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1192551229
 GameObject:
   m_ObjectHideFlags: 0
@@ -1937,6 +1976,12 @@ MonoBehaviour:
   NameText: {fileID: 1422932955}
   ScoreText: {fileID: 1422932954}
   ResultText: {fileID: 1192551231}
+  playerIconImage: {fileID: 1092149278}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}
 --- !u!1 &1505701293
 GameObject:
   m_ObjectHideFlags: 0
@@ -2081,7 +2126,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backToMenu: {fileID: 67429245}
   nextRoundButton: {fileID: 1788181045}
-  sumTournament: {fileID: 821647599}
   player1: {fileID: 2117950245}
   player2: {fileID: 1894354810}
   player3: {fileID: 1422932956}
@@ -2306,7 +2350,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -757119381, guid: 1726eefe45e90c44a80e5be428c76800, type: 3}
+  m_Sprite: {fileID: -1355028108, guid: d14f88df250a2cf4397bfcba2a5b07f4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2819,6 +2863,12 @@ MonoBehaviour:
   NameText: {fileID: 1894354809}
   ScoreText: {fileID: 1894354808}
   ResultText: {fileID: 2067422863}
+  playerIconImage: {fileID: 1189244470}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}
 --- !u!1 &1907531125
 GameObject:
   m_ObjectHideFlags: 0
@@ -2954,6 +3004,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907531125}
   m_CullTransparentMesh: 1
+--- !u!114 &1997183935 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4012695864014558293, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+  m_PrefabInstance: {fileID: 2117950240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117950245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2067422861
 GameObject:
   m_ObjectHideFlags: 0
@@ -3405,3 +3466,9 @@ MonoBehaviour:
   NameText: {fileID: 2117950244}
   ScoreText: {fileID: 2117950243}
   ResultText: {fileID: 1867185811}
+  playerIconImage: {fileID: 1997183935}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}

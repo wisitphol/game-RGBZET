@@ -20,8 +20,6 @@ public class MutiManageT : MonoBehaviourPunCallbacks
     public static bool isZETActive = false;
     public static Player playerWhoActivatedZET = null;
     private DatabaseReference databaseRef;
-    private float timer;
-    private string roomId;
     private BoardCheckT boardCheck;
     public TMP_Text timerText;
     [SerializeField] public AudioSource audioSource;
@@ -31,7 +29,6 @@ public class MutiManageT : MonoBehaviourPunCallbacks
 
     private float gameTime = 180f; // 3 minutes in seconds
     private bool isGameActive = false;
-    private List<Player> suddenDeathPlayers = new List<Player>();
     private Player winningPlayer;
 
     void Start()
@@ -150,6 +147,12 @@ public class MutiManageT : MonoBehaviourPunCallbacks
                     bool zetActive = false;
 
                     playerCon.UpdatePlayerInfo(username, score, zetActive);
+
+                    if (players[i].CustomProperties.ContainsKey("iconId"))
+                    {
+                        int iconId = (int)players[i].CustomProperties["iconId"];
+                        playerCon.UpdatePlayerIcon(iconId);
+                    }
                 }
             }
             else

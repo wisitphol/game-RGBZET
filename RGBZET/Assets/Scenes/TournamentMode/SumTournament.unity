@@ -959,6 +959,8 @@ MonoBehaviour:
   NameText: {fileID: 627650277}
   ScoreText: {fileID: 627650276}
   ResultText: {fileID: 307194914}
+  playerIconImage: {fileID: 0}
+  iconSprites: []
 --- !u!1 &727915676
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,6 +1758,8 @@ MonoBehaviour:
   NameText: {fileID: 1422932955}
   ScoreText: {fileID: 1422932954}
   ResultText: {fileID: 1192551231}
+  playerIconImage: {fileID: 0}
+  iconSprites: []
 --- !u!1 &1505701293
 GameObject:
   m_ObjectHideFlags: 0
@@ -1898,10 +1902,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backToMenu: {fileID: 67429245}
-  playervictory: {fileID: 0}
+  playervictory: {fileID: 2117950245}
   audioSource: {fileID: 1505701296}
   endgameSound: {fileID: 8300000, guid: ec826efcb6cf8ff458860710b1571a10, type: 3}
   buttonSound: {fileID: 8300000, guid: ffa1d8ac5ee9b4b47a8bae1d71e1e5c7, type: 3}
+--- !u!114 &1575286288 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4012695864014558293, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+  m_PrefabInstance: {fileID: 2117950240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2117950245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1867185809
 GameObject:
   m_ObjectHideFlags: 0
@@ -2353,6 +2368,8 @@ MonoBehaviour:
   NameText: {fileID: 1894354809}
   ScoreText: {fileID: 1894354808}
   ResultText: {fileID: 2067422863}
+  playerIconImage: {fileID: 0}
+  iconSprites: []
 --- !u!1 &1907531125
 GameObject:
   m_ObjectHideFlags: 0
@@ -3015,3 +3032,9 @@ MonoBehaviour:
   NameText: {fileID: 2117950244}
   ScoreText: {fileID: 2117950243}
   ResultText: {fileID: 1867185811}
+  playerIconImage: {fileID: 1575286288}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}

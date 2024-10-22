@@ -12,11 +12,11 @@ using System.Linq;
 
 public class MutiManage2 : MonoBehaviourPunCallbacks
 {
-    public GameObject player1;
-    public GameObject player2;
-    public GameObject player3;
-    public GameObject player4;
-    public Button zetButton;
+    [SerializeField] public GameObject player1;
+    [SerializeField] public GameObject player2;
+    [SerializeField] public GameObject player3;
+    [SerializeField] public GameObject player4;
+    [SerializeField] public Button zetButton;
     public float cooldownTime = 7f; // เวลาที่ใช้ในการ cooldown
     public static bool isZETActive = false;
     public static Player playerWhoActivatedZET = null;

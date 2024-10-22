@@ -13,11 +13,10 @@ public class EndGameT : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button backToMenu;
     [SerializeField] private Button nextRoundButton;
-    [SerializeField] private Button sumTournament;
-    public GameObject player1;
-    public GameObject player2;
-    public GameObject player3;
-    public GameObject player4;
+    [SerializeField] public GameObject player1;
+    [SerializeField] public GameObject player2;
+    [SerializeField] public GameObject player3;
+    [SerializeField] public GameObject player4;
 
     private GameObject[] playerObjects;
     private PlayerResultT[] playerResults;
@@ -59,9 +58,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
         {
             audioSource.PlayOneShot(endgameSound);
         }
-        sumTournament.gameObject.SetActive(false);
-        CheckIfFinalRound(); // ตรวจสอบว่ารอบนี้เป็นรอบสุดท้ายหรือไม่
-        sumTournament.onClick.AddListener(() => SoundOnClick(SumTournamnet));
+       
     }
 
     void FetchPlayerDataFromPhoton()
@@ -204,7 +201,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
     void HandleTournamentEnd(string winnerUsername)
     {
-        databaseReference.Child("winner").SetValueAsync(winnerUsername).ContinueWith(task =>
+        databaseReference.Child("won").SetValueAsync(winnerUsername).ContinueWith(task =>
         {
             if (task.IsCompleted && !task.IsFaulted)
             {
@@ -270,32 +267,6 @@ public class EndGameT : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(delay);
         backToMenu.interactable = true;
-    }
-
-    private void CheckIfFinalRound()
-    {
-        databaseReference.Child("bracket").Child(currentMatchId).Child("nextMatchId").GetValueAsync().ContinueWith(task =>
-        {
-            if (task.IsCompleted && !task.IsFaulted && task.Result.Value != null) // ตรวจสอบว่าการดึงข้อมูลเสร็จสิ้น
-            {
-                string nextMatchId = task.Result.Value.ToString(); // ดึง Match ID ถัดไป
-                if (nextMatchId == "victory") // ถ้า Match ID ถัดไปเป็น "final"
-                {
-                    nextRoundButton.gameObject.SetActive(false);
-                    ShowEndTournamentButton(); // เรียกฟังก์ชันเพื่อแสดงปุ่ม endTournament
-                }
-            }
-        });
-    }
-
-    private void ShowEndTournamentButton()
-    {
-        sumTournament.gameObject.SetActive(true); // แสดงปุ่ม sumTournament
-    }
-
-    public void SumTournamnet()
-    {
-        SceneManager.LoadScene("SumTournament"); // โหลดหน้าสรุปทัวร์นาเมนต์โดยตรง
     }
 
      void SoundOnClick(System.Action buttonAction)

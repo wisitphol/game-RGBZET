@@ -10,6 +10,8 @@ public class PlayerResultT : MonoBehaviourPunCallbacks
     public TMP_Text NameText;
     public TMP_Text ScoreText;
     public TMP_Text ResultText;
+    public Image playerIconImage;
+    public Sprite[] iconSprites;
 
     void Start()
     {
@@ -36,18 +38,18 @@ public class PlayerResultT : MonoBehaviourPunCallbacks
         {
             ResultText.text = result;
 
-          /*  if (win == "Winner")
-            {
-                WinText.color = Color.green; // สีสำหรับ Winner
-            }
-            else if (win == "Draw")
-            {
-                WinText.color = Color.yellow; // สีสำหรับ Draw
-            }
-            else
-            {
-                WinText.color = Color.white; // สีเริ่มต้น
-            }*/
+            /*  if (win == "Winner")
+              {
+                  WinText.color = Color.green; // สีสำหรับ Winner
+              }
+              else if (win == "Draw")
+              {
+                  WinText.color = Color.yellow; // สีสำหรับ Draw
+              }
+              else
+              {
+                  WinText.color = Color.white; // สีเริ่มต้น
+              }*/
         }
     }
 
@@ -64,18 +66,30 @@ public class PlayerResultT : MonoBehaviourPunCallbacks
         {
             ResultText.text = result;
 
-          /*  if (win == "Winner")
-            {
-                WinText.color = Color.green; // สีสำหรับ Winner
-            }
-            else if (win == "Draw")
-            {
-                WinText.color = Color.yellow; // สีสำหรับ Draw
-            }
-            else
-            {
-                WinText.color = Color.white; // สีเริ่มต้น
-            }*/
+            /*  if (win == "Winner")
+              {
+                  WinText.color = Color.green; // สีสำหรับ Winner
+              }
+              else if (win == "Draw")
+              {
+                  WinText.color = Color.yellow; // สีสำหรับ Draw
+              }
+              else
+              {
+                  WinText.color = Color.white; // สีเริ่มต้น
+              }*/
+        }
+    }
+
+    public void UpdatePlayerIcon(int iconId)
+    {
+        if (iconId >= 0 && iconId < iconSprites.Length)
+        {
+            playerIconImage.sprite = iconSprites[iconId];
+        }
+        else
+        {
+            Debug.LogError("Invalid iconId. Unable to update player icon.");
         }
     }
 }
