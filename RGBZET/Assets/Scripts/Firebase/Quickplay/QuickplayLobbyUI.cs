@@ -18,9 +18,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     public GameObject player4;
     public TMP_Text roomCodeText;
     public TMP_Text playerCountText;
-    public TMP_Text feedbackText;
     public Button leaveRoomButton;
-    public TMP_Text notificationText;
     
     [SerializeField] private GameObject timerUI;
     [SerializeField] private Image timerFillImage;
@@ -29,6 +27,9 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject countdownUI;
     [SerializeField] private Image countdownFillImage;
     [SerializeField] private TextMeshProUGUI countdownText;
+
+    [SerializeField] private GameObject notificationPopup;
+    [SerializeField] private TMP_Text notificationText;
 
     private DatabaseReference databaseRef;
     private string roomId;
@@ -40,8 +41,6 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     private float remainingLobbyTime;
     private bool isLobbyTimerRunning = true;
     private bool isInRoom = false;
-    private float notificationDuration = 5f;
-    private Coroutine currentNotificationCoroutine;
 
     void Start()
     {
@@ -53,6 +52,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
         leaveRoomButton.onClick.AddListener(() => SoundOnClick(() => LeaveRoom()));
 
         countdownUI.SetActive(false);
+        notificationPopup.SetActive(false);
 
         if (PhotonNetwork.InRoom)
         {
@@ -245,13 +245,13 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdateUI();
-        ShowNotification($"{newPlayer.NickName} has joined the room.");
+        ShowNotification($"{newPlayer.NickName} joined");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         UpdateUI();
-        ShowNotification($"{otherPlayer.NickName} has left the room.");
+        ShowNotification($"{otherPlayer.NickName} left");
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -264,26 +264,6 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
                 UpdateRoomInfoInFirebase();
             }
         }
-    }
-
-    private void ShowNotification(string message)
-    {
-        if (currentNotificationCoroutine != null)
-        {
-            StopCoroutine(currentNotificationCoroutine);
-        }
-        currentNotificationCoroutine = StartCoroutine(ShowNotificationCoroutine(message));
-    }
-
-    private IEnumerator ShowNotificationCoroutine(string message)
-    {
-        notificationText.text = message;
-        notificationText.gameObject.SetActive(true);
-        
-        yield return new WaitForSeconds(notificationDuration);
-        
-        notificationText.gameObject.SetActive(false);
-        currentNotificationCoroutine = null;
     }
 
     public override void OnLeftRoom()
@@ -301,7 +281,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
             }
             else
             {
-                Debug.Log($"Room {roomId} successfully deleted from Firebase");
+                Debug.Log($"Room {roomId} deleted from Firebase");
             }
         });
     }
@@ -327,10 +307,17 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
         });
     }
 
-    public void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
-        Debug.Log($"Feedback: {message}");
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     void SoundOnClick(System.Action buttonAction)

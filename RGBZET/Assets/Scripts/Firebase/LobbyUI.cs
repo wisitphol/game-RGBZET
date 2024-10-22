@@ -18,12 +18,12 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     public GameObject player4;
     public TMP_Text roomCodeText;
     public TMP_Text playerCountText;
-    public TMP_Text playerListText;
-    public TMP_Text feedbackText;
     public Button leaveRoomButton;
     public Button startGameButton;
     public Button readyButton;
     public Button copyButton;
+    public GameObject notificationPopup;
+    public TMP_Text notificationText;
 
     private DatabaseReference databaseRef;
     private string roomId;
@@ -35,7 +35,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
     void Start()
     {
-
         auth = FirebaseAuth.DefaultInstance;
         roomId = PlayerPrefs.GetString("RoomId");
         hostUserId = PlayerPrefs.GetString("HostUserId");
@@ -56,11 +55,12 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             }
         }));
 
-        // เพิ่มการฟังการคลิกปุ่ม copyButton
         copyButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             CopyRoomIdToClipboard();
         }));
+
+        notificationPopup.SetActive(false);
 
         UpdateUI();
     }
@@ -92,31 +92,21 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             if (i < players.Length && playerObjects[i] != null)
             {
                 playerObjects[i].SetActive(true);
-
-                // เข้าถึง Playerlobby2 component ของ playerObject
                 PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
 
-                if (playerLobby != null /* && playerIcon != null*/)
+                if (playerLobby != null)
                 {
                     playerLobby.SetActorNumber(players[i].ActorNumber);
-
-                    // ดึงชื่อผู้เล่นจาก CustomProperties หรือ NickName
                     string username = players[i].CustomProperties.ContainsKey("username") ? players[i].CustomProperties["username"].ToString() : players[i].NickName;
-
-                    // ตรวจสอบสถานะ ready
                     bool isReady = players[i].CustomProperties.ContainsKey("IsReady") && (bool)players[i].CustomProperties["IsReady"];
                     string readyStatus = isReady ? "Ready" : "Not Ready";
-
-                    // อัปเดตข้อมูลใน Playerlobby2
                     playerLobby.UpdatePlayerInfo(username, readyStatus);
 
-                    // อัปเดตรูปไอคอนตาม Custom Properties ของ Photon
                     if (players[i].CustomProperties.ContainsKey("iconId"))
                     {
                         int iconId = (int)players[i].CustomProperties["iconId"];
                         playerLobby.UpdatePlayerIcon(iconId);
                     }
-
 
                     Debug.Log($"Updating Player {i + 1}: Name={username}, Ready={readyStatus}");
                 }
@@ -148,11 +138,11 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
         if (isHost)
         {
-            string statusMessage = maxPlayers == 1 ? "Ready to start the game!" :
-                                   !allPlayersJoined ? "Waiting for more players to join..." :
-                                   !allPlayersReady ? "Waiting for all players to be ready..." :
-                                   "Ready to start the game!";
-            DisplayFeedback(statusMessage);
+            string statusMessage = maxPlayers == 1 ? "Ready to start" :
+                                   !allPlayersJoined ? "Waiting for players" :
+                                   !allPlayersReady ? "Waiting for ready" :
+                                   "Ready to start";
+            ShowNotification(statusMessage);
         }
 
         Debug.Log($"Start button visibility updated: {startGameButton.gameObject.activeSelf}");
@@ -178,7 +168,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            // ตรวจสอบว่าจำนวนผู้เล่นครบหรือไม่
             if (PhotonNetwork.CurrentRoom.PlayerCount == maxPlayers)
             {
                 PhotonNetwork.CurrentRoom.IsOpen = false;
@@ -189,21 +178,19 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             }
             else
             {
-                DisplayFeedback("Not all players have joined yet.");
+                ShowNotification("Not all players joined");
             }
         }
         else
         {
-            DisplayFeedback("Only the host can start the game.");
+            ShowNotification("Only host can start");
         }
     }
 
     public IEnumerator LoadingScreen()
     {
         SceneManager.LoadScene("Loading");
-
-        yield return new WaitForSeconds(2f); // แสดงหน้า Loading เป็นเวลา 2 วินาที
-
+        yield return new WaitForSeconds(2f);
     }
 
     [PunRPC]
@@ -211,20 +198,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     {
         Debug.Log("Starting game...");
         PhotonNetwork.LoadLevel("Card sample 2");
-
         PhotonNetwork.IsMessageQueueRunning = true;
-    }
-
-    void LeaveRoom()
-    {
-        if (auth.CurrentUser.UserId == hostUserId)
-        {
-            StartCoroutine(DestroyRoomAndReturnToMainGame());
-        }
-        else
-        {
-            PhotonNetwork.LeaveRoom();
-        }
     }
 
     void ToggleReady()
@@ -248,17 +222,17 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdateUI();
-        DisplayFeedback($"{newPlayer.NickName} has joined the room.");
+        ShowNotification($"{newPlayer.NickName} joined");
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         UpdateUI();
-        DisplayFeedback($"{otherPlayer.NickName} has left the room.");
+        ShowNotification($"{otherPlayer.NickName} left");
 
         if (otherPlayer.UserId == hostUserId)
         {
-            DisplayFeedback("The host has left the room. Returning to main menu...");
+            ShowNotification("Host left. Returning to menu");
             StartCoroutine(DestroyRoomAndReturnToMainGame());
         }
     }
@@ -272,7 +246,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         {
             { "username", username },
             { "isHost", isHost },
-            { "IsReady", maxPlayers == 1 } // Set initial ready state to true for single player, false for multiplayer
+            { "IsReady", maxPlayers == 1 }
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
 
@@ -285,15 +259,22 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");
     }
 
-    public void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
-        Debug.Log($"Feedback: {message}");
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+        Debug.Log($"Notification: {message}");
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     private IEnumerator DestroyRoomAndReturnToMainGame()
     {
-        // ตรวจสอบว่าผู้เล่นเป็น host หรือไม่
         if (auth.CurrentUser.UserId == hostUserId)
         {
             yield return new WaitForSeconds(1f);
@@ -313,19 +294,18 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             }
 
             yield return new WaitForSeconds(1f);
-            SceneManager.LoadScene("Menu"); //scene ก่อนหน้า
+            SceneManager.LoadScene("Menu");
         }
         else
         {
-            // ถ้าผู้เล่นไม่ใช่ host ไม่ต้องทำอะไร
             Debug.Log("Player is not the host, so the room will not be destroyed.");
         }
     }
 
     void CopyRoomIdToClipboard()
     {
-        GUIUtility.systemCopyBuffer = roomId;  // ก๊อปปี้ roomId ไปที่คลิปบอร์ด
-        DisplayFeedback("Room ID copied.");
+        GUIUtility.systemCopyBuffer = roomId;
+        ShowNotification("Room ID copied");
         Debug.Log("Room ID copied: " + roomId);
     }
 
@@ -334,19 +314,16 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         if (audioSource != null && buttonSound != null)
         {
             audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
             buttonAction.Invoke();
         }
     }
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
     }

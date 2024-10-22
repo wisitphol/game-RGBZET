@@ -18,7 +18,8 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     public Button joinRoomButton;
     public Button cancelButton;
     public Button backButton;
-    public TMP_Text feedbackText;
+    public GameObject notificationPopup;
+    public TMP_Text notificationText;
 
     private DatabaseReference databaseRef;
     private FirebaseAuth auth;
@@ -47,23 +48,23 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         cancelButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             roomCodeInputField.text = "";
-            DisplayFeedback("Room code cleared.");
+            ShowNotification("Room code cleared");
         }));
 
         backButton.onClick.AddListener(() => SoundOnClick(() =>
         {
             SceneManager.LoadScene("Menu");
         }));
+
+        notificationPopup.SetActive(false);
     }
 
     IEnumerator InitializeServices()
     {
-        DisplayFeedback("Initializing services...");
+        ShowNotification("Initializing...");
 
-        // Initialize Firebase
         yield return StartCoroutine(InitializeFirebase());
 
-        // Connect to Photon
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
@@ -73,10 +74,9 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             isPhotonConnected = true;
         }
 
-        // Wait for both Firebase and Photon to be ready
         yield return new WaitUntil(() => isFirebaseInitialized && isPhotonConnected);
 
-        DisplayFeedback("Services initialized. Ready to join a room.");
+        ShowNotification("Ready to join");
         joinRoomButton.interactable = true;
         cancelButton.interactable = true;
     }
@@ -95,21 +95,21 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
         }
         else
         {
-            Debug.LogError("Could not resolve all Firebase dependencies: " + task.Result);
+            Debug.LogError("Could not resolve Firebase dependencies: " + task.Result);
         }
     }
 
     public override void OnConnectedToMaster()
     {
         isPhotonConnected = true;
-        DisplayFeedback("Connected to Photon Master Server.");
+        ShowNotification("Connected to server");
     }
 
     void CheckRoomTypeAndJoin(string roomId)
     {
         if (string.IsNullOrEmpty(roomId))
         {
-            DisplayFeedback("Please enter a valid room code.");
+            ShowNotification("Enter valid room code");
             return;
         }
 
@@ -118,9 +118,8 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 
     IEnumerator CheckRoomTypeAndJoinCoroutine(string roomId)
     {
-        DisplayFeedback("Checking room type...");
+        ShowNotification("Checking room...");
 
-        // Check if the room is a tournament
         var tournamentTask = FirebaseDatabase.DefaultInstance.GetReference("tournaments").GetValueAsync();
         yield return new WaitUntil(() => tournamentTask.IsCompleted);
 
@@ -144,7 +143,6 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             }
         }
 
-        // Check if the room is a withfriend room
         var withfriendTask = databaseRef.Child(roomId).GetValueAsync();
         yield return new WaitUntil(() => withfriendTask.IsCompleted);
 
@@ -159,14 +157,14 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             yield break;
         }
 
-        DisplayFeedback("Room not found. Please check the room code.");
+        ShowNotification("Room not found");
     }
 
     void JoinRoom(string roomId)
     {
         if (string.IsNullOrEmpty(roomId))
         {
-            DisplayFeedback("Please enter a valid room code.");
+            ShowNotification("Enter valid room code");
             return;
         }
 
@@ -175,7 +173,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        DisplayFeedback("Joined room successfully.");
+        ShowNotification("Joined room");
         SetPlayerUsername(() =>
         {
             PlayerPrefs.SetString("RoomId", roomId);
@@ -192,12 +190,20 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        DisplayFeedback($"Failed to join room: {message}");
+        ShowNotification("Failed to join room");
     }
 
-    public void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     private void SetPlayerUsername(System.Action onComplete = null)
@@ -238,7 +244,7 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         isPhotonConnected = false;
-        DisplayFeedback($"Disconnected from Photon: {cause}");
+        ShowNotification("Disconnected");
         joinRoomButton.interactable = false;
         StartCoroutine(InitializeServices());
     }
