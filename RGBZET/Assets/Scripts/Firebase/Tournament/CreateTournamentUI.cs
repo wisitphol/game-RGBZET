@@ -109,12 +109,12 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             {
                 string matchId = $"round_{round}_match_{match}";
 
-                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final";
+                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "victory";
 
                 if (matchesInRound == 1) // ถ้ารอบนี้มีแค่แมตช์เดียวถือว่าเป็นรอบชิงชนะเลิศ
                 {
-                    nextMatchId = "final"; // รอบสุดท้ายเป็น "final"
-                    Debug.Log("This is the final match! Setting nextMatchId to final.");
+                    nextMatchId = "victory"; // รอบสุดท้ายเป็น "final"
+                    Debug.Log("This is the final match! Setting nextMatchId to victory.");
                 }
 
                 bracket[matchId] = new Dictionary<string, object>

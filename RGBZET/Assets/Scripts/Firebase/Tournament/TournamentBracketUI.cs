@@ -14,8 +14,9 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     public GameObject matchPrefab;
     public Transform bracketContainer;
     public TMP_Text tournamentNameText;
-    public Button backButton;
-    public Button enterLobbyButton;
+    [SerializeField] public Button backButton;
+    [SerializeField] public Button enterLobbyButton;
+    [SerializeField] private Button sumTournament;
 
     private DatabaseReference tournamentRef;
     private string tournamentId;
@@ -37,6 +38,8 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             InitializeTournamentBracket();
         }
+         sumTournament.gameObject.SetActive(false);
+        sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
     }
 
     IEnumerator DisconnectFromPhoton()
@@ -80,6 +83,41 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         }
 
         StartCoroutine(LoadTournamentBracket());
+
+       tournamentRef.Child("bracket").GetValueAsync().ContinueWith(task =>
+        {
+            if (task.IsCompleted && task.Result.Exists)
+            {
+                var bracketSnapshot = task.Result;
+                DataSnapshot finalMatchSnapshot = null;
+
+                // หารอบสุดท้ายของทัวร์นาเมนท์ (Final Match)
+                foreach (var matchSnapshot in bracketSnapshot.Children)
+                {
+                    string[] matchInfo = matchSnapshot.Key.Split('_');
+                    int round = int.Parse(matchInfo[1]);
+
+                    if ((round == 1 && GetPlayerCount() == 4) || (round == 2 && GetPlayerCount() == 8))
+                    {
+                        finalMatchSnapshot = matchSnapshot;
+                        break;
+                    }
+                }
+
+                // ตรวจสอบว่าผู้ชนะของรอบสุดท้ายคือใคร
+                if (finalMatchSnapshot != null && finalMatchSnapshot.HasChild("won"))
+                {
+                    string winner = finalMatchSnapshot.Child("won").Value.ToString();
+
+                    // ตรวจสอบว่าผู้เล่นปัจจุบันเป็นผู้ชนะหรือไม่
+                    if (winner == currentUsername)
+                    {
+                        // แสดงปุ่มไปหน้าสรุปผลเฉพาะผู้ชนะ
+                        ShowSummaryButton();
+                    }
+                }
+            }
+        });
     }
 
     IEnumerator LoadTournamentBracket()
@@ -341,7 +379,20 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         }
     }
 
-     void SoundOnClick(System.Action buttonAction)
+    void ShowSummaryButton()
+    {
+        // แสดงปุ่มสรุปผล
+        Debug.Log("Showing summary button.");
+        sumTournament.gameObject.SetActive(true);
+    }
+
+    void OnClickSummaryButton()
+    {
+        // ไปยังหน้าสรุปผล
+        SceneManager.LoadScene("SumTournament");
+    }
+
+    void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
         {
