@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 63486401857756a41a044427b2339335
+guid: 8ed4f5f8e09cdc048af490290ef54fb8
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -113,17 +113,29 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: zetchat_0
+      name: b-zet_0
       rect:
         serializedVersion: 2
-        x: 728
-        y: 330
-        width: 464
-        height: 364
+        x: 516
+        y: 240
+        width: 854
+        height: 600
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 04e6baaf68dc95c4ca1932ab22d8f3ac
-      internalID: -1400372200
+      spriteID: 4a5eeb22dd8f5414386aed2117a2ee53
+      internalID: 1413855247
       vertices: []
       indices: 
       edges: []
@@ -148,7 +160,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      zetchat_0: -1400372200
+      b-zet_0: 1413855247
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

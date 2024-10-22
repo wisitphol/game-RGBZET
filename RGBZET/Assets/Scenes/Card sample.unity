@@ -2273,6 +2273,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1979925491190808518, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1624327526, guid: 4289e3905d0c8c543a5135a2fed9f4c4, type: 3}
     - target: {fileID: 2615197158376249524, guid: b32ef3e837f4e914e9ae37b5997d51e2, type: 3}
       propertyPath: m_fontSize
       value: 20

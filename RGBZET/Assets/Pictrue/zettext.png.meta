@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b8b2ce845dfaee747be37275d815814b
+guid: 4289e3905d0c8c543a5135a2fed9f4c4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,76 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: button-3_0
+      name: zettext_0
       rect:
         serializedVersion: 2
-        x: 131
-        y: 540
-        width: 650
-        height: 450
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 637b61f86ded53e489a5f187c6259c14
-      internalID: -386952196
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: button-3_1
-      rect:
-        serializedVersion: 2
-        x: 960
-        y: 540
-        width: 650
-        height: 450
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 7017116462338144c88efea431cbe82d
-      internalID: -760921534
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: button-3_2
-      rect:
-        serializedVersion: 2
-        x: 131
-        y: 49
-        width: 650
-        height: 450
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0877f9b1b262a4941a0bef3f45a200c4
-      internalID: 1415420514
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: button-3_3
-      rect:
-        serializedVersion: 2
-        x: 960
-        y: 49
-        width: 650
-        height: 450
+        x: 585
+        y: 240
+        width: 750
+        height: 600
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -206,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: edaa019198b6f3940a7c49dc77e5916a
-      internalID: -1897930832
+      spriteID: 83c991fa0d2386841b44e6a93eda6482
+      internalID: 1624327526
       vertices: []
       indices: 
       edges: []
@@ -223,10 +160,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      button-3_0: -386952196
-      button-3_1: -760921534
-      button-3_2: 1415420514
-      button-3_3: -1897930832
+      zettext_0: 1624327526
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

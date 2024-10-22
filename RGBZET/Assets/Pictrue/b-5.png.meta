@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b0ecd73230742a44cbfab53efd58b7e7
+guid: d14f88df250a2cf4397bfcba2a5b07f4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -113,17 +113,29 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: preview_0
+      name: b-5_0
       rect:
         serializedVersion: 2
-        x: 179
-        y: 57
-        width: 967
-        height: 199
+        x: 131
+        y: 540
+        width: 650
+        height: 450
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +143,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: aa6f951904fc1c747b251e604f8ef37b
-      internalID: 2074799901
+      spriteID: b37924957a0450c4a875ae3b49d64c98
+      internalID: -1807429026
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: preview_1
+      name: b-5_1
       rect:
         serializedVersion: 2
-        x: 145
-        y: 265
-        width: 995
-        height: 202
+        x: 960
+        y: 540
+        width: 650
+        height: 450
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,8 +164,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9388f36d58427eb49b0e7eef9239d82d
-      internalID: 1567828093
+      spriteID: 7d44d8ee0489a7642aca1f7e6975de99
+      internalID: 498062527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: b-5_2
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 49
+        width: 650
+        height: 450
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 029845fdcdcd02447903452f5b550d39
+      internalID: 1353414698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: b-5_3
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 49
+        width: 650
+        height: 450
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46462bcfcb0b23040aa6671ac7effdfd
+      internalID: -1355028108
       vertices: []
       indices: 
       edges: []
@@ -169,8 +223,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      preview_0: 2074799901
-      preview_1: 1567828093
+      b-5_0: -1807429026
+      b-5_1: 498062527
+      b-5_2: 1353414698
+      b-5_3: -1355028108
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
