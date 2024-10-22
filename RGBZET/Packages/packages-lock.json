@@ -286,12 +286,6 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.veriorpies.parrelsync": {
-      "version": "file:C:/Users/ake/Downloads/ParrelSync-1.5.3/ParrelSync",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {}
-    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
