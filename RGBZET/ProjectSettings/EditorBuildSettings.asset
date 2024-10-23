@@ -6,14 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/play.unity
-    guid: 31e6c4b7187cb37438ac3bb0e87fb234
+    path: Assets/Scenes/Login.unity
+    guid: 3fc8acdd13e6c734bafef6554d6fdbcd
   - enabled: 1
     path: Assets/Scenes/Card sample.unity
     guid: 3b092d0d8df21864491e8200c77f4159
-  - enabled: 1
-    path: Assets/Scenes/Login.unity
-    guid: 3fc8acdd13e6c734bafef6554d6fdbcd
   - enabled: 1
     path: Assets/Scenes/Register.unity
     guid: 99f15d59122c3f244bad223656607504
@@ -29,9 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Joinroom.unity
     guid: 2fca0c55aa62a994fa68db872e0db51c
-  - enabled: 1
-    path: Assets/Scenes/CreateJoin.unity
-    guid: 3d8ee722ac1aa4202aece73e69ea0a51
   - enabled: 1
     path: Assets/Scenes/Lobby.unity
     guid: 682c069a45f447346b15ef90b8f56469
@@ -51,6 +45,9 @@ EditorBuildSettings:
     path: Assets/Scenes/CreateFriend.unity
     guid: 4a3da33eb7714544eb4b5066e1a6fd9e
   - enabled: 1
+    path: Assets/Scenes/TournamentMode/Tournament.unity
+    guid: 05e2f04e78e3fa947a70c993b194eff3
+  - enabled: 1
     path: Assets/Scenes/TournamentMode/CreateTournament.unity
     guid: a6f3b258505bef64bbf7595c885d36a8
   - enabled: 1
@@ -68,12 +65,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TournamentMode/ResultTournament.unity
     guid: 1e2c0e6cb190e114f9d77d2dcacd4d00
-  - enabled: 0
-    path: Assets/Scenes/QuickplayLobby.unity
-    guid: 644a7e3c01bd0bc4d84268b6f616460c
   - enabled: 1
-    path: Assets/Scenes/TournamentMode/Tournament.unity
-    guid: 05e2f04e78e3fa947a70c993b194eff3
+    path: Assets/Scenes/TournamentMode/SumTournament.unity
+    guid: 1f3fd888678c41a4393892139ce1e371
   - enabled: 1
     path: Assets/Scenes/Quickplay/QuickplayLobby.unity
     guid: 84c4d8fdece67814b8a55491e3fbf545

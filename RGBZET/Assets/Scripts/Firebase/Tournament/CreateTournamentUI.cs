@@ -22,6 +22,10 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
     private int playerCount;
     private string creatorUsername;
 
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
+
+
     void Start()
     {
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
@@ -30,8 +34,8 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         playerCountDropdown.ClearOptions();
         playerCountDropdown.AddOptions(new List<string> { "4", "8" });
 
-        createTournamentButton.onClick.AddListener(CreateTournament);
-        backButton.onClick.AddListener(() => SceneManager.LoadScene("Tournament"));
+        createTournamentButton.onClick.AddListener(() => SoundOnClick(CreateTournament));
+        backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
 
         if (!PhotonNetwork.IsConnected)
         {
@@ -105,12 +109,12 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             {
                 string matchId = $"round_{round}_match_{match}";
 
-                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final";
+                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "victory";
 
                 if (matchesInRound == 1) // ถ้ารอบนี้มีแค่แมตช์เดียวถือว่าเป็นรอบชิงชนะเลิศ
                 {
-                    nextMatchId = "final"; // รอบสุดท้ายเป็น "final"
-                    Debug.Log("This is the final match! Setting nextMatchId to final.");
+                    nextMatchId = "victory"; // รอบสุดท้ายเป็น "final"
+                    Debug.Log("This is the final match! Setting nextMatchId to victory.");
                 }
 
                 bracket[matchId] = new Dictionary<string, object>
@@ -211,5 +215,27 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         DisplayFeedback($"Disconnected from Photon: {cause}. Attempting to reconnect...");
         createTournamentButton.interactable = false;
         PhotonNetwork.ConnectUsingSettings();
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

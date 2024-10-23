@@ -112,9 +112,7 @@ namespace Photon.Realtime
         DisconnectingFromNameServer,
 
         /// <summary>Client was unable to connect to Name Server and will attempt to connect with an alternative network protocol (TCP).</summary>
-        ConnectWithFallbackProtocol,
-
-        ConnectWithoutAuthOnceWss
+        ConnectWithFallbackProtocol
     }
 
 
@@ -396,14 +394,16 @@ namespace Photon.Realtime
         public PhotonPortDefinition ServerPortOverrides;
 
 
-        /// <summary>Enables a fallback to another protocol in case a connect to the Name Server fails.</summary>
+        /// <summary>Enables the fallback to WSS, should the initial connect to the Name Server fail. Some exceptions apply.</summary>
         /// <remarks>
-        /// When connecting to the Name Server fails for a first time, the client will select an alternative
-        /// network protocol and re-try to connect.
+        /// For security reasons, a fallback to another protocol is not done when using WSS or AuthMode.AuthOnceWss.
+        /// That would compromise the expected security.
         ///
+        /// If the fallback is impossible or if that connection also fails, the app logic must handle the case.
+        /// It might even make sense to just try the same connection settings once more (or ask the user to do something about
+        /// the network connectivity, firewalls, etc).
+        /// 
         /// The fallback will use the default Name Server port as defined by ProtocolToNameServerPort.
-        ///
-        /// The fallback for TCP is UDP. All other protocols fallback to TCP.
         /// </remarks>
         public bool EnableProtocolFallback { get; set; }
 
@@ -459,9 +459,14 @@ namespace Photon.Realtime
                 {
                     return;
                 }
+
                 ClientState previousState = this.state;
                 this.state = value;
-                if (StateChanged != null) StateChanged(previousState, this.state);
+
+                if (this.StateChanged != null)
+                {
+                    this.StateChanged(previousState, this.state);
+                }
             }
         }
 
@@ -848,20 +853,39 @@ namespace Photon.Realtime
                 protocolPort = this.ServerPortOverrides.NameServerPort;
             }
 
+
+            return this.ToProtocolAddress(this.NameServerHost, protocolPort, this.LoadBalancingPeer.TransportProtocol);
+        }
+
+
+        /// <summary>Build URI from address, use Scheme, Host and Path but set the port as defined by port-field or default port.</summary>
+        /// <exception cref="ArgumentException"></exception>
+        private string ToProtocolAddress(string address, int port, ConnectionProtocol protocol)
+        {
+            string protocolScheme = String.Empty;
+
             switch (this.LoadBalancingPeer.TransportProtocol)
             {
                 case ConnectionProtocol.Udp:
                 case ConnectionProtocol.Tcp:
-                    return string.Format("{0}:{1}", NameServerHost, protocolPort);
-                case ConnectionProtocol.WebSocket:
-                    return string.Format("ws://{0}:{1}", NameServerHost, protocolPort);
-                case ConnectionProtocol.WebSocketSecure:
-                    return string.Format("wss://{0}:{1}", NameServerHost, protocolPort);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+                    return string.Format("{0}:{1}", address, port);
 
+                case ConnectionProtocol.WebSocket:
+                    protocolScheme = "ws://";
+                    break;
+                case ConnectionProtocol.WebSocketSecure:
+                    protocolScheme = "wss://";
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException($"Can not handle protocol: {protocol}.");
+            }
+
+            Uri uri = new Uri(protocolScheme + address);
+            string result = $"{uri.Scheme}://{uri.Host}:{port}{uri.AbsolutePath}";
+            //Debug.Log("ToProtocolAddress: "+result);
+            return result;
+        }
 
         #region Operations and Commands
 
@@ -963,6 +987,7 @@ namespace Photon.Realtime
 
                 this.ProxyServerAddress = appSettings.ProxyServer;
                 this.NameServerPortInAppSettings = appSettings.Port;
+
                 if (!this.LoadBalancingPeer.Connect(this.NameServerAddress, this.ProxyServerAddress, this.AppId, this.TokenForInit))
                 {
                     return false;
@@ -974,7 +999,8 @@ namespace Photon.Realtime
             {
                 this.Server = ServerConnection.MasterServer;
                 int portToUse = appSettings.IsDefaultPort ? 5055 : appSettings.Port;    // TODO: setup new (default) port config
-                this.MasterServerAddress = string.Format("{0}:{1}", appSettings.Server, portToUse);
+
+                this.MasterServerAddress = this.ToProtocolAddress(appSettings.Server, portToUse, this.LoadBalancingPeer.TransportProtocol);
 
                 if (!this.LoadBalancingPeer.Connect(this.MasterServerAddress, this.ProxyServerAddress, this.AppId, this.TokenForInit))
                 {
@@ -1322,7 +1348,14 @@ namespace Photon.Realtime
         /// This method will not change the current State, if this client State is PeerCreated, Disconnecting or Disconnected.
         /// In those cases, there is also no callback for the disconnect. The DisconnectedCause will only change if the client was connected.
         /// </remarks>
-        public void Disconnect(DisconnectCause cause = DisconnectCause.DisconnectByClientLogic)
+        public void Disconnect()
+        {
+            this.Disconnect(DisconnectCause.DisconnectByClientLogic);
+        }
+
+        
+        /// <summary>Disconnects the client / peer from a server or stays disconnected. Internal method that sets the DisconnectedCause as well.</summary>
+        internal void Disconnect(DisconnectCause cause)
         {
             if (this.State == ClientState.Disconnecting || this.State == ClientState.PeerCreated)
             {
@@ -1657,6 +1690,7 @@ namespace Photon.Realtime
             this.enterRoomParamsCache = new EnterRoomParams();
             this.enterRoomParamsCache.Lobby = opJoinRandomRoomParams.TypedLobby;
             this.enterRoomParamsCache.ExpectedUsers = opJoinRandomRoomParams.ExpectedUsers;
+            this.enterRoomParamsCache.Ticket = opJoinRandomRoomParams.Ticket;
 
 
             bool sending = this.LoadBalancingPeer.OpJoinRandomRoom(opJoinRandomRoomParams);
@@ -1679,6 +1713,9 @@ namespace Photon.Realtime
         /// by the very next client, looking for similar rooms.
         ///
         /// There are separate parameters for joining and creating a room.
+        ///
+        /// Tickets: Both parameter types have a Ticket value. It is enough to set the opJoinRandomRoomParams.Ticket.
+        /// The createRoomParams.Ticket will not be used.
         ///
         /// This method can only be called while connected to a Master Server.
         /// This client's State is set to ClientState.Joining immediately.
@@ -1713,6 +1750,10 @@ namespace Photon.Realtime
             this.enterRoomParamsCache = createRoomParams;
             this.enterRoomParamsCache.Lobby = opJoinRandomRoomParams.TypedLobby;
             this.enterRoomParamsCache.ExpectedUsers = opJoinRandomRoomParams.ExpectedUsers;
+            if (opJoinRandomRoomParams.Ticket != null)
+            {
+                this.enterRoomParamsCache.Ticket = opJoinRandomRoomParams.Ticket;
+            }
 
 
             bool sending = this.LoadBalancingPeer.OpJoinRandomOrCreateRoom(opJoinRandomRoomParams, createRoomParams);
@@ -1923,8 +1964,11 @@ namespace Photon.Realtime
         ///
         /// Rejoining room will not send any player properties. Instead client will receive up-to-date ones from server.
         /// If you want to set new player properties, do it once rejoined.
+        ///
+        /// Tickets: If the server requires use of Tickets or if the room was entered with a Ticket initially,
+        /// you will have to provide a ticket as argument.
         /// </remarks>
-        public bool OpRejoinRoom(string roomName)
+        public bool OpRejoinRoom(string roomName, object ticket = null)
         {
             if (!this.CheckIfOpCanBeSent(OperationCode.JoinGame, this.Server, "RejoinRoom"))
             {
@@ -1934,10 +1978,11 @@ namespace Photon.Realtime
             bool onGameServer = this.Server == ServerConnection.GameServer;
 
             EnterRoomParams opParams = new EnterRoomParams();
-            this.enterRoomParamsCache = opParams;
             opParams.RoomName = roomName;
             opParams.OnGameServer = onGameServer;
             opParams.JoinMode = JoinMode.RejoinOnly;
+            opParams.Ticket = ticket;
+            this.enterRoomParamsCache = opParams;
 
             bool sending = this.LoadBalancingPeer.OpJoinRoom(opParams);
             if (sending)
@@ -2338,21 +2383,31 @@ namespace Photon.Realtime
             return actorProperties;
         }
 
-        /// <summary>
-        /// Internally used to set the LocalPlayer's ID (from -1 to the actual in-room ID).
-        /// </summary>
-        /// <param name="newID">New actor ID (a.k.a actorNr) assigned when joining a room.</param>
-        public void ChangeLocalID(int newID)
+
+        /// <summary>Internally used to set the LocalPlayer's actorNumber (from -1 to the actual in-room value) and optionally the userId.</summary>
+        /// <param name="newId">New actorNr assigned when joining a room.</param>
+        /// <param name="applyUserId">Set true for offline mode. If true the player.UserId is set to this.AuthValues.UserId or a new GUID (mimicking online mode).</param>
+        public void ChangeLocalID(int newId, bool applyUserId = false)
         {
             if (this.LocalPlayer == null)
             {
-                this.DebugReturn(DebugLevel.WARNING, string.Format("Local actor is null or not in mActors! mLocalActor: {0} mActors==null: {1} newID: {2}", this.LocalPlayer, this.CurrentRoom.Players == null, newID));
+                this.DebugReturn(DebugLevel.ERROR, "loadBalancingClient.LocalPlayer is null. It should be set in constructor and not changed. Failed to ChangeLocalID.");
+                return;
+            }
+
+            if (applyUserId)
+            {
+                this.LocalPlayer.UserId = this.AuthValues == null || string.IsNullOrEmpty(this.AuthValues.UserId) ? new System.Guid().ToString() : this.AuthValues.UserId;
+            }
+            else
+            {
+                this.LocalPlayer.UserId = null;
             }
 
             if (this.CurrentRoom == null)
             {
                 // change to new actor/player ID and make sure the player does not have a room reference left
-                this.LocalPlayer.ChangeLocalID(newID);
+                this.LocalPlayer.ChangeLocalID(newId);
                 this.LocalPlayer.RoomReference = null;
             }
             else
@@ -2361,7 +2416,7 @@ namespace Photon.Realtime
                 this.CurrentRoom.RemovePlayer(this.LocalPlayer);
 
                 // change to new actor/player ID
-                this.LocalPlayer.ChangeLocalID(newID);
+                this.LocalPlayer.ChangeLocalID(newId);
 
                 // update the room's list with the new reference
                 this.CurrentRoom.StorePlayer(this.LocalPlayer);
@@ -2415,6 +2470,7 @@ namespace Photon.Realtime
                 // the state should be set before OnCreateRoom/OnJoinedRoom is called, which may be due to the event join.
                 // if you need the old behavior, move the following line out of this block (below the block that could call InternalCacheRoomFlags().
                 this.State = ClientState.Joined;
+                this.LocalPlayer.UpdateNickNameOnJoined();
 
 
                 if (this.lastJoinType == JoinType.CreateRoom || (this.lastJoinType == JoinType.JoinOrCreateRoom && this.LocalPlayer.ActorNumber == 1))
@@ -3111,25 +3167,9 @@ namespace Photon.Realtime
 
                     switch (this.State)
                     {
-                        case ClientState.ConnectWithoutAuthOnceWss:
-                            this.DebugReturn(DebugLevel.INFO, string.Format("AuthOnceWss failed (WSS connection could not be established: " + this.DisconnectedCause + "). Trying again with protocol: " + this.LoadBalancingPeer.TransportProtocol));
-                            this.AuthMode = AuthModeOption.Auth;
-                            // switching protocol back to ExpectedProtocol is done above this switch-block
-                            //this.LoadBalancingPeer.TransportProtocol = (ConnectionProtocol)this.ExpectedProtocol;
-                            //this.ExpectedProtocol = null;
-                            this.NameServerPortInAppSettings = 0;                  // this does not affect the ServerSettings file, just a variable at runtime
-                            this.ServerPortOverrides = new PhotonPortDefinition(); // use default ports for the fallback
-
-                            if (!this.LoadBalancingPeer.Connect(this.NameServerAddress, this.ProxyServerAddress, this.AppId, this.TokenForInit))
-                            {
-                                return;
-                            }
-
-                            this.State = ClientState.ConnectingToNameServer;
-                            break;
                         case ClientState.ConnectWithFallbackProtocol:
-                            this.EnableProtocolFallback = false; // the client does a fallback only one time
-                            this.LoadBalancingPeer.TransportProtocol = (this.LoadBalancingPeer.TransportProtocol != ConnectionProtocol.Udp) ? ConnectionProtocol.Udp : ConnectionProtocol.WebSocketSecure;
+                            this.EnableProtocolFallback = false;                    // the client does a fallback only one time
+                            this.LoadBalancingPeer.TransportProtocol = ConnectionProtocol.WebSocketSecure;
                             this.NameServerPortInAppSettings = 0;                  // this does not affect the ServerSettings file, just a variable at runtime
                             this.ServerPortOverrides = new PhotonPortDefinition(); // use default ports for the fallback
 
@@ -3208,19 +3248,11 @@ namespace Photon.Realtime
                     ClientState nextState = ClientState.Disconnecting;
                     if (this.State == ClientState.ConnectingToNameServer)
                     {
-                        // if AuthOnceWss was used, try to connect again with the expected protocol (unless that is also WSS)
-                        // this is not yet considered as using a fallback protocol
-                        if (this.AuthMode == AuthModeOption.AuthOnceWss && this.ExpectedProtocol != ConnectionProtocol.WebSocketSecure)
-                        {
-                            nextState = ClientState.ConnectWithoutAuthOnceWss;
-                        }
-                        else if (this.EnableProtocolFallback)
+                        if (this.EnableProtocolFallback && this.LoadBalancingPeer.UsedProtocol != ConnectionProtocol.WebSocketSecure)
                         {
                             // if enabled, the client can attempt to connect with another networking-protocol to check if that connects
                             nextState = ClientState.ConnectWithFallbackProtocol;
                         }
-
-                        this.AuthMode = AuthModeOption.AuthOnce;
                     }
 
                     this.State = nextState;
@@ -3253,18 +3285,11 @@ namespace Photon.Realtime
                     nextState = ClientState.Disconnecting;
                     if (this.State == ClientState.ConnectingToNameServer)
                     {
-                        // if AuthOnceWss was used, try to connect again with the expected protocol (unless that is also WSS)
-                        // this is not yet considered as using a fallback protocol
-                        if (this.AuthMode == AuthModeOption.AuthOnceWss && this.ExpectedProtocol != ConnectionProtocol.WebSocketSecure)
-                        {
-                            nextState = ClientState.ConnectWithoutAuthOnceWss;
-                        }
-                        else if (this.EnableProtocolFallback)
+                        if (this.EnableProtocolFallback && this.LoadBalancingPeer.UsedProtocol != ConnectionProtocol.WebSocketSecure)
                         {
                             // if enabled, the client can attempt to connect with another networking-protocol to check if that connects
                             nextState = ClientState.ConnectWithFallbackProtocol;
                         }
-                        this.AuthMode = AuthModeOption.AuthOnce;
                     }
 
                     this.State = nextState;
@@ -3336,6 +3361,7 @@ namespace Photon.Realtime
                         originatingPlayer.HasRejoined = this.enterRoomParamsCache != null && this.enterRoomParamsCache.JoinMode == JoinMode.RejoinOnly;
 
                         this.State = ClientState.Joined;
+                        this.LocalPlayer.UpdateNickNameOnJoined();
 
                         // joinWithCreateOnDemand can turn an OpJoin into creating the room. Then actorNumber is 1 and callback: OnCreatedRoom()
                         if (this.lastJoinType == JoinType.CreateRoom || (this.lastJoinType == JoinType.JoinOrCreateRoom && this.LocalPlayer.ActorNumber == 1))

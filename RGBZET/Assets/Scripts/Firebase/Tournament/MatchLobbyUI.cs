@@ -22,6 +22,9 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
     private DatabaseReference matchRef;
     private string currentUsername;
     private bool isReady = false;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
+
 
     void Start()
     {
@@ -40,9 +43,9 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
         matchRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId).Child("bracket").Child(matchId);
 
-        backToBracketButton.onClick.AddListener(BackToBracket);
-        startButton.onClick.AddListener(StartGame);
-        readyButton.onClick.AddListener(ToggleReady);
+        backToBracketButton.onClick.AddListener(() => SoundOnClick(BackToBracket));
+        startButton.onClick.AddListener(() => SoundOnClick(StartGame));
+        readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
 
         startButton.gameObject.SetActive(false);
         SetPlayerInLobby(true);
@@ -110,7 +113,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
             if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[0])
             {
-                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer1Ready ? "Cancel Ready" : "Ready";
+                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer1Ready ? "Not Ready" : "Ready";
             }
         }
 
@@ -122,7 +125,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
             if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[1])
             {
-                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer2Ready ? "Cancel Ready" : "Ready";
+                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer2Ready ? "Not Ready" : "Ready";
             }
         }
         else
@@ -273,7 +276,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         isReady = !isReady;
         ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", isReady } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Cancel Ready" : "Ready";
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
         UpdateUIForPlayers();
     }
 
@@ -283,10 +286,32 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         {
             if (changedProps.TryGetValue("IsReady", out object isReady))
             {
-                readyButton.GetComponentInChildren<TMP_Text>().text = (bool)isReady ? "Cancel Ready" : "Ready";
+                readyButton.GetComponentInChildren<TMP_Text>().text = (bool)isReady ? "Not Ready" : "Ready";
             }
         }
         
         UpdateUIForPlayers();
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        // รอความยาวของเสียงก่อนที่จะทำงาน
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

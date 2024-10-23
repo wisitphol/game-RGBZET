@@ -13,11 +13,10 @@ public class EndGameT : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button backToMenu;
     [SerializeField] private Button nextRoundButton;
-    [SerializeField] private Button sumTournament;
-    public GameObject player1;
-    public GameObject player2;
-    public GameObject player3;
-    public GameObject player4;
+    [SerializeField] public GameObject player1;
+    [SerializeField] public GameObject player2;
+    [SerializeField] public GameObject player3;
+    [SerializeField] public GameObject player4;
 
     private GameObject[] playerObjects;
     private PlayerResultT[] playerResults;
@@ -35,8 +34,8 @@ public class EndGameT : MonoBehaviourPunCallbacks
         backToMenu.interactable = false;
         nextRoundButton.gameObject.SetActive(false);
         StartCoroutine(EnableBackButtonAfterDelay(3f));
-        backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
-        nextRoundButton.onClick.AddListener(OnNextRoundButtonClicked);
+        backToMenu.onClick.AddListener(() => SoundOnClick(OnBackToMenuButtonClicked));
+        nextRoundButton.onClick.AddListener(() => SoundOnClick(OnNextRoundButtonClicked));
 
         tournamentId = PlayerPrefs.GetString("TournamentId");
         currentMatchId = PlayerPrefs.GetString("CurrentMatchId");
@@ -59,9 +58,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
         {
             audioSource.PlayOneShot(endgameSound);
         }
-       // sumTournament.gameObject.SetActive(false);
-       // CheckIfFinalRound(); // ตรวจสอบว่ารอบนี้เป็นรอบสุดท้ายหรือไม่
-       // sumTournament.onClick.AddListener(SumTournamnet);
+       
     }
 
     void FetchPlayerDataFromPhoton()
@@ -122,18 +119,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
                 nextRoundButton.gameObject.SetActive(true);
             }
         }
-        else
-        {
-            foreach (int i in highestScoreIndices)
-            {
-                playerResults[i].UpdatePlayerResult(
-                    playerResults[i].NameText.text,
-                    playerResults[i].ScoreText.text,
-                    "DRAW"
-                );
-            }
-            // Handle draw situation (e.g., replay the match or use a tiebreaker)
-        }
+        
 
         UpdateTournamentBracket();
     }
@@ -165,7 +151,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
             if (task.IsCompleted && !task.IsFaulted && task.Result.Value != null)
             {
                 string nextMatchId = task.Result.Value.ToString();
-                if (nextMatchId != "final")
+                if (nextMatchId != "victory")
                 {
                     UpdateNextMatch(nextMatchId, winnerUsername);
                 }
@@ -215,7 +201,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
     void HandleTournamentEnd(string winnerUsername)
     {
-        databaseReference.Child("winner").SetValueAsync(winnerUsername).ContinueWith(task =>
+        databaseReference.Child("won").SetValueAsync(winnerUsername).ContinueWith(task =>
         {
             if (task.IsCompleted && !task.IsFaulted)
             {
@@ -283,37 +269,23 @@ public class EndGameT : MonoBehaviourPunCallbacks
         backToMenu.interactable = true;
     }
 
-   /* private void CheckIfFinalRound()
+     void SoundOnClick(System.Action buttonAction)
     {
-        if (PhotonNetwork.IsMasterClient) // ตรวจสอบว่าผู้เล่นคนนี้เป็น Master Client หรือไม่
+        if (audioSource != null && buttonSound != null)
         {
-            databaseReference.Child("bracket").Child(currentMatchId).Child("nextMatchId").GetValueAsync().ContinueWith(task =>
-            {
-                if (task.IsCompleted && !task.IsFaulted && task.Result.Value != null) // ตรวจสอบว่าการดึงข้อมูลเสร็จสิ้น
-                {
-                    string nextMatchId = task.Result.Value.ToString(); // ดึง Match ID ถัดไป
-                    if (nextMatchId == "final") // ถ้า Match ID ถัดไปเป็น "final"
-                    {
-                        ShowEndTournamentButton(); // เรียกฟังก์ชันเพื่อแสดงปุ่ม endTournament
-                    }
-                }
-            });
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
         }
     }
 
-    private void ShowEndTournamentButton()
+    private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        sumTournament.gameObject.SetActive(true); // แสดงปุ่ม endTournament
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 
-    public void SumTournamnet()
-    {
-        photonView.RPC("RPC_SumTournament", RpcTarget.All);
-    }
-
-    [PunRPC]
-    public void RPC_SumTournament()
-    {
-        PhotonNetwork.LoadLevel("SumTournament");
-    }*/
 }
