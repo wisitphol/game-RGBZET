@@ -9,7 +9,6 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class RegisterUI : MonoBehaviour
 {
     [SerializeField] private TMP_InputField usernameInput;
@@ -18,7 +17,8 @@ public class RegisterUI : MonoBehaviour
     [SerializeField] private TMP_InputField confirmPasswordInput;
     [SerializeField] private Button registerButton;
     [SerializeField] private Button LoginButton;
-    [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private GameObject notificationPopup;
+    [SerializeField] private TMP_Text notificationText;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonSound;
 
@@ -26,6 +26,7 @@ public class RegisterUI : MonoBehaviour
     {
         registerButton.onClick.AddListener(() => SoundOnClick(OnRegisterButtonClicked));
         LoginButton.onClick.AddListener(() => SoundOnClick(OnBackToLoginButtonClicked));
+        notificationPopup.SetActive(false);
     }
 
     private void OnRegisterButtonClicked()
@@ -37,17 +38,24 @@ public class RegisterUI : MonoBehaviour
 
         if (password != confirmPassword)
         {
-            DisplayFeedback("Passwords do not match.");
+            ShowNotification("Passwords don't match");
             return;
         }
 
-        // ใช้ AuthManager.Instance.Register โดยส่ง this (RegisterUI) เป็นพารามิเตอร์
         AuthManager.Instance.Register(email, password, username, this);
     }
 
-    public void DisplayFeedback(string message)
+    public void ShowNotification(string message)
     {
-        feedbackText.text = message;
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+    }
+
+    private IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     private void OnBackToLoginButtonClicked()
@@ -55,24 +63,21 @@ public class RegisterUI : MonoBehaviour
         SceneManager.LoadScene("Login");
     }
 
-      void SoundOnClick(System.Action buttonAction)
+    void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
         {
             audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
             buttonAction.Invoke();
         }
     }
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
     }

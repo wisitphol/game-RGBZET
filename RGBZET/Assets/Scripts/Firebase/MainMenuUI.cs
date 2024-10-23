@@ -17,17 +17,17 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TMP_Text usernameText;
     [SerializeField] private Button joinButton;
     [SerializeField] private Button playButton;
-    //[SerializeField] private Button createWithFriendButton;
     [SerializeField] private Button TournamentButton;
-    //[SerializeField] private Button quickplayButton;
     [SerializeField] private Button logoutButton;
     [SerializeField] private Button profileButton;
     [SerializeField] private Button settingButton;
     [SerializeField] private Button guideButton;
-    //[SerializeField] private Button returnToTournamentButton;
-    [SerializeField] private TMP_Text feedbackText;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
+    
+    [SerializeField] private GameObject feedbackPopup;
+    [SerializeField] private TMP_Text feedbackText;
+    
     private DatabaseReference databaseReference;
     private string currentUsername;
     private string currentTournamentId;
@@ -40,7 +40,6 @@ public class MainMenuUI : MonoBehaviour
             string userId = AuthManager.Instance.GetCurrentUserId();
             databaseReference = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
             LoadUserData();
-            //CheckForOngoingTournament();
         }
         else
         {
@@ -55,7 +54,7 @@ public class MainMenuUI : MonoBehaviour
 
         SetupButtons();
         
-        //returnToTournamentButton.gameObject.SetActive(false);
+        feedbackPopup.SetActive(false);
     }
 
     IEnumerator DisconnectFromPhoton()
@@ -71,14 +70,11 @@ public class MainMenuUI : MonoBehaviour
     void SetupButtons()
     {
         joinButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Joinroom")));
-        //createWithFriendButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateFriend")));
         TournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
         playButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("ModeCreateroom")));
-        //quickplayButton.onClick.AddListener(() => SoundOnClick(OnQuickplayButtonClicked));
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
         profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
         settingButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Setting")));
-        //returnToTournamentButton.onClick.AddListener(() => SoundOnClick(ReturnToTournament));
     }
 
     void LoadUserData()
@@ -91,7 +87,7 @@ public class MainMenuUI : MonoBehaviour
                 if (snapshot.Exists)
                 {
                     currentUsername = snapshot.Child("username").Value.ToString();
-                    usernameText.text = currentUsername;
+                    usernameText.text = "Welcome, " + currentUsername;
                 }
                 else
                 {
@@ -105,119 +101,9 @@ public class MainMenuUI : MonoBehaviour
         });
     }
 
-    /*void CheckForOngoingTournament()
-    {
-        DatabaseReference tournamentsRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments");
-
-        tournamentsRef.GetValueAsync().ContinueWithOnMainThread(task =>
-        {
-            if (task.IsCompleted && !task.IsFaulted && task.Result != null)
-            {
-                DataSnapshot snapshot = task.Result;
-                foreach (var tournamentSnapshot in snapshot.Children)
-                {
-                    var bracketSnapshot = tournamentSnapshot.Child("bracket");
-                    string latestMatchId = null;
-                    bool isPlayerInActiveTournament = false;
-
-                    var sortedMatches = bracketSnapshot.Children.OrderByDescending(match => 
-                        int.Parse(match.Key.Split('_')[1]));
-
-                    foreach (var matchSnapshot in sortedMatches)
-                    {
-                        var player1 = matchSnapshot.Child("player1").Child("username").Value?.ToString();
-                        var player2 = matchSnapshot.Child("player2").Child("username").Value?.ToString();
-                        var winner = matchSnapshot.Child("winner").Value?.ToString();
-
-                        if (player1 == currentUsername || player2 == currentUsername)
-                        {
-                            isPlayerInActiveTournament = true;
-                            if (string.IsNullOrEmpty(winner))
-                            {
-                                latestMatchId = matchSnapshot.Key;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (isPlayerInActiveTournament)
-                    {
-                        currentTournamentId = tournamentSnapshot.Key;
-                        currentMatchId = latestMatchId;
-                        returnToTournamentButton.gameObject.SetActive(true);
-                        if (latestMatchId != null)
-                        {
-                            DisplayFeedback("You have an ongoing match in a tournament. Click 'Return to Tournament' to continue.");
-                        }
-                        else
-                        {
-                            DisplayFeedback("Your tournament has ended. Click 'Return to Tournament' to view results.");
-                        }
-                        return;
-                    }
-                }
-            }
-            else
-            {
-                DisplayFeedback("Failed to check for ongoing tournaments.");
-            }
-        });
-    }*/
-
-    /*void ReturnToTournament()
-    {
-        if (!string.IsNullOrEmpty(currentTournamentId))
-        {
-            PlayerPrefs.SetString("TournamentId", currentTournamentId);
-            if (!string.IsNullOrEmpty(currentMatchId))
-            {
-                PlayerPrefs.SetString("CurrentMatchId", currentMatchId);
-                SceneManager.LoadScene("MatchLobby");
-            }
-            else
-            {
-                SceneManager.LoadScene("TournamentBracket");
-            }
-        }
-        else
-        {
-            DisplayFeedback("No ongoing tournament found.");
-        }
-    }*/
-    
-
-    /*void OnQuickplayButtonClicked()
-    {
-        DisplayFeedback("Connecting to Quickplay...");
-        if (!PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.ConnectUsingSettings();
-        }
-        else
-        {
-            SetPlayerNameAndJoinQuickplay();
-        }
-    }*/
-
-    /*private void SetPlayerNameAndJoinQuickplay()
-    {
-        string playerName = AuthManager.Instance.GetCurrentUsername();
-        PhotonNetwork.NickName = playerName;
-        
-        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
-        {
-            { "username", playerName }
-        };
-        PhotonNetwork.SetPlayerCustomProperties(playerProperties);
-
-        DisplayFeedback("Joining Quickplay...");
-        PhotonNetwork.JoinRandomRoom(new ExitGames.Client.Photon.Hashtable { { "GameType", "Quickplay" } }, 4);
-    }*/
-
     void OnLogoutButtonClicked()
     {
         AuthManager.Instance.Logout();
-        // Logout method in AuthManager already handles scene transition
     }
 
     void SoundOnClick(System.Action buttonAction)
@@ -241,42 +127,47 @@ public class MainMenuUI : MonoBehaviour
 
     public void DisplayFeedback(string message)
     {
-        feedbackText.text = message;
+        StartCoroutine(ShowFeedbackPopup(message));
     }
 
-    /*public override void OnConnectedToMaster()
+    private IEnumerator ShowFeedbackPopup(string message)
     {
-        DisplayFeedback("Connected to Master. Setting up player...");
-        SetPlayerNameAndJoinQuickplay();
-    }*/
+        feedbackText.text = message;
+        feedbackPopup.SetActive(true);
 
-    /*public override void OnJoinRandomFailed(short returnCode, string message)
-    {
-        DisplayFeedback("Creating new Quickplay room...");
-        RoomOptions roomOptions = new RoomOptions
+        CanvasGroup canvasGroup = feedbackPopup.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
         {
-            MaxPlayers = 4,
-            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { "GameType", "Quickplay" } },
-            CustomRoomPropertiesForLobby = new string[] { "GameType" }
-        };
-        PhotonNetwork.CreateRoom(null, roomOptions);
-    }*/
+            canvasGroup = feedbackPopup.AddComponent<CanvasGroup>();
+        }
 
-    /*public override void OnJoinedRoom()
-    {
-        DisplayFeedback("Joined Quickplay room. Loading lobby...");
-        SceneManager.LoadScene("QuickplayLobby");
-    }*/
+        // Fade in
+        canvasGroup.alpha = 0f;
+        while (canvasGroup.alpha < 1f)
+        {
+            canvasGroup.alpha += Time.deltaTime * 2;
+            yield return null;
+        }
+
+        // Wait for 3 seconds
+        yield return new WaitForSeconds(3f);
+
+        // Fade out
+        while (canvasGroup.alpha > 0f)
+        {
+            canvasGroup.alpha -= Time.deltaTime * 2;
+            yield return null;
+        }
+
+        feedbackPopup.SetActive(false);
+    }
 
     void OnDestroy()
     {
-        // Remove all listeners to prevent memory leaks
         joinButton.onClick.RemoveAllListeners();
-        //createWithFriendButton.onClick.RemoveAllListeners();
         TournamentButton.onClick.RemoveAllListeners();
-        //quickplayButton.onClick.RemoveAllListeners();
         logoutButton.onClick.RemoveAllListeners();
         profileButton.onClick.RemoveAllListeners();
-        //returnToTournamentButton.onClick.RemoveAllListeners();
+        settingButton.onClick.RemoveAllListeners();
     }
 }

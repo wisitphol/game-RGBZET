@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using Firebase.Auth;
 using Firebase.Database;
 using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,34 +13,39 @@ using System.Collections.Generic;
 
 public class CreateRoomUI : MonoBehaviourPunCallbacks
 {
-    public TMP_Dropdown playerCountDropdown;
+    [Header("Player Count Buttons")]
+    public Button[] playerCountButtons;
+
+    [Header("Time Buttons")]
+    public Button[] timeButtons;
+
+    [Header("Other UI Elements")]
     public Button createRoomButton;
     public Button backButton;
-    public TMP_Text feedbackText;
-    public TMP_Dropdown timeDropdown; // เพิ่ม dropdown สำหรับเวลา
+    public GameObject notificationPopup;
+    public TMP_Text notificationText;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
 
     private DatabaseReference databaseRef;
     private FirebaseAuth auth;
-    private int playerCount;
+    private int playerCount = 1;
+    private int selectedTime = 10;
     private string userId;
     private string roomId;
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
         auth = FirebaseAuth.DefaultInstance;
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
 
-        playerCountDropdown.ClearOptions();
-        playerCountDropdown.AddOptions(new List<string> { "1", "2", "3", "4" });
-
-        timeDropdown.ClearOptions();
-        timeDropdown.AddOptions(new List<string> { "1", "3", "5", "Unlimit" }); // เวลาในนาที
+        SetupPlayerCountButtons();
+        SetupTimeButtons();
 
         createRoomButton.onClick.AddListener(() => SoundOnClick(() =>
         {
-            playerCount = playerCountDropdown.value + 1;
             userId = auth.CurrentUser.UserId;
             Debug.Log($"Create Room Button Clicked: playerCount={playerCount}, userId={userId}");
 
@@ -49,18 +55,90 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
             }
             else
             {
-                DisplayFeedback("Connecting to Master Server...");
+                ShowNotification("Connecting...");
                 PhotonNetwork.ConnectUsingSettings();
             }
         }));
 
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
 
+        notificationPopup.SetActive(false);
+    }
+
+    void SetupPlayerCountButtons()
+    {
+        for (int i = 0; i < playerCountButtons.Length; i++)
+        {
+            int count = i + 1;
+            playerCountButtons[i].onClick.AddListener(() => SetPlayerCount(count));
+        }
+        UpdatePlayerCountButtonVisuals();
+    }
+
+    void SetupTimeButtons()
+    {
+        for (int i = 0; i < timeButtons.Length; i++)
+        {
+            int time = (i == timeButtons.Length - 1) ? -1 : (i + 1) * 10;
+            timeButtons[i].onClick.AddListener(() => SetTime(time));
+        }
+        UpdateTimeButtonVisuals();
+    }
+
+    void SetPlayerCount(int count)
+    {
+        playerCount = count;
+        UpdatePlayerCountButtonVisuals();
+    }
+
+    void SetTime(int time)
+    {
+        selectedTime = time;
+        UpdateTimeButtonVisuals();
+    }
+
+    void UpdatePlayerCountButtonVisuals()
+    {
+        for (int i = 0; i < playerCountButtons.Length; i++)
+        {
+            bool isSelected = (i + 1) == playerCount;
+            RectTransform buttonRect = playerCountButtons[i].GetComponent<RectTransform>();
+            
+            // ปรับขนาดปุ่ม
+            if (isSelected)
+            {
+                buttonRect.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            }
+            else
+            {
+                buttonRect.localScale = Vector3.one;
+            }
+        }
+    }
+
+    void UpdateTimeButtonVisuals()
+    {
+        for (int i = 0; i < timeButtons.Length; i++)
+        {
+            int time = (i == timeButtons.Length - 1) ? -1 : (i + 1) * 10;
+            bool isSelected = time == selectedTime;
+            RectTransform buttonRect = timeButtons[i].GetComponent<RectTransform>();
+            
+            // ปรับขนาดปุ่ม
+            if (isSelected)
+            {
+                buttonRect.localScale = new Vector3(1.2f, 1.2f, 1.2f); // ขนาดใหญ่ขึ้น 20%
+            }
+            else
+            {
+                buttonRect.localScale = Vector3.one; // ขนาดปกติ
+            }
+        }
     }
 
     public override void OnConnectedToMaster()
     {
-        DisplayFeedback("Connected to Master Server.");
+        ShowNotification("Connected");
         Debug.Log("OnConnectedToMaster called");
         CreateRoom();
     }
@@ -69,34 +147,31 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     {
         roomId = GenerateRoomId();
 
-        int selectedTime = timeDropdown.value == timeDropdown.options.Count - 1 ? -1 : int.Parse(timeDropdown.options[timeDropdown.value].text);
-
         Dictionary<string, object> withfriendsData = new Dictionary<string, object>
         {
             { "roomId", roomId },
             { "playerCount", playerCount },
             { "hostUserId", userId },
-            { "gameTime", selectedTime } // เพิ่มเวลาในข้อมูลห้อง
+            { "gameTime", selectedTime }
         };
 
         databaseRef.Child("withfriends").Child(roomId).SetValueAsync(withfriendsData).ContinueWith(task =>
         {
             if (task.Exception != null)
             {
-                DisplayFeedback("Failed to create room.");
+                ShowNotification("Room creation failed");
                 Debug.LogError($"Failed to create room: {task.Exception}");
             }
             else
             {
-                DisplayFeedback("Room created successfully.");
+                ShowNotification("Room created");
                 Debug.Log($"Room created successfully: roomId={roomId}, playerCount={playerCount}, hostUserId={userId}");
-                // เพิ่มเวลาที่เลือกใน Custom Room Properties ของ Photon
                 ExitGames.Client.Photon.Hashtable roomProperties = new ExitGames.Client.Photon.Hashtable
                 {
                     { "gameTime", selectedTime }
                 };
 
-                Photon.Realtime.RoomOptions roomOptions = new Photon.Realtime.RoomOptions
+                RoomOptions roomOptions = new RoomOptions
                 {
                     MaxPlayers = (byte)playerCount,
                     CustomRoomProperties = roomProperties,
@@ -120,24 +195,31 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
 
     public override void OnCreatedRoom()
     {
-        DisplayFeedback("Room created successfully.");
+        ShowNotification("Room created");
         Debug.Log("OnCreatedRoom called");
         SetPlayerUsername(() =>
         {
-            SceneManager.LoadScene("Lobby");//scene หน้า lobby
+            SceneManager.LoadScene("Lobby");
         });
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        DisplayFeedback($"Failed to create room: {message}");
+        ShowNotification("Room creation failed");
         Debug.LogError($"Failed to create room: {message}");
     }
 
-    public void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
-        Debug.Log($"DisplayFeedback: {message}");
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     private void SetPlayerUsername(System.Action onComplete = null)
@@ -156,7 +238,6 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
                     PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
                     Debug.Log($"Custom Properties Set: {PhotonNetwork.LocalPlayer.CustomProperties["username"]}, {PhotonNetwork.LocalPlayer.CustomProperties["isHost"]}");
 
-                    // Force an immediate properties update
                     PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
 
                     onComplete?.Invoke();
@@ -185,19 +266,16 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         if (audioSource != null && buttonSound != null)
         {
             audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
             buttonAction.Invoke();
         }
     }
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
     }

@@ -15,7 +15,8 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
     [SerializeField] private Button createRoomButton;
     [SerializeField] private Button quickplayButton;
     [SerializeField] private Button backButton;
-    [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private GameObject notificationPopup;
+    [SerializeField] private TMP_Text notificationText;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonSound;
 
@@ -30,6 +31,7 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         userId = auth.CurrentUser.UserId;
 
         SetupButtons();
+        notificationPopup.SetActive(false);
     }
 
     void SetupButtons()
@@ -41,7 +43,7 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
 
     void OnQuickplayButtonClicked()
     {
-        DisplayFeedback("Connecting to Quickplay...");
+        ShowNotification("Connecting to Quickplay...");
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
@@ -63,19 +65,19 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
 
-        DisplayFeedback("Joining Quickplay...");
+        ShowNotification("Joining Quickplay...");
         PhotonNetwork.JoinRandomRoom(new ExitGames.Client.Photon.Hashtable { { "GameType", "Quickplay" } }, 4);
     }
 
     public override void OnConnectedToMaster()
     {
-        DisplayFeedback("Connected to Master. Setting up player...");
+        ShowNotification("Connected. Setting up player...");
         SetPlayerNameAndJoinQuickplay();
     }
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        DisplayFeedback("Creating new Quickplay room...");
+        ShowNotification("Creating new Quickplay room...");
         CreateQuickplayRoom();
     }
 
@@ -89,7 +91,6 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
             CustomRoomPropertiesForLobby = new string[] { "GameType" }
         };
 
-        // Create room in Firebase
         Dictionary<string, object> roomData = new Dictionary<string, object>
         {
             { "roomId", roomId },
@@ -102,7 +103,7 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         {
             if (task.IsFaulted)
             {
-                DisplayFeedback("Failed to create Quickplay room in Firebase.");
+                ShowNotification("Failed to create Quickplay room");
             }
             else
             {
@@ -117,10 +118,9 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         PlayerPrefs.SetString("RoomId", roomId);
         PlayerPrefs.Save();
 
-        // Update player count in Firebase
         UpdatePlayerCountInFirebase(roomId);
 
-        DisplayFeedback("Joined Quickplay room. Loading lobby...");
+        ShowNotification("Joined room. Loading lobby...");
         SceneManager.LoadScene("QuickplayLobby");
     }
 
@@ -169,10 +169,18 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
         buttonAction.Invoke();
     }
 
-    public void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
-        Debug.Log($"Feedback: {message}");
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+        Debug.Log($"Notification: {message}");
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     void OnDestroy()
@@ -184,7 +192,6 @@ public class ModeCreateroomUI : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        // Remove room from Firebase when the last player leaves
         if (PhotonNetwork.CountOfPlayersInRooms == 0)
         {
             string roomId = PlayerPrefs.GetString("RoomId");

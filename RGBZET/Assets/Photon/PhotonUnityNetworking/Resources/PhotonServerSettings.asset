@@ -125,6 +125,7 @@ MonoBehaviour:
   - RPC_LoadResult
   - RPC_LoadResultTournament
   - RPC_SumTournament
+  - StartGameCountdown
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
