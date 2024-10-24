@@ -16,8 +16,8 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     public TMP_Text tournamentNameText;
     [SerializeField] public Button backButton;
     [SerializeField] public Button enterLobbyButton;
-    [SerializeField] private Button sumTournament;
-
+    [SerializeField] public Button sumTournament;
+    private int playerCount;
     private DatabaseReference tournamentRef;
     private string tournamentId;
     private string currentUsername;
@@ -38,8 +38,14 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             InitializeTournamentBracket();
         }
-         sumTournament.gameObject.SetActive(false);
-        sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
+
+        if (sumTournament != null)
+        {
+            Debug.Log("have sumbutton");
+            sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
+            sumTournament.gameObject.SetActive(false);
+        }
+
     }
 
     IEnumerator DisconnectFromPhoton()
@@ -82,42 +88,43 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
         }
 
-        StartCoroutine(LoadTournamentBracket());
 
-       tournamentRef.Child("bracket").GetValueAsync().ContinueWith(task =>
+
+        Debug.Log("Checking tournament data...");
+        tournamentRef.GetValueAsync().ContinueWith(task =>
         {
             if (task.IsCompleted && task.Result.Exists)
             {
-                var bracketSnapshot = task.Result;
-                DataSnapshot finalMatchSnapshot = null;
-
-                // หารอบสุดท้ายของทัวร์นาเมนท์ (Final Match)
-                foreach (var matchSnapshot in bracketSnapshot.Children)
+                var tournamentData = task.Result;
+                Debug.Log("Firebase tournament data exists.");
+                if (tournamentData.HasChild("won"))
                 {
-                    string[] matchInfo = matchSnapshot.Key.Split('_');
-                    int round = int.Parse(matchInfo[1]);
+                    string winner = tournamentData.Child("won").Value.ToString();
+                    Debug.Log("Tournament winner: " + winner);
 
-                    if ((round == 1 && GetPlayerCount() == 4) || (round == 2 && GetPlayerCount() == 8))
-                    {
-                        finalMatchSnapshot = matchSnapshot;
-                        break;
-                    }
-                }
-
-                // ตรวจสอบว่าผู้ชนะของรอบสุดท้ายคือใคร
-                if (finalMatchSnapshot != null && finalMatchSnapshot.HasChild("won"))
-                {
-                    string winner = finalMatchSnapshot.Child("won").Value.ToString();
-
-                    // ตรวจสอบว่าผู้เล่นปัจจุบันเป็นผู้ชนะหรือไม่
                     if (winner == currentUsername)
                     {
-                        // แสดงปุ่มไปหน้าสรุปผลเฉพาะผู้ชนะ
                         ShowSummaryButton();
+                        Debug.Log("Current user is the winner. Showing summary button.");
+                    }
+                    else
+                    {
+                        Debug.Log("Current user is not the winner.");
                     }
                 }
+                else
+                {
+                    Debug.LogWarning("No 'won' field in tournament data.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to retrieve tournament data.");
             }
         });
+
+        StartCoroutine(LoadTournamentBracket());
+
     }
 
     IEnumerator LoadTournamentBracket()
@@ -168,7 +175,13 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
         foreach (var match in matches.Values)
         {
-            string[] matchInfo = match.matchId.Split('_');
+            // ดึง matchId ออกมา เช่น round_0_match_0
+            string matchId = match.matchId;
+            Debug.Log("Match ID: " + matchId);
+
+            // แยก matchId เป็น round และ match number
+            string[] matchInfo = matchId.Split('_');
+
             if (matchInfo.Length >= 4)
             {
                 if (int.TryParse(matchInfo[1], out int round) && int.TryParse(matchInfo[3], out int matchNumber))
@@ -182,62 +195,63 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
                         {
                             if (matchNumber == 0)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 100f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
                             }
                             else if (matchNumber == 1)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -100f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
                             }
                         }
                         else if (round == 1) // final
                         {
-                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
-                            Debug.Log("Final match placed at (640f, 0f)");
+                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
+                            Debug.Log("Final match placed at (640f, -40f)");
                         }
                     }
                     else if (playerCount == 8)
                     {
                         if (round == 0) // quarterfinals
                         {
-                            switch (matchNumber)
+                            if (matchNumber == 0)
                             {
-                                case 0:
-                                    rectTransform.anchoredPosition = new Vector2(-640f, 190f);
-                                    Debug.Log("Quarterfinal match 1 placed at (-640f, 190f)");
-                                    break;
-                                case 1:
-                                    rectTransform.anchoredPosition = new Vector2(-640f, 40f);
-                                    Debug.Log("Quarterfinal match 2 placed at (-640f, 40f)");
-                                    break;
-                                case 2:
-                                    rectTransform.anchoredPosition = new Vector2(-640f, -120f);
-                                    Debug.Log("Quarterfinal match 3 placed at (-640f, -120f)");
-                                    break;
-                                case 3:
-                                    rectTransform.anchoredPosition = new Vector2(-640f, -270f);
-                                    Debug.Log("Quarterfinal match 4 placed at (-640f, -270f)");
-                                    break;
+                                rectTransform.anchoredPosition = new Vector2(-640f, 190f);
+                                Debug.Log("Quarterfinal match 1 placed at (-640f, 190f)");
+                            }
+                            else if (matchNumber == 1)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(-640f, 40f);
+                                Debug.Log("Quarterfinal match 2 placed at (-640f, 40f)");
+                            }
+                            else if (matchNumber == 2)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(-640f, -120f);
+                                Debug.Log("Quarterfinal match 3 placed at (-640f, -120f)");
+                            }
+                            else if (matchNumber == 3)
+                            {
+                                rectTransform.anchoredPosition = new Vector2(-640f, -270f);
+                                Debug.Log("Quarterfinal match 4 placed at (-640f, -270f)");
                             }
                         }
                         else if (round == 1) // semi-final
                         {
                             if (matchNumber == 0)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 100f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
                             }
                             else if (matchNumber == 1)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -100f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
                             }
                         }
                         else if (round == 2) // final
                         {
-                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
-                            Debug.Log("Final match placed at (640f, 0f)");
+                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
+                            Debug.Log("Final match placed at (640f, -40f)");
                         }
                     }
                 }
@@ -245,10 +259,11 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         }
     }
 
+
     int GetPlayerCount()
     {
         // ฟังก์ชันคืนค่าจำนวนผู้เล่นในทัวร์นาเมนต์ (4 หรือ 8 คน)
-        return PlayerPrefs.GetInt("TournamentPlayerCount", 4); // เริ่มต้นที่ 4 แต่สามารถเปลี่ยนเป็น 8 ได้
+        return PlayerPrefs.GetInt("PlayerCount", playerCount); // เริ่มต้นที่ 4 แต่สามารถเปลี่ยนเป็น 8 ได้
     }
 
 
@@ -381,15 +396,23 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     void ShowSummaryButton()
     {
-        // แสดงปุ่มสรุปผล
-        Debug.Log("Showing summary button.");
-        sumTournament.gameObject.SetActive(true);
+        Debug.Log("Trying to show summary button.");
+        if (sumTournament != null)
+        {
+            sumTournament.gameObject.SetActive(true);
+            Debug.Log("Summary button is now visible.");
+        }
+        else
+        {
+            Debug.LogError("sumTournament button is not assigned in the Inspector.");
+        }
     }
 
     void OnClickSummaryButton()
     {
         // ไปยังหน้าสรุปผล
         SceneManager.LoadScene("SumTournament");
+        //PhotonNetwork.LoadLevel("SumTournament");
     }
 
     void SoundOnClick(System.Action buttonAction)
