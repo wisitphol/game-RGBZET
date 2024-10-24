@@ -15,16 +15,15 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
     public TMP_InputField tournamentNameInput;
     public Button createTournamentButton;
     public Button backButton;
-    public TMP_Text feedbackText;
+    public GameObject notificationPopup;
+    public TMP_Text notificationText;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
 
     private DatabaseReference databaseRef;
     private string tournamentId;
     private int playerCount;
     private string creatorUsername;
-
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioClip buttonSound;
-
 
     void Start()
     {
@@ -37,9 +36,12 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         createTournamentButton.onClick.AddListener(() => SoundOnClick(CreateTournament));
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
 
+        notificationPopup.SetActive(false);
+
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
+            ShowNotification("Connecting...");
         }
         else
         {
@@ -49,28 +51,29 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        DisplayFeedback("Connected to Photon Master Server");
+        ShowNotification("Connected");
         createTournamentButton.interactable = true;
     }
-
 
     void CreateTournament()
     {
         if (!PhotonNetwork.IsConnected)
         {
-            DisplayFeedback("Not connected to Photon. Please wait...");
+            ShowNotification("Not connected");
             return;
         }
+
         playerCount = int.Parse(playerCountDropdown.options[playerCountDropdown.value].text);
         string tournamentName = tournamentNameInput.text;
 
         if (string.IsNullOrEmpty(tournamentName))
         {
-            DisplayFeedback("Please enter a tournament name.");
+            ShowNotification("Enter tournament name");
             return;
         }
 
         tournamentId = GenerateTournamentId();
+        ShowNotification("Creating...");
 
         Dictionary<string, object> tournamentData = new Dictionary<string, object>
         {
@@ -81,17 +84,15 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             { "tournamentId", tournamentId }
         };
 
-        DisplayFeedback("Creating tournament...");
         databaseRef.Child("tournaments").Child(tournamentId).SetValueAsync(tournamentData).ContinueWith(task =>
         {
             if (task.IsFaulted)
             {
-                DisplayFeedback("Failed to create tournament.");
+                ShowNotification("Creation failed");
                 Debug.LogError($"Failed to create tournament: {task.Exception}");
             }
             else
             {
-                Debug.Log($"Tournament created successfully. ID: {tournamentId}");
                 CreateTournamentBracket();
             }
         });
@@ -108,13 +109,11 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             for (int match = 0; match < matchesInRound; match++)
             {
                 string matchId = $"round_{round}_match_{match}";
+                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final";
 
-                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "victory";
-
-                if (matchesInRound == 1) // ถ้ารอบนี้มีแค่แมตช์เดียวถือว่าเป็นรอบชิงชนะเลิศ
+                if (matchesInRound == 1)
                 {
-                    nextMatchId = "victory"; // รอบสุดท้ายเป็น "final"
-                    Debug.Log("This is the final match! Setting nextMatchId to victory.");
+                    nextMatchId = "final";
                 }
 
                 bracket[matchId] = new Dictionary<string, object>
@@ -131,12 +130,11 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         {
             if (task.IsFaulted)
             {
-                DisplayFeedback("Failed to create tournament bracket.");
+                ShowNotification("Bracket creation failed");
                 Debug.LogError($"Failed to create tournament bracket: {task.Exception}");
             }
             else
             {
-                Debug.Log("Tournament bracket created successfully");
                 CreatePhotonRoom();
             }
         });
@@ -157,14 +155,14 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
 
     public override void OnCreatedRoom()
     {
-        Debug.Log("Photon Room created successfully");
         SaveTournamentInfoToPlayerPrefs();
+        ShowNotification("Tournament created");
         SceneManager.LoadScene("TournamentLobby");
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        DisplayFeedback($"Room creation failed: {message}");
+        ShowNotification("Room creation failed");
     }
 
     void SaveTournamentInfoToPlayerPrefs()
@@ -175,15 +173,41 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         PlayerPrefs.Save();
     }
 
-    void DisplayFeedback(string message)
+    void ShowNotification(string message)
     {
-        feedbackText.text = message;
-        Debug.Log(message);
+        notificationText.text = message;
+        notificationPopup.SetActive(true);
+        StartCoroutine(HideNotificationAfterDelay(3f));
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        notificationPopup.SetActive(false);
     }
 
     string GenerateTournamentId()
     {
         return System.Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
+    }
+
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 
     void OnDestroy()
@@ -192,7 +216,6 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         backButton.onClick.RemoveAllListeners();
     }
 
-    // Add this method to set player properties in Photon
     void SetPlayerProperties()
     {
         ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable
@@ -203,39 +226,15 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
     }
 
-    // Override OnJoinedRoom to set player properties when joining the room
     public override void OnJoinedRoom()
     {
-        Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
         SetPlayerProperties();
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        DisplayFeedback($"Disconnected from Photon: {cause}. Attempting to reconnect...");
+        ShowNotification("Disconnected");
         createTournamentButton.interactable = false;
         PhotonNetwork.ConnectUsingSettings();
-    }
-
-     void SoundOnClick(System.Action buttonAction)
-    {
-        if (audioSource != null && buttonSound != null)
-        {
-            audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
-            StartCoroutine(WaitForSound(buttonAction));
-        }
-        else
-        {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
-            buttonAction.Invoke();
-        }
-    }
-
-    private IEnumerator WaitForSound(System.Action buttonAction)
-    {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
-        yield return new WaitForSeconds(buttonSound.length);
-        buttonAction.Invoke();
     }
 }
