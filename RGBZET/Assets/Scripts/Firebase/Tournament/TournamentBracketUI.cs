@@ -16,7 +16,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     public TMP_Text tournamentNameText;
     [SerializeField] public Button backButton;
     [SerializeField] public Button enterLobbyButton;
-    [SerializeField] private Button sumTournament;
+    [SerializeField] public Button sumTournament;
     private int playerCount;
     private DatabaseReference tournamentRef;
     private string tournamentId;
@@ -38,8 +38,14 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             InitializeTournamentBracket();
         }
-        sumTournament.gameObject.SetActive(false);
-        sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
+
+        if (sumTournament != null)
+        {
+            Debug.Log("have sumbutton");
+            sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
+            sumTournament.gameObject.SetActive(false);
+        }
+
     }
 
     IEnumerator DisconnectFromPhoton()
@@ -58,7 +64,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         tournamentId = PlayerPrefs.GetString("TournamentId");
         string tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
         currentUsername = AuthManager.Instance.GetCurrentUsername();
-        
+
         if (tournamentNameText != null)
         {
             tournamentNameText.text = "Tournament: " + tournamentName;
@@ -82,42 +88,43 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
         }
 
+
+
+        Debug.Log("Checking tournament data...");
+        tournamentRef.GetValueAsync().ContinueWith(task =>
+        {
+            if (task.IsCompleted && task.Result.Exists)
+            {
+                var tournamentData = task.Result;
+                Debug.Log("Firebase tournament data exists.");
+                if (tournamentData.HasChild("won"))
+                {
+                    string winner = tournamentData.Child("won").Value.ToString();
+                    Debug.Log("Tournament winner: " + winner);
+
+                    if (winner == currentUsername)
+                    {
+                        ShowSummaryButton();
+                        Debug.Log("Current user is the winner. Showing summary button.");
+                    }
+                    else
+                    {
+                        Debug.Log("Current user is not the winner.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("No 'won' field in tournament data.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to retrieve tournament data.");
+            }
+        });
+
         StartCoroutine(LoadTournamentBracket());
 
-        tournamentRef.Child("bracket").GetValueAsync().ContinueWith(task =>
-         {
-             if (task.IsCompleted && task.Result.Exists)
-             {
-                 var bracketSnapshot = task.Result;
-                 DataSnapshot finalMatchSnapshot = null;
-
-                 // หารอบสุดท้ายของทัวร์นาเมนท์ (Final Match)
-                 foreach (var matchSnapshot in bracketSnapshot.Children)
-                 {
-                     string[] matchInfo = matchSnapshot.Key.Split('_');
-                     int round = int.Parse(matchInfo[1]);
-
-                     if ((round == 1 && GetPlayerCount() == 4) || (round == 2 && GetPlayerCount() == 8))
-                     {
-                         finalMatchSnapshot = matchSnapshot;
-                         break;
-                     }
-                 }
-
-                 // ตรวจสอบว่าผู้ชนะของรอบสุดท้ายคือใคร
-                 if (finalMatchSnapshot != null && finalMatchSnapshot.HasChild("won"))
-                 {
-                     string winner = finalMatchSnapshot.Child("won").Value.ToString();
-
-                     // ตรวจสอบว่าผู้เล่นปัจจุบันเป็นผู้ชนะหรือไม่
-                     if (winner == currentUsername)
-                     {
-                         // แสดงปุ่มไปหน้าสรุปผลเฉพาะผู้ชนะ
-                         ShowSummaryButton();
-                     }
-                 }
-             }
-         });
     }
 
     IEnumerator LoadTournamentBracket()
@@ -174,7 +181,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
             // แยก matchId เป็น round และ match number
             string[] matchInfo = matchId.Split('_');
-            
+
             if (matchInfo.Length >= 4)
             {
                 if (int.TryParse(matchInfo[1], out int round) && int.TryParse(matchInfo[3], out int matchNumber))
@@ -188,18 +195,18 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
                         {
                             if (matchNumber == 0)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 120f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
                             }
                             else if (matchNumber == 1)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -150f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
                             }
                         }
                         else if (round == 1) // final
                         {
-                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
+                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
                             Debug.Log("Final match placed at (640f, -40f)");
                         }
                     }
@@ -232,18 +239,18 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
                         {
                             if (matchNumber == 0)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, 100f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 120f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
+                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
                             }
                             else if (matchNumber == 1)
                             {
-                                rectTransform.anchoredPosition = new Vector2(0f, -100f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -150f)");
+                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
+                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
                             }
                         }
                         else if (round == 2) // final
                         {
-                            rectTransform.anchoredPosition = new Vector2(640f, 0f);
+                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
                             Debug.Log("Final match placed at (640f, -40f)");
                         }
                     }
@@ -389,15 +396,23 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     void ShowSummaryButton()
     {
-        // แสดงปุ่มสรุปผล
-        Debug.Log("Showing summary button.");
-        sumTournament.gameObject.SetActive(true);
+        Debug.Log("Trying to show summary button.");
+        if (sumTournament != null)
+        {
+            sumTournament.gameObject.SetActive(true);
+            Debug.Log("Summary button is now visible.");
+        }
+        else
+        {
+            Debug.LogError("sumTournament button is not assigned in the Inspector.");
+        }
     }
 
     void OnClickSummaryButton()
     {
         // ไปยังหน้าสรุปผล
         SceneManager.LoadScene("SumTournament");
+        //PhotonNetwork.LoadLevel("SumTournament");
     }
 
     void SoundOnClick(System.Action buttonAction)
