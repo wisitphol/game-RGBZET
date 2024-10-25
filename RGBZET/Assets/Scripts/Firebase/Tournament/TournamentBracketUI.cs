@@ -24,6 +24,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     private Dictionary<string, MatchUI> matches = new Dictionary<string, MatchUI>();
     private string currentUserMatchId;
     private Coroutine updateUICoroutine;
+    private string winnerUsername; // ตัวแปรสำหรับเก็บชื่อผู้ชนะ
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
 
@@ -41,9 +42,10 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
         if (sumTournament != null)
         {
-            Debug.Log("have sumbutton");
+
             sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
             sumTournament.gameObject.SetActive(false);
+            Debug.Log("have sumbutton");
         }
 
     }
@@ -76,11 +78,19 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
         }
+        else
+        {
+            Debug.LogWarning("Back button is missing or not assigned in the Inspector.");
+        }
 
         if (enterLobbyButton != null)
         {
             enterLobbyButton.onClick.AddListener(() => SoundOnClick(OnEnterLobbyButtonClicked));
             enterLobbyButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("Enter Lobby button is missing or not assigned in the Inspector.");
         }
 
         if (tournamentRef != null)
@@ -88,6 +98,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
         }
 
+        tournamentRef.Child("won").ValueChanged += OnWonNodeChanged;
 
 
         Debug.Log("Checking tournament data...");
@@ -97,20 +108,12 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             {
                 var tournamentData = task.Result;
                 Debug.Log("Firebase tournament data exists.");
+
+                // เปลี่ยนเงื่อนไขตรงนี้ เพียงแค่ตรวจสอบว่ามีโหนด "won" หรือไม่
                 if (tournamentData.HasChild("won"))
                 {
-                    string winner = tournamentData.Child("won").Value.ToString();
-                    Debug.Log("Tournament winner: " + winner);
-
-                    if (winner == currentUsername)
-                    {
-                        ShowSummaryButton();
-                        Debug.Log("Current user is the winner. Showing summary button.");
-                    }
-                    else
-                    {
-                        Debug.Log("Current user is not the winner.");
-                    }
+                    ShowSummaryButton(); // แสดงปุ่มทันที
+                    Debug.Log("Found 'won' node in tournament data. Showing summary button.");
                 }
                 else
                 {
@@ -349,6 +352,33 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         updateUICoroutine = StartCoroutine(UpdateUINextFrame(args.Snapshot));
     }
 
+
+    private void OnWonNodeChanged(object sender, ValueChangedEventArgs args)
+    {
+        if (args.DatabaseError != null)
+        {
+            Debug.LogError($"Failed to read won data: {args.DatabaseError.Message}");
+            return;
+        }
+
+        if (args.Snapshot.Exists)
+        {
+            winnerUsername = args.Snapshot.Value as string;
+            if (currentUsername == winnerUsername && sumTournament != null)
+            {
+                ShowSummaryButton();
+            }
+            else if (sumTournament != null)
+            {
+                sumTournament.gameObject.SetActive(false);
+            }
+        }
+        else if (sumTournament != null)
+        {
+            sumTournament.gameObject.SetActive(false);
+        }
+    }
+
     private IEnumerator UpdateUINextFrame(DataSnapshot snapshot)
     {
         yield return null;
@@ -410,9 +440,15 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     void OnClickSummaryButton()
     {
-        // ไปยังหน้าสรุปผล
-        SceneManager.LoadScene("SumTournament");
-        //PhotonNetwork.LoadLevel("SumTournament");
+        if (sumTournament != null)
+        {
+            // ตรวจสอบว่าปุ่มยังอยู่ก่อนเปลี่ยนไปหน้า SumTournament
+            SceneManager.LoadScene("SumTournament");
+        }
+        else
+        {
+            Debug.LogWarning("Summary button is missing or destroyed.");
+        }
     }
 
     void SoundOnClick(System.Action buttonAction)

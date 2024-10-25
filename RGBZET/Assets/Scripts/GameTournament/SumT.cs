@@ -12,24 +12,29 @@ public class SumT : MonoBehaviour
 {
     [SerializeField] private Button backToMenu;
     // Start is called before the first frame update
-
-
     public GameObject playervictory;
     private PlayerResultT playerResult;
     private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference2;
     private FirebaseUserId firebaseUserId;
     private string tournamentId;
-    private string currentMatchId;
     [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
     [SerializeField] public AudioClip endgameSound;
     [SerializeField] public AudioClip buttonSound;
     // Start is called before the first frame update
     void Start()
     {
-        backToMenu.interactable = false;
-        StartCoroutine(EnableBackButtonAfterDelay(3f));
-        backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
-        
+        if (backToMenu != null)
+        {
+            backToMenu.interactable = false;
+            StartCoroutine(EnableBackButtonAfterDelay(3f));
+            backToMenu.onClick.AddListener(OnBackToMenuButtonClicked);
+        }
+        else
+        {
+            Debug.LogWarning("backToMenu button is not assigned.");
+        }
+
         firebaseUserId = FindObjectOfType<FirebaseUserId>();
         if (firebaseUserId == null)
         {
@@ -41,8 +46,10 @@ public class SumT : MonoBehaviour
         }
 
         tournamentId = PlayerPrefs.GetString("TournamentId");
-        currentMatchId = PlayerPrefs.GetString("CurrentMatchId");
         databaseReference = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
+
+        string userId = AuthManager.Instance.GetCurrentUserId();
+        databaseReference2 = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
 
         if (playervictory != null)
         {
@@ -50,7 +57,7 @@ public class SumT : MonoBehaviour
 
             if (playerResult != null)
             {
-                Debug.Log("PlayerResult component found on player1.");
+                Debug.Log("PlayerResult component found on playervictory.");
             }
             else
             {
@@ -59,8 +66,10 @@ public class SumT : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("player1 is null.");
+            Debug.LogWarning("playervictory is null.");
         }
+
+        StartCoroutine(FetchPlayerData());
 
         StartCoroutine(DelayedUpdateGameResults());
 
@@ -70,44 +79,36 @@ public class SumT : MonoBehaviour
         }
     }
 
-    void FetchPlayerDataFromPhoton()
+    private IEnumerator FetchPlayerData()
     {
-        Debug.Log("Fetching player data from Photon.");
+        var task = databaseReference2.GetValueAsync();  // ใช้ databaseReference2 ที่ตั้งค่า userId ไว้แล้ว
+        yield return new WaitUntil(() => task.IsCompleted);
 
-        playervictory.SetActive(false);
-
-        Player[] players = PhotonNetwork.PlayerList;
-
-        if (players.Length > 0)
+        if (task.IsCompleted && !task.IsFaulted && task.Result != null)
         {
-            Player player = players[0]; // ใช้ข้อมูลจาก player1 เท่านั้น
+            // ดึงข้อมูลผู้เล่นจาก Firebase
+            var playerData = task.Result;
+            string playerName = playerData.Child("username")?.Value?.ToString();
+            int iconId = playerData.Child("icon") != null ? int.Parse(playerData.Child("icon").Value.ToString()) : 0;
 
-            string playerName = player.CustomProperties.ContainsKey("username") ? player.CustomProperties["username"].ToString() : player.NickName;
-            string playerScoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
+            Debug.Log($"Player Name: {playerName}, Icon ID: {iconId}");
 
-            int playerScore;
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(playerScoreStr, @"\D", "");
-
-            if (!int.TryParse(cleanScoreStr, out playerScore))
+            // อัปเดตข้อมูลใน playerResult
+            if (playerResult != null)
             {
-                Debug.LogError($"Failed to parse score '{playerScoreStr}' for player '{playerName}'. Defaulting to 0.");
-                playerScore = 0;
+                playerResult.UpdatePlayerResult(playerName, " ", "WINNER");
+                playerResult.UpdatePlayerIcon(iconId);
+                playervictory.SetActive(true);
             }
-
-            Debug.Log($"Player 1: Name = {playerName}, Score = {playerScore}");
-
-            if (player.CustomProperties.ContainsKey("iconId"))
-            {
-                int iconId = (int)player.CustomProperties["iconId"];
-                playerResult.UpdatePlayerIcon(iconId); // อัปเดตรูปภาพ
-            }
-
-            playerResult.UpdatePlayerResult(playerName, " ", "WINNER");
-            playervictory.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Failed to fetch player data or data is null.");
         }
     }
 
-     IEnumerator DelayedUpdateGameResults()
+
+    IEnumerator DelayedUpdateGameResults()
     {
         yield return new WaitForSeconds(2f);
 
