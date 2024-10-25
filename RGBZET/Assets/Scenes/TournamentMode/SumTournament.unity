@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 67429247}
   - component: {fileID: 67429246}
   - component: {fileID: 67429245}
+  - component: {fileID: 67429248}
   m_Layer: 5
   m_Name: Back
   m_TagString: Untagged
@@ -245,6 +246,8 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 67429243}
   m_CullTransparentMesh: 1
+
+
 --- !u!1 &346035420
 GameObject:
   m_ObjectHideFlags: 0
