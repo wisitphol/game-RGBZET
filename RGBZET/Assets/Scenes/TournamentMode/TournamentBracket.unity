@@ -813,6 +813,7 @@ GameObject:
   - component: {fileID: 885480256}
   - component: {fileID: 885480255}
   - component: {fileID: 885480254}
+  - component: {fileID: 885480257}
   m_Layer: 5
   m_Name: LobbyButton
   m_TagString: Untagged
@@ -923,6 +924,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 885480252}
   m_CullTransparentMesh: 1
+--- !u!114 &885480257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885480252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c56d9105de6af4ba000e623713daa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverScale: 1.1
+  clickScale: 0.9
+  animationDuration: 0.1
 --- !u!1 &891941228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1489,6 +1505,7 @@ GameObject:
   - component: {fileID: 1206090492}
   - component: {fileID: 1206090491}
   - component: {fileID: 1206090490}
+  - component: {fileID: 1206090493}
   m_Layer: 5
   m_Name: Backbutton
   m_TagString: Untagged
@@ -1599,6 +1616,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1206090488}
   m_CullTransparentMesh: 1
+--- !u!114 &1206090493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206090488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c56d9105de6af4ba000e623713daa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverScale: 1.1
+  clickScale: 0.9
+  animationDuration: 0.1
 --- !u!1 &1289538467
 GameObject:
   m_ObjectHideFlags: 0
@@ -1830,6 +1862,7 @@ GameObject:
   - component: {fileID: 1623677855}
   - component: {fileID: 1623677854}
   - component: {fileID: 1623677853}
+  - component: {fileID: 1623677857}
   m_Layer: 5
   m_Name: SumButton
   m_TagString: Untagged
@@ -1940,6 +1973,21 @@ RectTransform:
   m_AnchoredPosition: {x: 753.98, y: -238}
   m_SizeDelta: {x: 250, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1623677857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1623677852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c56d9105de6af4ba000e623713daa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverScale: 1.1
+  clickScale: 0.9
+  animationDuration: 0.1
 --- !u!1 &1660132991
 GameObject:
   m_ObjectHideFlags: 0

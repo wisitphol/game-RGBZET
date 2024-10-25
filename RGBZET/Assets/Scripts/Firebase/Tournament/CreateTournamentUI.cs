@@ -11,18 +11,23 @@ using System.Linq;
 
 public class CreateTournamentUI : MonoBehaviourPunCallbacks
 {
-    public TMP_Dropdown playerCountDropdown;
+    [Header("Player Count Selection")]
+    public Button[] playerCountButtons;
+
+    [Header("UI Elements")]
     public TMP_InputField tournamentNameInput;
     public Button createTournamentButton;
     public Button backButton;
     public GameObject notificationPopup;
     public TMP_Text notificationText;
+
+    [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip buttonSound;
 
     private DatabaseReference databaseRef;
     private string tournamentId;
-    private int playerCount;
+    private int playerCount = 4; // Default player count
     private string creatorUsername;
 
     void Start()
@@ -30,12 +35,9 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         databaseRef = FirebaseDatabase.DefaultInstance.RootReference;
         creatorUsername = AuthManager.Instance.GetCurrentUsername();
 
-        playerCountDropdown.ClearOptions();
-        playerCountDropdown.AddOptions(new List<string> { "4", "8" });
-
-        createTournamentButton.onClick.AddListener(() => SoundOnClick(CreateTournament));
-        backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
-
+        SetupButtons();
+        SetupTournamentNameInput();
+        
         notificationPopup.SetActive(false);
 
         if (!PhotonNetwork.IsConnected)
@@ -49,22 +51,69 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
         }
     }
 
+    void SetupButtons()
+    {
+        // Setup player count buttons
+        for (int i = 0; i < playerCountButtons.Length; i++)
+        {
+            int count = (i + 1) * 4; // 4 or 8 players
+            playerCountButtons[i].onClick.AddListener(() => SoundOnClick(() => SetPlayerCount(count)));
+        }
+
+        createTournamentButton.onClick.AddListener(() => SoundOnClick(ValidateAndCreateTournament));
+        backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
+
+        UpdatePlayerCountButtonVisuals();
+    }
+
+    void SetupTournamentNameInput()
+    {
+        tournamentNameInput.characterLimit = 10;
+        tournamentNameInput.onValueChanged.AddListener(OnTournamentNameChanged);
+    }
+
+    void OnTournamentNameChanged(string value)
+    {
+        if (value.Length > 10)
+        {
+            tournamentNameInput.text = value.Substring(0, 10);
+        }
+    }
+
+    void SetPlayerCount(int count)
+    {
+        playerCount = count;
+        UpdatePlayerCountButtonVisuals();
+    }
+
+    void UpdatePlayerCountButtonVisuals()
+    {
+        for (int i = 0; i < playerCountButtons.Length; i++)
+        {
+            int count = (i + 1) * 4;
+            bool isSelected = count == playerCount;
+            RectTransform buttonRect = playerCountButtons[i].GetComponent<RectTransform>();
+            
+            if (isSelected)
+            {
+                buttonRect.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            }
+            else
+            {
+                buttonRect.localScale = Vector3.one;
+            }
+        }
+    }
+
     public override void OnConnectedToMaster()
     {
         ShowNotification("Connected");
         createTournamentButton.interactable = true;
     }
 
-    void CreateTournament()
+    void ValidateAndCreateTournament()
     {
-        if (!PhotonNetwork.IsConnected)
-        {
-            ShowNotification("Not connected");
-            return;
-        }
-
-        playerCount = int.Parse(playerCountDropdown.options[playerCountDropdown.value].text);
-        string tournamentName = tournamentNameInput.text;
+        string tournamentName = tournamentNameInput.text.Trim();
 
         if (string.IsNullOrEmpty(tournamentName))
         {
@@ -72,6 +121,23 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             return;
         }
 
+        if (tournamentName.Length > 10)
+        {
+            ShowNotification("Tournament name cannot exceed 10 characters");
+            return;
+        }
+
+        if (!PhotonNetwork.IsConnected)
+        {
+            ShowNotification("Not connected");
+            return;
+        }
+
+        CreateTournament(tournamentName);
+    }
+
+    void CreateTournament(string tournamentName)
+    {
         tournamentId = GenerateTournamentId();
         ShowNotification("Creating...");
 
@@ -212,8 +278,13 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
 
     void OnDestroy()
     {
+        foreach (var button in playerCountButtons)
+        {
+            button.onClick.RemoveAllListeners();
+        }
         createTournamentButton.onClick.RemoveAllListeners();
         backButton.onClick.RemoveAllListeners();
+        tournamentNameInput.onValueChanged.RemoveAllListeners();
     }
 
     void SetPlayerProperties()

@@ -127,11 +127,11 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
             // ปรับขนาดปุ่ม
             if (isSelected)
             {
-                buttonRect.localScale = new Vector3(1.2f, 1.2f, 1.2f); // ขนาดใหญ่ขึ้น 20%
+                buttonRect.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             }
             else
             {
-                buttonRect.localScale = Vector3.one; // ขนาดปกติ
+                buttonRect.localScale = Vector3.one;
             }
         }
     }

@@ -53,7 +53,7 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         }
 
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
-        tournamentNameText.text = "Tournament: " + tournamentName;
+        tournamentNameText.text = "Room: " + tournamentName;
         tournamentIdText.text = "ID: " + tournamentId;
 
         startTournamentButton.onClick.AddListener(() => SoundOnClick(StartTournament));
