@@ -175,11 +175,11 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
             for (int match = 0; match < matchesInRound; match++)
             {
                 string matchId = $"round_{round}_match_{match}";
-                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "final";
+                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "victory";
 
                 if (matchesInRound == 1)
                 {
-                    nextMatchId = "final";
+                    nextMatchId = "victory";
                 }
 
                 bracket[matchId] = new Dictionary<string, object>
