@@ -887,7 +887,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1122,8 +1122,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 316487467}
-  - component: {fileID: 316487468}
   - component: {fileID: 316487469}
+  - component: {fileID: 316487470}
   m_Layer: 0
   m_Name: Profliepanel
   m_TagString: Untagged
@@ -1146,40 +1146,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &316487468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 316487465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4d1b1f8fe5e7b645bf64be4281f5547, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  usernameText: {fileID: 2021047957}
-  matchText: {fileID: 358339289}
-  winText: {fileID: 862986050}
-  loseText: {fileID: 1970576127}
-  drawText: {fileID: 738556854}
-  changeNameButton: {fileID: 1062189551}
-  backButton: {fileID: 508098813}
-  currentPlayerIcon: {fileID: 2133435124}
-  iconSelectionPanel: {fileID: 1659113143}
-  iconSprites:
-  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
-  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
-  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
-  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}
-  changeNamePopup: {fileID: 2120183686}
-  newUsernameInput: {fileID: 344393442}
-  saveNameButton: {fileID: 229079254}
-  cancelNameButton: {fileID: 2039286876}
-  notificationPopup: {fileID: 54760848}
-  notificationText: {fileID: 129481082}
-  audioSource: {fileID: 316487469}
-  buttonSound: {fileID: 8300000, guid: ffa1d8ac5ee9b4b47a8bae1d71e1e5c7, type: 3}
 --- !u!82 &316487469
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1276,6 +1242,40 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &316487470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 316487465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4d1b1f8fe5e7b645bf64be4281f5547, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  usernameText: {fileID: 2021047957}
+  matchText: {fileID: 358339289}
+  winText: {fileID: 862986050}
+  loseText: {fileID: 738556854}
+  drawText: {fileID: 1970576127}
+  changeNameButton: {fileID: 1062189551}
+  backButton: {fileID: 508098813}
+  currentPlayerIcon: {fileID: 2133435124}
+  iconSelectionPanel: {fileID: 1659113143}
+  iconSprites:
+  - {fileID: 21300000, guid: 3bc9ea0cfab814243a3fb66b5a49fc9f, type: 3}
+  - {fileID: 21300000, guid: 0c7c7502f16472248a1211b0f7bbcbea, type: 3}
+  - {fileID: 21300000, guid: 072b9217c37bd124c85776480226b887, type: 3}
+  - {fileID: 21300000, guid: 48a95b520d860de43aea38804c268784, type: 3}
+  changeNamePopup: {fileID: 2120183686}
+  newUsernameInput: {fileID: 344393442}
+  saveNameButton: {fileID: 229079254}
+  cancelNameButton: {fileID: 2039286876}
+  notificationPopup: {fileID: 54760848}
+  notificationText: {fileID: 129481082}
+  audioSource: {fileID: 316487469}
+  buttonSound: {fileID: 8300000, guid: ffa1d8ac5ee9b4b47a8bae1d71e1e5c7, type: 3}
 --- !u!1 &344393438
 GameObject:
   m_ObjectHideFlags: 0
@@ -2216,7 +2216,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2429,7 +2429,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2974,7 +2974,7 @@ RectTransform:
   m_Children:
   - {fileID: 557731800}
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3371,13 +3371,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1923718773}
+  - {fileID: 2133435123}
   - {fileID: 2021047956}
   - {fileID: 1204917459}
   - {fileID: 146585046}
   - {fileID: 862986049}
   - {fileID: 738556853}
   - {fileID: 1970576126}
-  - {fileID: 2133435123}
   - {fileID: 358339288}
   - {fileID: 1062189550}
   - {fileID: 508098812}
@@ -3850,7 +3850,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3985,7 +3985,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4456,7 +4456,7 @@ GameObject:
   - component: {fileID: 2133435125}
   - component: {fileID: 2133435124}
   m_Layer: 5
-  m_Name: profile
+  m_Name: profileicon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4475,7 +4475,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1639255940}
-  m_RootOrder: 7
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

@@ -87,7 +87,7 @@ public class MainMenuUI : MonoBehaviour
                 if (snapshot.Exists)
                 {
                     currentUsername = snapshot.Child("username").Value.ToString();
-                    usernameText.text = "Welcome, " + currentUsername;
+                    usernameText.text = currentUsername;
                 }
                 else
                 {
