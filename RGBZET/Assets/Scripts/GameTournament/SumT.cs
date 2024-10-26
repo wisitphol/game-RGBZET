@@ -18,6 +18,7 @@ public class SumT : MonoBehaviour
     private DatabaseReference databaseReference2;
     private FirebaseUserId firebaseUserId;
     private string tournamentId;
+    private string userId;
     [SerializeField] public AudioSource audioSource;  // ตัวแปร AudioSource ที่จะเล่นเสียง
     [SerializeField] public AudioClip endgameSound;
     [SerializeField] public AudioClip buttonSound;
@@ -88,6 +89,7 @@ public class SumT : MonoBehaviour
         {
             // ดึงข้อมูลผู้เล่นจาก Firebase
             var playerData = task.Result;
+            userId = playerData.Key;
             string playerName = playerData.Child("username")?.Value?.ToString();
             int iconId = playerData.Child("icon") != null ? int.Parse(playerData.Child("icon").Value.ToString()) : 0;
 
@@ -112,19 +114,13 @@ public class SumT : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            UpdateGameResultsInDatabase();
-        }
+        UpdateGameResultsInDatabase();
+        
     }
 
     void UpdateGameResultsInDatabase()
     {
         Debug.Log("Updating game results in database.");
-
-        Player player = PhotonNetwork.PlayerList[0]; // ใช้ข้อมูลจาก player1 เท่านั้น
-
-        string userId = player.CustomProperties.ContainsKey("FirebaseUserId") ? player.CustomProperties["FirebaseUserId"].ToString() : null;
 
         if (!string.IsNullOrEmpty(userId))
         {
@@ -187,12 +183,6 @@ public class SumT : MonoBehaviour
         {
             Debug.Log("Can delete room from Firebase.");
         }
-
-        // ออกจากห้อง Photon
-        PhotonNetwork.LeaveRoom();
-
-        // ตรวจสอบสถานะการเชื่อมต่อกับ Game Server
-        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
 
         // ยกเลิกการเชื่อมต่อจาก Game Server
         PhotonNetwork.Disconnect();
