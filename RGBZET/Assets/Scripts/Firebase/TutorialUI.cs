@@ -18,11 +18,11 @@ public class TutorialUI : MonoBehaviour
     [SerializeField] public Button Button1;
     [SerializeField] public Button Button2;
     [SerializeField] public Button Button3;
-    //[SerializeField] public Button Button4;
+    [SerializeField] public Button Button4;
     [SerializeField] public GameObject Tutorial1;
     [SerializeField] public GameObject Tutorial2;
     [SerializeField] public GameObject Tutorial3;
-    //[SerializeField] public GameObject Tutorial4;
+    [SerializeField] public GameObject Tutorial4;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
 
@@ -32,12 +32,12 @@ public class TutorialUI : MonoBehaviour
         Tutorial1.SetActive(true);
         Tutorial2.SetActive(false);
         Tutorial3.SetActive(false);
-        //Tutorial4.SetActive(false);
+        Tutorial4.SetActive(false);
 
         Button1.onClick.AddListener(() => SoundOnClick(ToggleTutorial1));
         Button2.onClick.AddListener(() => SoundOnClick(ToggleTutorial2));
         Button3.onClick.AddListener(() => SoundOnClick(ToggleTutorial3));
-        //Button4.onClick.AddListener(() => SoundOnClick(ToggleTutorial4));
+        Button4.onClick.AddListener(() => SoundOnClick(ToggleTutorial4));
     }
 
     void ToggleTutorial1()
@@ -47,7 +47,7 @@ public class TutorialUI : MonoBehaviour
 
         Tutorial2.SetActive(false);
         Tutorial3.SetActive(false);
-        //Tutorial4.SetActive(false);
+        Tutorial4.SetActive(false);
 
     }
 
@@ -58,7 +58,7 @@ public class TutorialUI : MonoBehaviour
 
         Tutorial1.SetActive(false);
         Tutorial3.SetActive(false);
-        //Tutorial4.SetActive(false);
+        Tutorial4.SetActive(false);
 
     }
     void ToggleTutorial3()
@@ -68,14 +68,14 @@ public class TutorialUI : MonoBehaviour
 
         Tutorial1.SetActive(false);
         Tutorial2.SetActive(false);
-        //Tutorial4.SetActive(false);
+        Tutorial4.SetActive(false);
 
     }
 
     void ToggleTutorial4()
     {
-       // bool isActive = Tutorial4.activeSelf;
-       // Tutorial4.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
+        bool isActive = Tutorial4.activeSelf;
+        Tutorial4.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
 
         Tutorial1.SetActive(false);
         Tutorial2.SetActive(false);
