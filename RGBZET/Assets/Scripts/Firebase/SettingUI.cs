@@ -28,7 +28,7 @@ public class SettingUI : MonoBehaviour
     void Start()
     {
         backToMenu.onClick.AddListener(() => SoundOnClick(BackButtonClicked));
-        soundPanel.SetActive(false);
+        soundPanel.SetActive(true);
         accountPanel.SetActive(false);
         quitPanel.SetActive(false);
 

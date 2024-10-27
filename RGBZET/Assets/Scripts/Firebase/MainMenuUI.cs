@@ -30,8 +30,6 @@ public class MainMenuUI : MonoBehaviour
     
     private DatabaseReference databaseReference;
     private string currentUsername;
-    private string currentTournamentId;
-    private string currentMatchId;
 
     void Start()
     {
@@ -75,6 +73,7 @@ public class MainMenuUI : MonoBehaviour
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
         profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
         settingButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Setting")));
+        guideButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tutorial")));
     }
 
     void LoadUserData()
