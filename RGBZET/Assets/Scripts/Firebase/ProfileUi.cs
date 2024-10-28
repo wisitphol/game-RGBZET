@@ -17,6 +17,7 @@ public class ProfileUI : MonoBehaviour
     [SerializeField] private TMP_Text winText;
     [SerializeField] private TMP_Text loseText;
     [SerializeField] private TMP_Text drawText;
+    [SerializeField] private TMP_Text wintournamentText;
 
     [Header("Buttons")]
     [SerializeField] private Button changeNameButton;
@@ -280,6 +281,7 @@ public class ProfileUI : MonoBehaviour
         winText.text = $"Win: {GetSnapshotValue(snapshot, "gameswin", "0")}";
         loseText.text = $"Lose: {GetSnapshotValue(snapshot, "gameslose", "0")}";
         drawText.text = $"Draw: {GetSnapshotValue(snapshot, "gamesdraw", "0")}";
+        wintournamentText.text = $"WinTournament: {GetSnapshotValue(snapshot, "gameswintournament", "0")}";
     }
 
     void UpdateIcon(DataSnapshot snapshot)

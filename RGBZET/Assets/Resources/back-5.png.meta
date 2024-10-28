@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a381d0e8d3b08b041a72f55452cae3fb
+guid: 74b45279ea8155145918f1d3c9a161dd
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -33,7 +33,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -69,7 +69,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -129,22 +129,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: back_0
+      name: back-5_0
       rect:
         serializedVersion: 2
-        x: 559
-        y: 289
-        width: 802
-        height: 501
+        x: 160
+        y: 30
+        width: 1620
+        height: 1010
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 82783051f0c247e4a8d9301e78b1ada8
-      internalID: 1960603674
+      spriteID: 007698997f83e844b8d96b27b1ab19c9
+      internalID: 1173749659
       vertices: []
       indices: 
       edges: []
@@ -160,7 +160,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      back_0: 1960603674
+      back-5_0: 1173749659
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
