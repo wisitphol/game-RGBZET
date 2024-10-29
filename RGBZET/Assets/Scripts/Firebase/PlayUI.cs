@@ -10,7 +10,7 @@ using Firebase.Database;
 using System.Collections.Generic;
 using System.Linq;
 
-public class ModeCreateroomUI : MonoBehaviourPunCallbacks
+public class PlayUI : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Button createRoomButton;
     [SerializeField] private Button quickplayButton;

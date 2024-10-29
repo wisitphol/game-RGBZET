@@ -46,7 +46,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     {
         auth = FirebaseAuth.DefaultInstance;
         roomId = PlayerPrefs.GetString("RoomId");
-        roomCodeText.text = "Room Code: " + roomId;
+        roomCodeText.text = "Room ID: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(roomId);
 
         leaveRoomButton.onClick.AddListener(() => SoundOnClick(() => LeaveRoom()));
@@ -104,7 +104,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
             if (i < players.Length && playerObjects[i] != null)
             {
                 playerObjects[i].SetActive(true);
-                PlayerLobbyQ playerLobby = playerObjects[i].GetComponent<PlayerLobbyQ>();
+                PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
                 if (playerLobby != null)
                 {
                     playerLobby.SetActorNumber(players[i].ActorNumber);
