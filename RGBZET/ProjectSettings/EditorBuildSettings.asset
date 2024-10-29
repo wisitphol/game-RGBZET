@@ -21,6 +21,9 @@ EditorBuildSettings:
     path: Assets/Scenes/menu.unity
     guid: f0e3792fe5f51884bb8498ab6bb3a473
   - enabled: 1
+    path: Assets/Scenes/Tutorial.unity
+    guid: c76476a66710e3442a8b0d2a9d58c887
+  - enabled: 1
     path: Assets/Scenes/ModeCreateroom.unity
     guid: 9c1c31b5daef59241b437b0a64f9915b
   - enabled: 1
@@ -36,9 +39,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Setting.unity
     guid: aa1b2d33e0eaffc4db5a44efb03d4aee
   - enabled: 1
-    path: Assets/Scenes/Tutorial.unity
-    guid: 190ca497842f70c44b9de94db23b9f79
-  - enabled: 1
     path: Assets/Scenes/Profile.unity
     guid: ec494ff17800773469b9365a0d2f9b18
   - enabled: 1
@@ -53,6 +53,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TournamentMode/Tournament.unity
     guid: 05e2f04e78e3fa947a70c993b194eff3
+  - enabled: 1
+    path: Assets/Scenes/TournamentMode/Rule.unity
+    guid: 190ca497842f70c44b9de94db23b9f79
   - enabled: 1
     path: Assets/Scenes/TournamentMode/CreateTournament.unity
     guid: a6f3b258505bef64bbf7595c885d36a8

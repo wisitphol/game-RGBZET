@@ -16,6 +16,7 @@ public class TournamentUI : MonoBehaviour
     [SerializeField] private Button createTournamentButton;
     [SerializeField] private Button returnToTournamentButton;
     [SerializeField] private Button backButton;
+    [SerializeField] private Button ruleButton;
 
     [Header("Notification")]
     [SerializeField] private GameObject notificationPopup;
@@ -63,6 +64,7 @@ public class TournamentUI : MonoBehaviour
         }));
         
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
+        ruleButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Rule")));
         returnToTournamentButton.onClick.AddListener(() => SoundOnClick(ReturnToTournament));
     }
 

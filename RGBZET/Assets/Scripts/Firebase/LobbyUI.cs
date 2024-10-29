@@ -39,7 +39,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         auth = FirebaseAuth.DefaultInstance;
         roomId = PlayerPrefs.GetString("RoomId");
         hostUserId = PlayerPrefs.GetString("HostUserId");
-        roomCodeText.text = "Room Code: " + roomId;
+        roomCodeText.text = "Room ID: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         startGameButton.onClick.AddListener(() => SoundOnClick(StartGame));
