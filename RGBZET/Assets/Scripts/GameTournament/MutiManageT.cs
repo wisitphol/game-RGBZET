@@ -352,9 +352,6 @@ public class MutiManageT : MonoBehaviourPunCallbacks
         }
     }
 
-
-
-
     public void EndGame()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -387,7 +384,7 @@ public class MutiManageT : MonoBehaviourPunCallbacks
     private void RPC_LoadEndGameScene(int winnerActorNumber)
     {
         PlayerPrefs.SetInt("WinnerActorNumber", winnerActorNumber);
-        SceneManager.LoadScene("ResultTournament");
+        SceneManager.LoadScene("ResultT");
     }
 
     bool CheckIfPlayersHaveSameScore()

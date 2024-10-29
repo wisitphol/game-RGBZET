@@ -36,7 +36,7 @@ public class PlayUI : MonoBehaviourPunCallbacks
 
     void SetupButtons()
     {
-        createRoomButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("CreateFriend")));
+        createRoomButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Createroom")));
         quickplayButton.onClick.AddListener(() => SoundOnClick(OnQuickplayButtonClicked));
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
     }

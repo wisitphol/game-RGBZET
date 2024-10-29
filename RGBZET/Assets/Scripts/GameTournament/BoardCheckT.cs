@@ -92,7 +92,7 @@ public class BoardCheckT : MonoBehaviourPunCallbacks
     [PunRPC]
     public void RPC_LoadResultTournament()
     {
-       PhotonNetwork.LoadLevel("ResultTournament");
+       PhotonNetwork.LoadLevel("ResultT");
     }
 
     private bool CheckSetForAllCards(List<Card> cards)

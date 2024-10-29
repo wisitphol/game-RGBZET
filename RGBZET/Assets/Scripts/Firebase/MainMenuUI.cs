@@ -69,7 +69,7 @@ public class MainMenuUI : MonoBehaviour
     {
         joinButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Joinroom")));
         TournamentButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
-        playButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("ModeCreateroom")));
+        playButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Play")));
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
         profileButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Profile")));
         settingButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Setting")));

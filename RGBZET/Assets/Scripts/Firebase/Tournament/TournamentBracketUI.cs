@@ -443,7 +443,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         if (sumTournament != null)
         {
             // ตรวจสอบว่าปุ่มยังอยู่ก่อนเปลี่ยนไปหน้า SumTournament
-            SceneManager.LoadScene("SumTournament");
+            SceneManager.LoadScene("SumT");
         }
         else
         {
