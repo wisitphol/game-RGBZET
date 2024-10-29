@@ -249,7 +249,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.CurrentRoom.IsOpen = false;
             PhotonNetwork.CurrentRoom.IsVisible = false;
-            PhotonNetwork.LoadLevel("Card sample Tournament");
+            PhotonNetwork.LoadLevel("Card sample T");
         }
     }
 

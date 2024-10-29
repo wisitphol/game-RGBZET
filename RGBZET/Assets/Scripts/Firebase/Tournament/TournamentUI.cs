@@ -64,7 +64,7 @@ public class TournamentUI : MonoBehaviour
         }));
         
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
-        ruleButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Rule")));
+        ruleButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("RuleT")));
         returnToTournamentButton.onClick.AddListener(() => SoundOnClick(ReturnToTournament));
     }
 
