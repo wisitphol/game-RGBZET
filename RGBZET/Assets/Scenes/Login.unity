@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 556817005}
   - component: {fileID: 556817007}
   - component: {fileID: 556817006}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: line
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,7 +355,7 @@ GameObject:
   m_Component:
   - component: {fileID: 639222097}
   - component: {fileID: 639222098}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -409,7 +409,7 @@ GameObject:
   - component: {fileID: 687604765}
   - component: {fileID: 687604767}
   - component: {fileID: 687604766}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Feedbacktext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -623,7 +623,7 @@ GameObject:
   - component: {fileID: 852431769}
   - component: {fileID: 852431768}
   - component: {fileID: 852431767}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: 'facebookButton '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -744,7 +744,7 @@ GameObject:
   - component: {fileID: 870748982}
   - component: {fileID: 870748981}
   - component: {fileID: 870748980}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -985,7 +985,7 @@ GameObject:
   - component: {fileID: 975436138}
   - component: {fileID: 975436137}
   - component: {fileID: 975436140}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Signinbutton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1121,7 +1121,7 @@ GameObject:
   - component: {fileID: 983861025}
   - component: {fileID: 983861027}
   - component: {fileID: 983861026}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1311,7 +1311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 1716249356}
+  m_Material: {fileID: 1228720224}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1472,6 +1472,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1137797205}
   m_CullTransparentMesh: 1
+--- !u!21 &1228720224
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 1700, g: 900, b: 40, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1 &1260972973
 GameObject:
   m_ObjectHideFlags: 0
@@ -1484,7 +1520,7 @@ GameObject:
   - component: {fileID: 1260972977}
   - component: {fileID: 1260972976}
   - component: {fileID: 1260972975}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1595,7 +1631,7 @@ GameObject:
   - component: {fileID: 1301142273}
   - component: {fileID: 1301142272}
   - component: {fileID: 1301142271}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: 'googleButton '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1792,7 +1828,7 @@ GameObject:
   - component: {fileID: 1351301138}
   - component: {fileID: 1351301137}
   - component: {fileID: 1351301136}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2096,7 +2132,7 @@ GameObject:
   - component: {fileID: 1520135906}
   - component: {fileID: 1520135908}
   - component: {fileID: 1520135907}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2232,7 +2268,7 @@ GameObject:
   - component: {fileID: 1574074700}
   - component: {fileID: 1574074699}
   - component: {fileID: 1574074698}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InputEmail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2407,7 +2443,7 @@ GameObject:
   - component: {fileID: 1593171259}
   - component: {fileID: 1593171261}
   - component: {fileID: 1593171260}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FeedbackPopup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2473,42 +2509,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1593171258}
   m_CullTransparentMesh: 1
---- !u!21 &1716249356
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: UI/RoundedCorners/RoundedCorners
-  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _ColorMask: 15
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
-    - _UseUIAlphaClip: 0
-    m_Colors:
-    - _WidthHeightRadius: {r: 1700, g: 900, b: 40, a: 0}
-  m_BuildTextureStacks: []
 --- !u!1 &1732179861
 GameObject:
   m_ObjectHideFlags: 0
@@ -2522,7 +2522,7 @@ GameObject:
   - component: {fileID: 1732179863}
   - component: {fileID: 1732179865}
   - component: {fileID: 1732179866}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: RegisterButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2657,7 +2657,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1822371505}
   - component: {fileID: 1822371506}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2712,7 +2712,7 @@ GameObject:
   - component: {fileID: 1846715467}
   - component: {fileID: 1846715466}
   - component: {fileID: 1846715465}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: InputPassword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3022,7 +3022,7 @@ GameObject:
   - component: {fileID: 2011374939}
   - component: {fileID: 2011374941}
   - component: {fileID: 2011374940}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3157,7 +3157,7 @@ GameObject:
   - component: {fileID: 2084898026}
   - component: {fileID: 2084898028}
   - component: {fileID: 2084898027}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
