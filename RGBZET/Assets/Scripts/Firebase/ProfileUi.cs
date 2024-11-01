@@ -138,7 +138,7 @@ public class ProfileUI : MonoBehaviour
         grid.spacing = new Vector2(spacing, spacing);
         grid.padding = new RectOffset(20, 20, 20, 20); // เพิ่ม padding รอบ panel
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 2;
+        grid.constraintCount = 4;
     }
 
     // เพิ่มเมธอดใหม่สำหรับ Visual Feedback เมื่อเลือกไอคอน
