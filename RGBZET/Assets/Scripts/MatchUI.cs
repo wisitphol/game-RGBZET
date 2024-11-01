@@ -18,10 +18,11 @@ public class MatchUI : MonoBehaviour
     private Dictionary<string, object> matchData;
 
     // Define status colors
-    private readonly Color NotInLobbyColor = Color.red;        // ยังไม่เข้า lobby
-    private readonly Color InLobbyColor = new Color(1f, 0.5f, 0f); // สีส้ม - อยู่ใน lobby
-    private readonly Color PlayingColor = Color.green;         // กำลังเล่น
-    private readonly Color CompletedColor = Color.cyan;        // เล่นเสร็จแล้ว
+    private readonly Color NotInLobbyColor = Color.red;
+    private readonly Color InLobbyColor = new Color(1f, 0.5f, 0f); // Orange
+    private readonly Color PlayingColor = Color.green;
+    private readonly Color CompletedColor = Color.cyan;
+    private readonly Color DefaultColor = Color.white;
 
     public void Initialize(string id, Dictionary<string, object> data, string username)
     {
@@ -53,20 +54,23 @@ public class MatchUI : MonoBehaviour
     private void UpdatePlayerStatusColors(Image player1Image, Image player2Image, 
         Dictionary<string, object> player1Data, Dictionary<string, object> player2Data)
     {
-        if (player1Image != null && player1Data != null)
+        if (player1Data != null)
         {
-            UpdatePlayerStatusColor(player1Image, player1Data);
+            UpdateSinglePlayerStatus(player1Image, player1Data);
         }
 
-        if (player2Image != null && player2Data != null)
+        if (player2Data != null)
         {
-            UpdatePlayerStatusColor(player2Image, player2Data);
+            UpdateSinglePlayerStatus(player2Image, player2Data);
         }
     }
 
-    private void UpdatePlayerStatusColor(Image statusImage, Dictionary<string, object> playerData)
+    private void UpdateSinglePlayerStatus(Image statusImage, Dictionary<string, object> playerData)
     {
-        if (string.IsNullOrEmpty(playerData["username"] as string))
+        if (statusImage == null || playerData == null) return;
+
+        string username = playerData["username"] as string;
+        if (string.IsNullOrEmpty(username))
         {
             statusImage.color = Color.gray;
             return;
@@ -76,7 +80,15 @@ public class MatchUI : MonoBehaviour
         bool isPlaying = playerData.ContainsKey("isPlaying") && (bool)playerData["isPlaying"];
         bool hasCompleted = playerData.ContainsKey("hasCompleted") && (bool)playerData["hasCompleted"];
 
-        if (hasCompleted)
+        // ตรวจสอบว่ามีผู้ชนะแล้วหรือไม่
+        string winner = matchData.ContainsKey("winner") ? matchData["winner"] as string : null;
+        
+        if (!string.IsNullOrEmpty(winner))
+        {
+            // ถ้าเป็นผู้ชนะให้เป็นสีฟ้า แพ้ให้เป็นสีเทา
+            statusImage.color = (username == winner) ? CompletedColor : Color.gray;
+        }
+        else if (hasCompleted)
         {
             statusImage.color = CompletedColor;
         }
@@ -96,6 +108,8 @@ public class MatchUI : MonoBehaviour
 
     private void UpdatePlayerText(TMP_Text playerText, Dictionary<string, object> playerData)
     {
+        if (playerText == null) return;
+
         if (playerData == null || !playerData.ContainsKey("username") || 
             string.IsNullOrEmpty(playerData["username"] as string))
         {
@@ -106,37 +120,33 @@ public class MatchUI : MonoBehaviour
         {
             string username = playerData["username"] as string;
             playerText.text = username;
-            playerText.color = (username == currentUsername) ? Color.green : Color.white;
+
+            // สีข้อความปกติสำหรับผู้เล่นทั่วไป
+            playerText.color = DefaultColor;
+
+            // ถ้าเป็นผู้เล่นปัจจุบัน ให้เป็นสีเขียว
+            if (username == currentUsername)
+            {
+                playerText.color = Color.green;
+            }
+
+            // ถ้ามีผู้ชนะแล้ว ให้ชื่อผู้ชนะเป็นสีเหลือง
+            if (matchData.ContainsKey("winner") && matchData["winner"] as string == username)
+            {
+                playerText.color = Color.yellow;
+            }
         }
     }
 
     private void UpdateWinnerText()
     {
-        if (winnerText == null)
-        {
-            Debug.LogWarning("winnerText is null, skipping update.");
-            return;
-        }
+        if (winnerText == null) return;
 
-        if (matchData.ContainsKey("winner") && matchData["winner"] is string winner && 
-            !string.IsNullOrEmpty(winner))
+        if (matchData.ContainsKey("winner") && !string.IsNullOrEmpty(matchData["winner"] as string))
         {
+            string winner = matchData["winner"] as string;
             winnerText.text = "Winner: " + winner;
             winnerText.gameObject.SetActive(true);
-
-            // Update player text colors for winner
-            if (player1Text != null && player1Text.text == winner)
-            {
-                player1Text.color = Color.yellow;
-            }
-            else if (player2Text != null && player2Text.text == winner)
-            {
-                player2Text.color = Color.yellow;
-            }
-
-            // Set both status images to completed color
-            if (player1StatusImage != null) player1StatusImage.color = CompletedColor;
-            if (player2StatusImage != null) player2StatusImage.color = CompletedColor;
         }
         else
         {
@@ -146,18 +156,13 @@ public class MatchUI : MonoBehaviour
 
     private void UpdateRoundInfo()
     {
-        if (roundText != null)
+        if (roundText == null) return;
+
+        string[] matchInfo = matchId.Split('_');
+        if (matchInfo.Length >= 2)
         {
-            string[] matchInfo = matchId.Split('_');
-            if (matchInfo.Length >= 2)
-            {
-                int round = int.Parse(matchInfo[1]) + 1;
-                roundText.text = "Round " + round;
-            }
-            else
-            {
-                roundText.text = "Final";
-            }
+            int round = int.Parse(matchInfo[1]) + 1;
+            roundText.text = round == 1 ? "Final" : $"Round {round}";
         }
     }
 }

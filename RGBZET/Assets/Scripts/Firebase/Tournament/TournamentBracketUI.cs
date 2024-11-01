@@ -99,56 +99,69 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     private IEnumerator TryInitialize()
     {
-        // Get necessary data
-        tournamentId = PlayerPrefs.GetString("TournamentId");
+        var tournamentsRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments");
+        var task = tournamentsRef.GetValueAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError($"Failed to load tournaments: {task.Exception}");
+            yield break;
+        }
+
+        DataSnapshot snapshot = task.Result;
         currentUsername = AuthManager.Instance.GetCurrentUsername();
+        bool foundTournament = false;
 
-        if (string.IsNullOrEmpty(tournamentId) || string.IsNullOrEmpty(currentUsername))
+        foreach (var tournamentSnapshot in snapshot.Children)
         {
-            Debug.LogError("Missing required data (tournamentId or username)");
+            var bracketData = tournamentSnapshot.Child("bracket");
+            foreach (var matchData in bracketData.Children)
+            {
+                var player1Username = matchData.Child("player1").Child("username").Value?.ToString();
+                var player2Username = matchData.Child("player2").Child("username").Value?.ToString();
+
+                if (player1Username == currentUsername || player2Username == currentUsername)
+                {
+                    tournamentId = tournamentSnapshot.Key;
+                    PlayerPrefs.SetString("TournamentId", tournamentId);
+                    PlayerPrefs.SetString("TournamentName", tournamentSnapshot.Child("name").Value?.ToString());
+                    PlayerPrefs.SetInt("PlayerCount", int.Parse(tournamentSnapshot.Child("playerCount").Value.ToString()));
+                    PlayerPrefs.Save();
+
+                    foundTournament = true;
+                    break;
+                }
+            }
+            if (foundTournament) break;
+        }
+
+        if (!foundTournament)
+        {
+            Debug.LogError("Could not find tournament for current user");
             yield break;
         }
 
-        // Initialize Firebase reference
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
-
-        // Load initial tournament data
-        var loadTask = tournamentRef.GetValueAsync();
-        yield return new WaitUntil(() => loadTask.IsCompleted);
-
-        if (loadTask.Exception != null)
-        {
-            Debug.LogError($"Failed to load tournament: {loadTask.Exception}");
-            yield break;
-        }
-
-        if (!loadTask.Result.Exists)
-        {
-            Debug.LogError("Tournament data not found");
-            yield break;
-        }
-
-        // Setup successful
-        isInitialized = true;
+        
         SetupUI();
         yield return StartCoroutine(LoadTournamentBracket());
 
-        // Check for tournament winner
-        if (loadTask.Result.Child("won").Exists)
+        if (task.Result.Child("won").Exists)
         {
             ShowSummaryButton();
         }
+
+        isInitialized = true;
     }
 
     private void SetupUI()
     {
-        // Setup tournament name
         if (tournamentNameText != null)
         {
             tournamentNameText.text = "Tournament: " + PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
         }
 
-        // Setup buttons
         if (backButton != null)
         {
             backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
@@ -166,7 +179,6 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             sumTournament.gameObject.SetActive(false);
         }
 
-        // Setup Firebase listeners
         tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
         tournamentRef.Child("won").ValueChanged += OnWonNodeChanged;
     }
@@ -241,7 +253,6 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     private void ArrangeMatchPosition(RectTransform rectTransform, int round, int matchNumber, int playerCount)
     {
-        // Position calculations based on playerCount (4 or 8)
         if (playerCount == 4)
         {
             if (round == 0) // semi-finals
@@ -476,6 +487,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     private void OnDestroy()
     {
+        // Cleanup Firebase listeners
         if (tournamentRef != null)
         {
             tournamentRef.Child("bracket").ValueChanged -= OnBracketDataChanged;
