@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d40d2585603e3dc47a4b921db36aac7f
+guid: d119f77d5124adc4c923697fe7057234
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,11 +129,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: b-6_0
+      name: b-7_0
       rect:
         serializedVersion: 2
-        x: 131
-        y: 540
+        x: 150
+        y: 530
         width: 650
         height: 450
       alignment: 0
@@ -143,18 +143,18 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3e16ee2b2204c1b4c9eda5370cd4295c
-      internalID: -2129274471
+      spriteID: 4bf34468e0e3c1a48990db60f5383752
+      internalID: -1226088659
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: b-6_1
+      name: b-7_1
       rect:
         serializedVersion: 2
-        x: 960
-        y: 540
+        x: 1000
+        y: 530
         width: 650
         height: 450
       alignment: 0
@@ -164,18 +164,18 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d11d4bce1a31294d9f6db285ca6a99d
-      internalID: 715801773
+      spriteID: b3149d6c505e33d4bb9f66caf8a5eda7
+      internalID: 1856732666
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: b-6_2
+      name: b-7_2
       rect:
         serializedVersion: 2
-        x: 131
-        y: 49
+        x: 150
+        y: 50
         width: 650
         height: 450
       alignment: 0
@@ -185,18 +185,18 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8eadb1936b079124b8d3f1f7ecc3bc49
-      internalID: 1740803143
+      spriteID: 2766f740e91ca3d42a3d4ba01c48693b
+      internalID: 1414166127
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: b-6_3
+      name: b-7_3
       rect:
         serializedVersion: 2
-        x: 960
-        y: 49
+        x: 1000
+        y: 50
         width: 650
         height: 450
       alignment: 0
@@ -206,8 +206,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7d40afecdd60b9d4c9791851ca55b1a1
-      internalID: -342679402
+      spriteID: 3acd0deb55e1bbb459d271945f343715
+      internalID: 1205696390
       vertices: []
       indices: 
       edges: []
@@ -223,10 +223,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      b-6_0: -2129274471
-      b-6_1: 715801773
-      b-6_2: 1740803143
-      b-6_3: -342679402
+      b-7_0: -1226088659
+      b-7_1: 1856732666
+      b-7_2: 1414166127
+      b-7_3: 1205696390
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
