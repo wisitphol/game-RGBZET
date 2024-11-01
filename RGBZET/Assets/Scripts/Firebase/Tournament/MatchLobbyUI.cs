@@ -14,17 +14,22 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
     public TMP_Text player1Text;
     public TMP_Text player2Text;
     public Button backToBracketButton;
-    public Button startButton;
-    public Button readyButton;
     public TMP_Text statusText;
+    
+    [Header("Countdown UI")]
+    [SerializeField] private GameObject countdownPanel;
+    [SerializeField] private TMP_Text countdownText;
+    [SerializeField] private Image countdownFillImage;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
 
     private string matchId;
     private DatabaseReference matchRef;
     private string currentUsername;
-    private bool isReady = false;
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioClip buttonSound;
-
+    private bool isCountingDown = false;
+    private const float COUNTDOWN_TIME = 5f;
 
     void Start()
     {
@@ -41,13 +46,14 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         if (matchIdText != null)
             matchIdText.text = "Match ID: " + matchId;
 
-        matchRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId).Child("bracket").Child(matchId);
+        matchRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments")
+            .Child(tournamentId)
+            .Child("bracket")
+            .Child(matchId);
 
         backToBracketButton.onClick.AddListener(() => SoundOnClick(BackToBracket));
-        startButton.onClick.AddListener(() => SoundOnClick(StartGame));
-        readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
-
-        startButton.gameObject.SetActive(false);
+        
+        countdownPanel.SetActive(false);
         SetPlayerInLobby(true);
 
         LoadMatchData();
@@ -74,12 +80,7 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
                 DataSnapshot snapshot = task.Result;
                 if (snapshot.Exists)
                 {
-                    Debug.Log("Match data: " + snapshot.GetRawJsonValue());
                     UpdateUI(snapshot.Value as Dictionary<string, object>);
-                }
-                else
-                {
-                    Debug.LogWarning("No match data found.");
                 }
             }
         });
@@ -87,20 +88,21 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
 
     void UpdateUI(Dictionary<string, object> matchData)
     {
-        if (matchData == null)
-        {
-            Debug.LogWarning("Match data is null");
-            return;
-        }
+        if (matchData == null) return;
 
         UpdateUIForPlayers();
-        UpdateStartButtonVisibility();
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log("New player joined: " + newPlayer.NickName);
         UpdateUIForPlayers();
+
+        // Start countdown when room is full
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 2 && !isCountingDown)
+        {
+            StartCoroutine(StartCountdown());
+        }
     }
 
     void UpdateUIForPlayers()
@@ -108,35 +110,19 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         if (PhotonNetwork.PlayerList.Length > 0)
         {
             player1Text.text = PhotonNetwork.PlayerList[0].NickName;
-            bool isPlayer1Ready = PhotonNetwork.PlayerList[0].CustomProperties.TryGetValue("IsReady", out object isReady1) && (bool)isReady1;
-            player1Text.text += isPlayer1Ready ? " (Ready)" : " (Not Ready)";
-
-            if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[0])
-            {
-                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer1Ready ? "Not Ready" : "Ready";
-            }
         }
 
         if (PhotonNetwork.PlayerList.Length > 1)
         {
             player2Text.text = PhotonNetwork.PlayerList[1].NickName;
-            bool isPlayer2Ready = PhotonNetwork.PlayerList[1].CustomProperties.TryGetValue("IsReady", out object isReady2) && (bool)isReady2;
-            player2Text.text += isPlayer2Ready ? " (Ready)" : " (Not Ready)";
-
-            if (PhotonNetwork.LocalPlayer == PhotonNetwork.PlayerList[1])
-            {
-                readyButton.GetComponentInChildren<TMP_Text>().text = isPlayer2Ready ? "Not Ready" : "Ready";
-            }
         }
         else
         {
             player2Text.text = "Waiting for opponent...";
         }
 
-        UpdateStartButtonVisibility();
-
-        Debug.Log("Player 1: " + player1Text.text);
-        Debug.Log("Player 2: " + player2Text.text);
+        statusText.text = PhotonNetwork.CurrentRoom.PlayerCount == 2 ? 
+            "Starting soon..." : "Waiting for players...";
     }
 
     public override void OnConnectedToMaster()
@@ -154,7 +140,14 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
             return;
         }
 
-        RoomOptions roomOptions = new RoomOptions { MaxPlayers = 2, PublishUserId = true, IsVisible = false, IsOpen = true };
+        RoomOptions roomOptions = new RoomOptions 
+        { 
+            MaxPlayers = 2, 
+            PublishUserId = true, 
+            IsVisible = false, 
+            IsOpen = true 
+        };
+        
         PhotonNetwork.JoinOrCreateRoom(matchId, roomOptions, TypedLobby.Default);
     }
 
@@ -164,83 +157,34 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         statusText.text = "Joined room. Waiting for opponent...";
 
         UpdateUIForPlayers();
-        UpdateStartButtonVisibility();
-    }
 
-    void UpdateStartButtonVisibility()
-    {
-        bool allPlayersReady = true;
-        foreach (Player player in PhotonNetwork.PlayerList)
+        // Start countdown if room is already full when joining
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 2 && !isCountingDown)
         {
-            if (!player.CustomProperties.TryGetValue("IsReady", out object isReady) || !(bool)isReady)
-            {
-                allPlayersReady = false;
-                break;
-            }
-        }
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            startButton.gameObject.SetActive(allPlayersReady && PhotonNetwork.CurrentRoom.PlayerCount == 2);
-            startButton.interactable = allPlayersReady && PhotonNetwork.CurrentRoom.PlayerCount == 2;
-        }
-        else
-        {
-            startButton.gameObject.SetActive(false);
+            StartCoroutine(StartCountdown());
         }
     }
 
-    void SetPlayerInLobby(bool inLobby)
+    private IEnumerator StartCountdown()
     {
-        StartCoroutine(GetPlayerPathCoroutine(playerPath =>
-        {
-            matchRef.Child(playerPath).Child("inLobby").SetValueAsync(inLobby);
-        }));
-    }
+        if (isCountingDown) yield break;
+        isCountingDown = true;
 
-    IEnumerator GetPlayerPathCoroutine(System.Action<string> callback)
-    {
-        if (matchRef == null)
-        {
-            Debug.LogError("matchRef is null. Make sure it's properly initialized.");
-            yield break;
-        }
+        countdownPanel.SetActive(true);
+        float timeLeft = COUNTDOWN_TIME;
 
-        for (int retry = 0; retry < 3; retry++)
+        while (timeLeft > 0)
         {
-            var player1Task = matchRef.Child("player1").Child("username").GetValueAsync();
-            var player2Task = matchRef.Child("player2").Child("username").GetValueAsync();
+            timeLeft -= Time.deltaTime;
+            int secondsLeft = Mathf.CeilToInt(timeLeft);
             
-            yield return new WaitUntil(() => player1Task.IsCompleted && player2Task.IsCompleted);
-
-            if (player1Task.Exception != null || player2Task.Exception != null)
-            {
-                Debug.LogError($"Error fetching player paths: {player1Task.Exception ?? player2Task.Exception}");
-                yield break;
-            }
-
-            if (player1Task.Result.Exists && player2Task.Result.Exists)
-            {
-                string player1Username = player1Task.Result.Value.ToString();
-                string player2Username = player2Task.Result.Value.ToString();
-                
-                if (string.IsNullOrEmpty(currentUsername))
-                {
-                    Debug.LogError("currentUsername is null or empty.");
-                    yield break;
-                }
-
-                string playerPath = player1Username == currentUsername ? "player1" : "player2";
-                callback(playerPath);
-                yield break;
-            }
-
-            Debug.LogWarning("Retrying to fetch player data...");
-            yield return new WaitForSeconds(1f); // Retry after 1 second
+            countdownText.text = secondsLeft.ToString();
+            countdownFillImage.fillAmount = timeLeft / COUNTDOWN_TIME;
+            
+            yield return null;
         }
 
-        Debug.LogError("Player data is missing after retries.");
-        yield break;
+        StartGame();
     }
 
     void StartGame()
@@ -271,47 +215,74 @@ public class MatchLobbyUI : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("TournamentBracket");
     }
 
-    void ToggleReady()
+    void SetPlayerInLobby(bool inLobby)
     {
-        isReady = !isReady;
-        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", isReady } };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
-        UpdateUIForPlayers();
-    }
-
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        if (targetPlayer == PhotonNetwork.LocalPlayer)
+        StartCoroutine(GetPlayerPathCoroutine(playerPath =>
         {
-            if (changedProps.TryGetValue("IsReady", out object isReady))
-            {
-                readyButton.GetComponentInChildren<TMP_Text>().text = (bool)isReady ? "Not Ready" : "Ready";
-            }
-        }
-        
-        UpdateUIForPlayers();
+            matchRef.Child(playerPath).Child("inLobby").SetValueAsync(inLobby);
+        }));
     }
 
-     void SoundOnClick(System.Action buttonAction)
+    IEnumerator GetPlayerPathCoroutine(System.Action<string> callback)
+    {
+        if (matchRef == null)
+        {
+            Debug.LogError("matchRef is null");
+            yield break;
+        }
+
+        for (int retry = 0; retry < 3; retry++)
+        {
+            var player1Task = matchRef.Child("player1").Child("username").GetValueAsync();
+            var player2Task = matchRef.Child("player2").Child("username").GetValueAsync();
+            
+            yield return new WaitUntil(() => player1Task.IsCompleted && player2Task.IsCompleted);
+
+            if (player1Task.Exception != null || player2Task.Exception != null)
+            {
+                Debug.LogError($"Error fetching player paths: {player1Task.Exception ?? player2Task.Exception}");
+                yield break;
+            }
+
+            if (player1Task.Result.Exists && player2Task.Result.Exists)
+            {
+                string player1Username = player1Task.Result.Value.ToString();
+                string player2Username = player2Task.Result.Value.ToString();
+                
+                string playerPath = player1Username == currentUsername ? "player1" : "player2";
+                callback(playerPath);
+                yield break;
+            }
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
         {
             audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }
         else
         {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
             buttonAction.Invoke();
         }
     }
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
         yield return new WaitForSeconds(buttonSound.length);
         buttonAction.Invoke();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+        if (backToBracketButton != null)
+        {
+            backToBracketButton.onClick.RemoveAllListeners();
+        }
     }
 }

@@ -1,35 +1,53 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using UnityEngine.SceneManagement;
 using Firebase.Database;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using System.Linq;
 
 public class TournamentBracketUI : MonoBehaviourPunCallbacks
 {
-    public GameObject matchPrefab;
-    public Transform bracketContainer;
-    public TMP_Text tournamentNameText;
-    [SerializeField] public Button backButton;
-    [SerializeField] public Button enterLobbyButton;
-    [SerializeField] public Button sumTournament;
-    private int playerCount;
+    [Header("UI Elements")]
+    [SerializeField] private GameObject loadingPanel;
+    [SerializeField] private TMP_Text loadingText;
+    [SerializeField] private GameObject notificationPopup;
+    [SerializeField] private TMP_Text notificationText;
+    [SerializeField] private TMP_Text tournamentNameText;
+    [SerializeField] private Button backButton;
+    [SerializeField] private Button enterLobbyButton;
+    [SerializeField] private Button sumTournament;
+    [SerializeField] private Transform bracketContainer;
+    [SerializeField] private GameObject matchPrefab;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonSound;
+
     private DatabaseReference tournamentRef;
     private string tournamentId;
+    private string currentMatchId;
     private string currentUsername;
     private Dictionary<string, MatchUI> matches = new Dictionary<string, MatchUI>();
-    private string currentUserMatchId;
+    private bool isInitialized = false;
+    private int retryCount = 0;
+    private const int MAX_RETRIES = 3;
     private Coroutine updateUICoroutine;
-    private string winnerUsername; // ตัวแปรสำหรับเก็บชื่อผู้ชนะ
-    [SerializeField] public AudioSource audioSource;
-    [SerializeField] public AudioClip buttonSound;
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
 
-    void Start()
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start()
     {
         if (PhotonNetwork.IsConnected)
         {
@@ -37,20 +55,11 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         }
         else
         {
-            InitializeTournamentBracket();
+            StartCoroutine(InitializeWithRetry());
         }
-
-        if (sumTournament != null)
-        {
-
-            sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
-            sumTournament.gameObject.SetActive(false);
-            Debug.Log("have sumbutton");
-        }
-
     }
 
-    IEnumerator DisconnectFromPhoton()
+    private IEnumerator DisconnectFromPhoton()
     {
         PhotonNetwork.Disconnect();
         while (PhotonNetwork.IsConnected)
@@ -58,29 +67,91 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             yield return null;
         }
         Debug.Log("Disconnected from Photon");
-        InitializeTournamentBracket();
+        StartCoroutine(InitializeWithRetry());
     }
 
-    void InitializeTournamentBracket()
+    private IEnumerator InitializeWithRetry()
     {
-        tournamentId = PlayerPrefs.GetString("TournamentId");
-        string tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
-        currentUsername = AuthManager.Instance.GetCurrentUsername();
+        ShowLoading("Initializing tournament...");
 
-        if (tournamentNameText != null)
+        while (!isInitialized && retryCount < MAX_RETRIES)
         {
-            tournamentNameText.text = "Tournament: " + tournamentName;
+            yield return StartCoroutine(TryInitialize());
+            
+            if (!isInitialized)
+            {
+                retryCount++;
+                Debug.Log($"Retrying initialization attempt {retryCount}/{MAX_RETRIES}");
+                yield return new WaitForSeconds(1f);
+            }
         }
 
+        if (!isInitialized)
+        {
+            Debug.LogError("Failed to initialize after multiple attempts");
+            ShowNotification("Failed to load tournament data. Please try again.");
+            yield return new WaitForSeconds(2f);
+            SceneManager.LoadScene("Menu");
+        }
+
+        HideLoading();
+    }
+
+    private IEnumerator TryInitialize()
+    {
+        // Get necessary data
+        tournamentId = PlayerPrefs.GetString("TournamentId");
+        currentUsername = AuthManager.Instance.GetCurrentUsername();
+
+        if (string.IsNullOrEmpty(tournamentId) || string.IsNullOrEmpty(currentUsername))
+        {
+            Debug.LogError("Missing required data (tournamentId or username)");
+            yield break;
+        }
+
+        // Initialize Firebase reference
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
 
+        // Load initial tournament data
+        var loadTask = tournamentRef.GetValueAsync();
+        yield return new WaitUntil(() => loadTask.IsCompleted);
+
+        if (loadTask.Exception != null)
+        {
+            Debug.LogError($"Failed to load tournament: {loadTask.Exception}");
+            yield break;
+        }
+
+        if (!loadTask.Result.Exists)
+        {
+            Debug.LogError("Tournament data not found");
+            yield break;
+        }
+
+        // Setup successful
+        isInitialized = true;
+        SetupUI();
+        yield return StartCoroutine(LoadTournamentBracket());
+
+        // Check for tournament winner
+        if (loadTask.Result.Child("won").Exists)
+        {
+            ShowSummaryButton();
+        }
+    }
+
+    private void SetupUI()
+    {
+        // Setup tournament name
+        if (tournamentNameText != null)
+        {
+            tournamentNameText.text = "Tournament: " + PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
+        }
+
+        // Setup buttons
         if (backButton != null)
         {
             backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
-        }
-        else
-        {
-            Debug.LogWarning("Back button is missing or not assigned in the Inspector.");
         }
 
         if (enterLobbyButton != null)
@@ -88,50 +159,22 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             enterLobbyButton.onClick.AddListener(() => SoundOnClick(OnEnterLobbyButtonClicked));
             enterLobbyButton.gameObject.SetActive(false);
         }
-        else
+
+        if (sumTournament != null)
         {
-            Debug.LogWarning("Enter Lobby button is missing or not assigned in the Inspector.");
+            sumTournament.onClick.AddListener(() => SoundOnClick(OnClickSummaryButton));
+            sumTournament.gameObject.SetActive(false);
         }
 
-        if (tournamentRef != null)
-        {
-            tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
-        }
-
+        // Setup Firebase listeners
+        tournamentRef.Child("bracket").ValueChanged += OnBracketDataChanged;
         tournamentRef.Child("won").ValueChanged += OnWonNodeChanged;
-
-
-        Debug.Log("Checking tournament data...");
-        tournamentRef.GetValueAsync().ContinueWith(task =>
-        {
-            if (task.IsCompleted && task.Result.Exists)
-            {
-                var tournamentData = task.Result;
-                Debug.Log("Firebase tournament data exists.");
-
-                // เปลี่ยนเงื่อนไขตรงนี้ เพียงแค่ตรวจสอบว่ามีโหนด "won" หรือไม่
-                if (tournamentData.HasChild("won"))
-                {
-                    ShowSummaryButton(); // แสดงปุ่มทันที
-                    Debug.Log("Found 'won' node in tournament data. Showing summary button.");
-                }
-                else
-                {
-                    Debug.LogWarning("No 'won' field in tournament data.");
-                }
-            }
-            else
-            {
-                Debug.LogError("Failed to retrieve tournament data.");
-            }
-        });
-
-        StartCoroutine(LoadTournamentBracket());
-
     }
 
-    IEnumerator LoadTournamentBracket()
+    private IEnumerator LoadTournamentBracket()
     {
+        ShowLoading("Loading tournament bracket...");
+
         var task = tournamentRef.Child("bracket").GetValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
@@ -150,10 +193,18 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
         CreateBracketUI(bracketSnapshot);
         CheckCurrentUserMatch(bracketSnapshot);
+        
+        HideLoading();
     }
 
-    void CreateBracketUI(DataSnapshot bracketSnapshot)
+    private void CreateBracketUI(DataSnapshot bracketSnapshot)
     {
+        foreach (Transform child in bracketContainer)
+        {
+            Destroy(child.gameObject);
+        }
+        matches.Clear();
+
         foreach (var matchSnapshot in bracketSnapshot.Children)
         {
             string matchId = matchSnapshot.Key;
@@ -171,106 +222,58 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         ArrangeBracketUI();
     }
 
-    void ArrangeBracketUI()
+    private void ArrangeBracketUI()
     {
-        int playerCount = GetPlayerCount(); // ตรวจสอบจำนวนผู้เล่น (4 หรือ 8 คน)
-        Debug.Log("Player Count: " + playerCount);
-
+        int playerCount = PlayerPrefs.GetInt("PlayerCount", 4);
         foreach (var match in matches.Values)
         {
-            // ดึง matchId ออกมา เช่น round_0_match_0
-            string matchId = match.matchId;
-            Debug.Log("Match ID: " + matchId);
-
-            // แยก matchId เป็น round และ match number
-            string[] matchInfo = matchId.Split('_');
-
+            string[] matchInfo = match.matchId.Split('_');
             if (matchInfo.Length >= 4)
             {
                 if (int.TryParse(matchInfo[1], out int round) && int.TryParse(matchInfo[3], out int matchNumber))
                 {
                     RectTransform rectTransform = match.GetComponent<RectTransform>();
-                    Debug.Log($"Arranging match: Round {round}, MatchNumber {matchNumber}");
-
-                    if (playerCount == 4)
-                    {
-                        if (round == 0) // semi-final
-                        {
-                            if (matchNumber == 0)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
-                            }
-                            else if (matchNumber == 1)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
-                            }
-                        }
-                        else if (round == 1) // final
-                        {
-                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
-                            Debug.Log("Final match placed at (640f, -40f)");
-                        }
-                    }
-                    else if (playerCount == 8)
-                    {
-                        if (round == 0) // quarterfinals
-                        {
-                            if (matchNumber == 0)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(-640f, 190f);
-                                Debug.Log("Quarterfinal match 1 placed at (-640f, 190f)");
-                            }
-                            else if (matchNumber == 1)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(-640f, 40f);
-                                Debug.Log("Quarterfinal match 2 placed at (-640f, 40f)");
-                            }
-                            else if (matchNumber == 2)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(-640f, -120f);
-                                Debug.Log("Quarterfinal match 3 placed at (-640f, -120f)");
-                            }
-                            else if (matchNumber == 3)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(-640f, -270f);
-                                Debug.Log("Quarterfinal match 4 placed at (-640f, -270f)");
-                            }
-                        }
-                        else if (round == 1) // semi-final
-                        {
-                            if (matchNumber == 0)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(0f, 115f);
-                                Debug.Log($"Semi-final match 1 placed at (0f, 115f)");
-                            }
-                            else if (matchNumber == 1)
-                            {
-                                rectTransform.anchoredPosition = new Vector2(0f, -195f);
-                                Debug.Log($"Semi-final match 2 placed at (0f, -195f)");
-                            }
-                        }
-                        else if (round == 2) // final
-                        {
-                            rectTransform.anchoredPosition = new Vector2(640f, -40f);
-                            Debug.Log("Final match placed at (640f, -40f)");
-                        }
-                    }
+                    ArrangeMatchPosition(rectTransform, round, matchNumber, playerCount);
                 }
             }
         }
     }
 
-
-    int GetPlayerCount()
+    private void ArrangeMatchPosition(RectTransform rectTransform, int round, int matchNumber, int playerCount)
     {
-        // ฟังก์ชันคืนค่าจำนวนผู้เล่นในทัวร์นาเมนต์ (4 หรือ 8 คน)
-        return PlayerPrefs.GetInt("PlayerCount", playerCount); // เริ่มต้นที่ 4 แต่สามารถเปลี่ยนเป็น 8 ได้
+        // Position calculations based on playerCount (4 or 8)
+        if (playerCount == 4)
+        {
+            if (round == 0) // semi-finals
+            {
+                rectTransform.anchoredPosition = matchNumber == 0 ? 
+                    new Vector2(0f, 115f) : new Vector2(0f, -195f);
+            }
+            else if (round == 1) // final
+            {
+                rectTransform.anchoredPosition = new Vector2(640f, -40f);
+            }
+        }
+        else if (playerCount == 8)
+        {
+            if (round == 0) // quarter-finals
+            {
+                float yPos = 190f - (matchNumber * 150f);
+                rectTransform.anchoredPosition = new Vector2(-640f, yPos);
+            }
+            else if (round == 1) // semi-finals
+            {
+                rectTransform.anchoredPosition = matchNumber == 0 ? 
+                    new Vector2(0f, 115f) : new Vector2(0f, -195f);
+            }
+            else if (round == 2) // final
+            {
+                rectTransform.anchoredPosition = new Vector2(640f, -40f);
+            }
+        }
     }
 
-
-    void CheckCurrentUserMatch(DataSnapshot bracketSnapshot)
+    private void CheckCurrentUserMatch(DataSnapshot bracketSnapshot)
     {
         string latestMatchId = null;
         bool isPlayerInActiveTournament = false;
@@ -303,35 +306,15 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
             }
         }
 
-        currentUserMatchId = latestMatchId;
-
+        currentMatchId = latestMatchId;
         if (enterLobbyButton != null)
         {
             enterLobbyButton.gameObject.SetActive(isPlayerInActiveTournament);
         }
 
-        if (isPlayerInActiveTournament)
-        {
-            DisplayFeedback("You have an active match. Click 'Enter Lobby' to continue.");
-        }
-        else if (latestMatchId == null)
-        {
-            DisplayFeedback("Your tournament has ended.");
-        }
-    }
-
-    void OnEnterLobbyButtonClicked()
-    {
-        if (!string.IsNullOrEmpty(currentUserMatchId))
-        {
-            PlayerPrefs.SetString("CurrentMatchId", currentUserMatchId);
-            SceneManager.LoadScene("MatchLobby");
-        }
-        else
-        {
-            Debug.LogWarning("No active match found for the current user.");
-            DisplayFeedback("No active match found.");
-        }
+        ShowNotification(isPlayerInActiveTournament ? 
+            "You have an active match. Click 'Enter Lobby' to continue." : 
+            "Your tournament has ended.");
     }
 
     private void OnBracketDataChanged(object sender, ValueChangedEventArgs args)
@@ -352,7 +335,6 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         updateUICoroutine = StartCoroutine(UpdateUINextFrame(args.Snapshot));
     }
 
-
     private void OnWonNodeChanged(object sender, ValueChangedEventArgs args)
     {
         if (args.DatabaseError != null)
@@ -363,7 +345,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
         if (args.Snapshot.Exists)
         {
-            winnerUsername = args.Snapshot.Value as string;
+            string winnerUsername = args.Snapshot.Value as string;
             if (currentUsername == winnerUsername && sumTournament != null)
             {
                 ShowSummaryButton();
@@ -396,23 +378,111 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         CheckCurrentUserMatch(snapshot);
     }
 
-    public void DisplayFeedback(string message)
+    private void OnEnterLobbyButtonClicked()
     {
-        Debug.Log(message); // You can replace this with UI text update if you have a feedback text field
+        if (!string.IsNullOrEmpty(currentMatchId))
+        {
+            PlayerPrefs.SetString("CurrentMatchId", currentMatchId);
+            SceneManager.LoadScene("MatchLobby");
+        }
+        else
+        {
+            Debug.LogWarning("No active match found for the current user.");
+            ShowNotification("No active match found.");
+        }
     }
 
-    public override void OnDisconnected(DisconnectCause cause)
+    private void ShowSummaryButton()
     {
-        Debug.Log($"Disconnected from Photon: {cause}");
+        if (sumTournament != null)
+        {
+            sumTournament.gameObject.SetActive(true);
+        }
     }
 
-    void OnDestroy()
+    private void OnClickSummaryButton()
+    {
+        SceneManager.LoadScene("SumTournament");
+    }
+
+    private void ShowLoading(string message = "Loading...")
+    {
+        if (loadingPanel != null)
+        {
+            loadingPanel.SetActive(true);
+            if (loadingText != null)
+            {
+                loadingText.text = message;
+            }
+        }
+    }
+
+    private void HideLoading()
+    {
+        if (loadingPanel != null)
+        {
+            loadingPanel.SetActive(false);
+        }
+    }
+
+    private void ShowNotification(string message)
+    {
+        if (notificationText != null)
+        {
+            notificationText.text = message;
+            notificationPopup.SetActive(true);
+            StartCoroutine(HideNotificationAfterDelay(3f));
+        }
+    }
+
+    private IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (notificationPopup != null)
+        {
+            notificationPopup.SetActive(false);
+        }
+    }
+
+    private void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "TournamentBracket")
+        {
+            if (!isInitialized)
+            {
+                StartCoroutine(InitializeWithRetry());
+            }
+        }
+    }
+
+    private void OnDestroy()
     {
         if (tournamentRef != null)
         {
             tournamentRef.Child("bracket").ValueChanged -= OnBracketDataChanged;
+            tournamentRef.Child("won").ValueChanged -= OnWonNodeChanged;
         }
 
+        // Clean up button listeners
         if (backButton != null)
         {
             backButton.onClick.RemoveAllListeners();
@@ -422,54 +492,22 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
         {
             enterLobbyButton.onClick.RemoveAllListeners();
         }
-    }
 
-    void ShowSummaryButton()
-    {
-        Debug.Log("Trying to show summary button.");
         if (sumTournament != null)
         {
-            sumTournament.gameObject.SetActive(true);
-            Debug.Log("Summary button is now visible.");
+            sumTournament.onClick.RemoveAllListeners();
         }
-        else
-        {
-            Debug.LogError("sumTournament button is not assigned in the Inspector.");
-        }
-    }
 
-    void OnClickSummaryButton()
-    {
-        if (sumTournament != null)
-        {
-            // ตรวจสอบว่าปุ่มยังอยู่ก่อนเปลี่ยนไปหน้า SumTournament
-            SceneManager.LoadScene("SumTournament");
-        }
-        else
-        {
-            Debug.LogWarning("Summary button is missing or destroyed.");
-        }
-    }
+        // Clean up scene loaded event
+        SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    void SoundOnClick(System.Action buttonAction)
-    {
-        if (audioSource != null && buttonSound != null)
+        // Stop any running coroutines
+        if (updateUICoroutine != null)
         {
-            audioSource.PlayOneShot(buttonSound);
-            // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
-            StartCoroutine(WaitForSound(buttonAction));
+            StopCoroutine(updateUICoroutine);
         }
-        else
-        {
-            // ถ้าไม่มีเสียงให้เล่น ให้ทำงานทันที
-            buttonAction.Invoke();
-        }
-    }
 
-    private IEnumerator WaitForSound(System.Action buttonAction)
-    {
-        // รอความยาวของเสียงก่อนที่จะทำงาน
-        yield return new WaitForSeconds(buttonSound.length);
-        buttonAction.Invoke();
+        // Clear matches dictionary
+        matches.Clear();
     }
 }
