@@ -75,7 +75,7 @@ public class EndGame2 : MonoBehaviourPunCallbacks
 
         FetchPlayerDataFromPhoton();
 
-        StartCoroutine(DelayedUpdateGameResults());
+        //StartCoroutine(DelayedUpdateGameResults());
 
         if (audioSource != null && endgameSound != null)
         {
@@ -145,29 +145,45 @@ public class EndGame2 : MonoBehaviourPunCallbacks
 
             index++;
 
-           
         }
 
 
-        // อัปเดตข้อความ "Winner" หรือ "Draw"
-        if (highestScoreIndices.Count == 1)
+        if (players.Length == 1)
         {
-            playerResults[highestScoreIndices[0]].UpdatePlayerResult(
-                playerResults[highestScoreIndices[0]].NameText.text,
-                playerResults[highestScoreIndices[0]].ScoreText.text,
-                "WIN"
+            // มีผู้เล่นคนเดียว
+            playerResults[0].UpdatePlayerResult(
+                playerResults[0].NameText.text,
+                playerResults[0].ScoreText.text,
+                "" // ไม่ต้องแสดงผลคำว่า "WIN"
             );
+
+            // ไม่ต้องบันทึกข้อมูลลง Firebase
         }
         else
         {
-            foreach (int i in highestScoreIndices)
+            // มีผู้เล่นมากกว่าหนึ่งคน
+            if (highestScoreIndices.Count == 1)
             {
-                playerResults[i].UpdatePlayerResult(
-                    playerResults[i].NameText.text,
-                    playerResults[i].ScoreText.text,
-                    "DRAW"
+                playerResults[highestScoreIndices[0]].UpdatePlayerResult(
+                    playerResults[highestScoreIndices[0]].NameText.text,
+                    playerResults[highestScoreIndices[0]].ScoreText.text,
+                    "WIN"
                 );
             }
+            else
+            {
+                foreach (int i in highestScoreIndices)
+                {
+                    playerResults[i].UpdatePlayerResult(
+                        playerResults[i].NameText.text,
+                        playerResults[i].ScoreText.text,
+                        "DRAW"
+                    );
+                }
+            }
+
+            // อัปเดตข้อมูลลง Firebase
+            StartCoroutine(DelayedUpdateGameResults());
         }
     }
 
