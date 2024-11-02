@@ -50,6 +50,7 @@ public class Pause2 : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
+        yield return new WaitForSeconds(1f);
         var task = databaseReference.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
@@ -80,6 +81,7 @@ public class Pause2 : MonoBehaviourPunCallbacks
 
     private IEnumerator LeaveRoomAndCheckConnection()
     {
+        yield return new WaitForSeconds(1f);
         PhotonNetwork.LeaveRoom();
 
         // รอให้การออกจากห้องเสร็จสมบูรณ์
