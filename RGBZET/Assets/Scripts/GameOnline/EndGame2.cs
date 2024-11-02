@@ -146,7 +146,9 @@ public class EndGame2 : MonoBehaviourPunCallbacks
             index++;
 
         }
+
         // เช็คจำนวนผู้เล่น
+
         if (players.Length == 1)
         {
             // มีผู้เล่นคนเดียว

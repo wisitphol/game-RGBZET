@@ -41,7 +41,9 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         zetButton.onClick.AddListener(OnZetButtonPressed);
         boardCheck = FindObjectOfType<BoardCheckQ>();
 
+
     }
+
 
 
     void UpdatePlayerList()
@@ -282,6 +284,7 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
+        yield return new WaitForSeconds(1f);
         Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
         var task = databaseRef.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
@@ -306,6 +309,7 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");
     }
 
+
     void GoToEndScene()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -324,5 +328,6 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1f);
         boardCheck.photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered);
     }
+
 
 }
