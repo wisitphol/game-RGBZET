@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3e8c5a1d08fdd7043adc030a5535a449
+guid: d73e30d9dbd4819478eba6e0e277a1ab
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: minute15_0
+      name: m_0
       rect:
         serializedVersion: 2
-        x: 30
-        y: 30
-        width: 452
-        height: 452
+        x: 292
+        y: 272
+        width: 537
+        height: 537
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 96a88a7f1df6bd9468a155cc8c553741
-      internalID: -1796521278
+      spriteID: 1fe024afe905f9b439c09ffe93843a10
+      internalID: -470866435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: m_1
+      rect:
+        serializedVersion: 2
+        x: 1103
+        y: 280
+        width: 643
+        height: 520
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4b2d5b1376f32fa45b1ea548b1a10bdb
+      internalID: -1512562383
       vertices: []
       indices: 
       edges: []
@@ -160,7 +181,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      minute15_0: -1796521278
+      m_0: -470866435
+      m_1: -1512562383
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

@@ -10,8 +10,8 @@ public class PlayerResultQ : MonoBehaviourPunCallbacks
     public TMP_Text NameText;
     public TMP_Text ScoreText;
     public TMP_Text ResultText;
-    public Image playerIconImage; 
-    public Sprite[] iconSprites;    
+    public Image playerIconImage;
+    public Sprite[] iconSprites;
 
     void Start()
     {
@@ -38,6 +38,19 @@ public class PlayerResultQ : MonoBehaviourPunCallbacks
         if (ResultText != null)
         {
             ResultText.text = result;
+
+            if (result == "WIN")
+            {
+                ResultText.color = Color.cyan; // สีสำหรับ Winner
+            }
+            else if (result == "DRAW")
+            {
+                ResultText.color = Color.yellow; // สีสำหรับ Draw
+            }
+            else
+            {
+                ResultText.color = Color.white; // สีเริ่มต้น
+            }
         }
     }
 
