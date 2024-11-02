@@ -16,11 +16,13 @@ public class PauseQ : MonoBehaviourPunCallbacks
     [SerializeField] public GameObject pausePanel;
     [SerializeField] public Button menuButton;
     private DatabaseReference databaseReference;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     void Start()
     {
         pausePanel.SetActive(false);
-        pauseButton.onClick.AddListener(TogglePause);
+        pauseButton.onClick.AddListener(() => SoundOnClick(TogglePause));
         databaseReference = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(PlayerPrefs.GetString("RoomId"));
     }
 
@@ -28,7 +30,7 @@ public class PauseQ : MonoBehaviourPunCallbacks
     {
         bool isActive = pausePanel.activeSelf;
         pausePanel.SetActive(!isActive);
-        menuButton.onClick.AddListener(MenuButtonClicked);
+        menuButton.onClick.AddListener(() => SoundOnClick(MenuButtonClicked));
     }
 
     private void MenuButtonClicked()
@@ -45,6 +47,7 @@ public class PauseQ : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
+        yield return new WaitForSeconds(1f); 
         var task = databaseReference.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
@@ -70,6 +73,7 @@ public class PauseQ : MonoBehaviourPunCallbacks
 
     private IEnumerator LeaveRoomAndCheckConnection()
     {
+        yield return new WaitForSeconds(1f); 
         PhotonNetwork.LeaveRoom();
 
         yield return new WaitUntil(() => !PhotonNetwork.InRoom);
@@ -79,5 +83,24 @@ public class PauseQ : MonoBehaviourPunCallbacks
         yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
 
         SceneManager.LoadScene("Menu");
+    }
+
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

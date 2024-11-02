@@ -88,15 +88,8 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 if (timer <= 0)
                 {
                     TimeUp();
-                    if (!CheckIfPlayersHaveSameScore())
-                    {
-                        GoToEndScene();
-                    }
-                    else
-                    {
-                        StopTimer();
-                        StartCoroutine(WaitForWinner());
-                    }
+            
+                    GoToEndScene();
                 }
             }
         }
@@ -197,7 +190,6 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         UpdatePlayerList();
-        // UpdatePlayerListInFirebase(); 
     }
 
     public override void OnJoinedRoom()
@@ -382,6 +374,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
+        yield return new WaitForSeconds(1f); 
         Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
         // ลบข้อมูลห้องจาก Firebase
         var task = databaseRef.RemoveValueAsync();  // databaseRef ใช้ตัวแปรที่ชี้ไปยังห้องใน Firebase
@@ -438,104 +431,6 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(1f); // หน่วงเวลา 3 วินาทีก่อนเปลี่ยน Scene
         boardCheck.photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered); // เรียกใช้ฟังก์ชัน RPC_LoadEndScene
-    }
-
-    bool CheckIfPlayersHaveSameScore()
-    {
-        Debug.Log("check score call");
-        Player[] players = PhotonNetwork.PlayerList;
-        List<int> scores = new List<int>();
-
-        foreach (Player player in players)
-        {
-            // ดึงคะแนนจาก CustomProperties
-            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
-            int score;
-
-            // ตรวจสอบว่า score เป็นตัวเลขหรือไม่ ถ้าไม่ใช่ให้ default เป็น 0
-            if (!int.TryParse(cleanScoreStr, out score))
-            {
-                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
-                score = 0;
-            }
-
-            // แสดงคะแนนของแต่ละผู้เล่นใน Console เพื่อ Debug
-            Debug.Log($"Player: {player.NickName}, Score: {score}");
-
-            // เพิ่มคะแนนลงใน list
-            scores.Add(score);
-        }
-
-        // เช็คว่ามีคะแนนที่เท่ากันหรือไม่
-        for (int i = 0; i < scores.Count; i++)
-        {
-            for (int j = i + 1; j < scores.Count; j++)
-            {
-                if (scores[i] == scores[j])
-                {
-                    Debug.Log($"Players have the same score: {scores[i]}");
-                    return true; // ถ้าพบคะแนนซ้ำกัน
-                }
-            }
-        }
-
-        return false; // ถ้าไม่มีคะแนนซ้ำกัน
-    }
-
-    void StopTimer()
-    {
-        timer = 0; // หยุด timer
-    }
-
-    IEnumerator WaitForWinner()
-    {
-        //yield return new WaitForSeconds(3f); // รอ 3 วินาที
-        while (true)
-        {
-            if (CheckForWinner()) // เช็คถ้ามีผู้เล่นที่มีคะแนนมากกว่าผู้เล่นอื่น ๆ
-            {
-                GoToEndScene();
-                yield break;
-            }
-            yield return new WaitForSeconds(1f); // เช็คทุกๆ 1 วินาที
-        }
-    }
-
-    bool CheckForWinner()
-    {
-        Player[] players = PhotonNetwork.PlayerList;
-        int highestScore = int.MinValue;
-        int highestCount = 0;
-
-        foreach (Player player in players)
-        {
-            // ดึงคะแนนจาก CustomProperties
-            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
-            int score;
-
-            // ตรวจสอบว่า score เป็นตัวเลขหรือไม่ ถ้าไม่ใช่ให้ default เป็น 0
-            if (!int.TryParse(cleanScoreStr, out score))
-            {
-                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
-                score = 0;
-            }
-
-            // หา highest score และนับจำนวนผู้เล่นที่มีคะแนนสูงสุด
-            if (score > highestScore)
-            {
-                highestScore = score;
-                highestCount = 1;
-            }
-            else if (score == highestScore)
-            {
-                highestCount++;
-            }
-        }
-
-        // ถ้าผู้เล่นที่ได้คะแนนสูงสุดมีเพียงคนเดียว
-        return highestCount == 1;
     }
 
     private void TimeUp()

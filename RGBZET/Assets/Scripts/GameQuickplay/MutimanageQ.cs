@@ -23,12 +23,12 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
     private DatabaseReference databaseRef;
     private string roomId;
     private BoardCheckQ boardCheck;
-    private float timer;
+    //private float timer;
     public TMP_Text timerText;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
-    public float gameDuration;
-    private bool isUnlimitedTime = false;
+    //public float gameDuration;
+    //private bool isUnlimitedTime = false;
 
     void Start()
     {
@@ -41,73 +41,8 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         zetButton.onClick.AddListener(OnZetButtonPressed);
         boardCheck = FindObjectOfType<BoardCheckQ>();
 
-        if (PhotonNetwork.InRoom)
-        {
-            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("gameTime"))
-            {
-                int gameTimeMinutes = (int)PhotonNetwork.CurrentRoom.CustomProperties["gameTime"];
-                if (gameTimeMinutes == -1)
-                {
-                    isUnlimitedTime = true;
-                    timerText.text = "NoTime";
-                }
-                else
-                {
-                    gameDuration = gameTimeMinutes * 60f;
-                    timer = gameDuration;
-                    StartCoroutine(GameTimer());
-                    UpdateTimerUI();
-                }
-            }
-            else
-            {
-                gameDuration = 120f;
-                timer = gameDuration;
-                StartCoroutine(GameTimer());
-                UpdateTimerUI();
-            }
-        }
-        else
-        {
-            Debug.LogError("Not in a room.");
-        }
     }
 
-    void Update()
-    {
-        if (!isUnlimitedTime)
-        {
-            if (timer > 0)
-            {
-                timer -= Time.deltaTime;
-                UpdateTimerUI();
-
-                if (timer <= 0)
-                {
-                    TimeUp();
-                    if (!CheckIfPlayersHaveSameScore())
-                    {
-                        GoToEndScene();
-                    }
-                    else
-                    {
-                        StopTimer();
-                        StartCoroutine(WaitForWinner());
-                    }
-                }
-            }
-        }
-    }
-
-    void UpdateTimerUI()
-    {
-        if (timerText != null && !isUnlimitedTime)
-        {
-            int minutes = Mathf.FloorToInt(timer / 60);
-            int seconds = Mathf.FloorToInt(timer% 60);
-            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
-        }
-    }
 
     void UpdatePlayerList()
     {
@@ -371,14 +306,6 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");
     }
 
-    IEnumerator GameTimer()
-    {
-        while (timer > 0)
-        {
-            yield return null;
-        }
-    }
-
     void GoToEndScene()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -398,99 +325,4 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         boardCheck.photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered);
     }
 
-    bool CheckIfPlayersHaveSameScore()
-    {
-        Debug.Log("check score call");
-        Player[] players = PhotonNetwork.PlayerList;
-        List<int> scores = new List<int>();
-
-        foreach (Player player in players)
-        {
-            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
-            int score;
-
-            if (!int.TryParse(cleanScoreStr, out score))
-            {
-                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
-                score = 0;
-            }
-
-            Debug.Log($"Player: {player.NickName}, Score: {score}");
-
-            scores.Add(score);
-        }
-
-        for (int i = 0; i < scores.Count; i++)
-        {
-            for (int j = i + 1; j < scores.Count; j++)
-            {
-                if (scores[i] == scores[j])
-                {
-                    Debug.Log($"Players have the same score: {scores[i]}");
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    void StopTimer()
-    {
-        timer = 0;
-    }
-
-    IEnumerator WaitForWinner()
-    {
-        while (true)
-        {
-            if (CheckForWinner())
-            {
-                GoToEndScene();
-                yield break;
-            }
-            yield return new WaitForSeconds(1f);
-        }
-    }
-
-    bool CheckForWinner()
-    {
-        Player[] players = PhotonNetwork.PlayerList;
-        int highestScore = int.MinValue;
-        int highestCount = 0;
-
-        foreach (Player player in players)
-        {
-            string scoreStr = player.CustomProperties.ContainsKey("score") ? player.CustomProperties["score"].ToString() : "0";
-            string cleanScoreStr = System.Text.RegularExpressions.Regex.Replace(scoreStr, @"\D", "");
-            int score;
-
-            if (!int.TryParse(cleanScoreStr, out score))
-            {
-                Debug.LogError($"Failed to parse score '{scoreStr}' for player '{player.NickName}'. Defaulting to 0.");
-                score = 0;
-            }
-
-            if (score > highestScore)
-            {
-                highestScore = score;
-                highestCount = 1;
-            }
-            else if (score == highestScore)
-            {
-                highestCount++;
-            }
-        }
-
-        return highestCount == 1;
-    }
-
-    private void TimeUp()
-    {
-        if (timerText != null)
-        {
-            timerText.gameObject.SetActive(false);
-        }
-    }
 }
