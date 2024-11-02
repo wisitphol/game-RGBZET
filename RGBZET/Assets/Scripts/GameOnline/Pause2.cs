@@ -15,14 +15,15 @@ public class Pause2 : MonoBehaviourPunCallbacks
     [SerializeField] public GameObject pausePanel;
     [SerializeField] public Button menuButton;
     private DatabaseReference databaseReference;
-
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
     void Start()
     {
         // ซ่อนแผง pause panel ตอนเริ่มเกม
         pausePanel.SetActive(false);
 
         // เพิ่ม listener ให้กับปุ่ม pause
-        pauseButton.onClick.AddListener(TogglePause);
+        pauseButton.onClick.AddListener(() => SoundOnClick(TogglePause));
 
         databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
     }
@@ -31,7 +32,7 @@ public class Pause2 : MonoBehaviourPunCallbacks
     {
         bool isActive = pausePanel.activeSelf;
         pausePanel.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
-        menuButton.onClick.AddListener(MenuButtonClicked);
+        menuButton.onClick.AddListener(() => SoundOnClick(MenuButtonClicked));
     }
 
     private void MenuButtonClicked()
@@ -50,7 +51,9 @@ public class Pause2 : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
-        yield return new WaitForSeconds(1f);
+
+        yield return new WaitForSeconds(1f); 
+
         var task = databaseReference.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
@@ -81,7 +84,9 @@ public class Pause2 : MonoBehaviourPunCallbacks
 
     private IEnumerator LeaveRoomAndCheckConnection()
     {
-        yield return new WaitForSeconds(1f);
+
+        yield return new WaitForSeconds(1f); 
+
         PhotonNetwork.LeaveRoom();
 
         // รอให้การออกจากห้องเสร็จสมบูรณ์
@@ -95,7 +100,23 @@ public class Pause2 : MonoBehaviourPunCallbacks
 
         // เปลี่ยนไปยังเมนู
         SceneManager.LoadScene("Menu");
+    }
+     void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
+        }
+    }
 
-
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
     }
 }

@@ -42,7 +42,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -69,7 +69,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -127,7 +127,28 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: lo-1_14
+      rect:
+        serializedVersion: 2
+        x: 380
+        y: 64
+        width: 1158
+        height: 953
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03979e0d7da7eb146b900fb770bbef7d
+      internalID: -1595903378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -138,7 +159,51 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      lo-1_0: 188503659
+      lo-1_1: -461194952
+      lo-1_10: 369999167
+      lo-1_11: -1060564783
+      lo-1_12: 593499903
+      lo-1_13: 991304189
+      lo-1_14: -1595903378
+      lo-1_15: -414590301
+      lo-1_16: 88875281
+      lo-1_17: 1632540917
+      lo-1_18: 1823059641
+      lo-1_19: 1017885712
+      lo-1_2: 628492004
+      lo-1_20: -1424231967
+      lo-1_21: 45497405
+      lo-1_22: -1593407299
+      lo-1_23: -1106921570
+      lo-1_24: 2098292201
+      lo-1_25: -243570019
+      lo-1_26: 1219656366
+      lo-1_27: 1753490272
+      lo-1_28: 842631821
+      lo-1_29: 50452278
+      lo-1_3: 554455118
+      lo-1_30: 426145359
+      lo-1_31: 1504266377
+      lo-1_32: 150657716
+      lo-1_33: 1463356903
+      lo-1_34: -400990280
+      lo-1_35: -1893757499
+      lo-1_36: 241301476
+      lo-1_37: 1615708463
+      lo-1_38: -866762255
+      lo-1_39: 863511341
+      lo-1_4: -259249624
+      lo-1_40: 63165603
+      lo-1_41: 1559766447
+      lo-1_42: 976383466
+      lo-1_43: 1967315199
+      lo-1_5: 541008392
+      lo-1_6: 1673237689
+      lo-1_7: -1659637768
+      lo-1_8: 1947608551
+      lo-1_9: 1551366566
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

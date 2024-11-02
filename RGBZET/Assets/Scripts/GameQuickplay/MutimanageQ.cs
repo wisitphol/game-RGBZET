@@ -23,12 +23,12 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
     private DatabaseReference databaseRef;
     private string roomId;
     private BoardCheckQ boardCheck;
-    private float timer;
+    //private float timer;
     public TMP_Text timerText;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
-    public float gameDuration;
-    private bool isUnlimitedTime = false;
+    //public float gameDuration;
+    //private bool isUnlimitedTime = false;
 
     void Start()
     {
@@ -41,8 +41,10 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         zetButton.onClick.AddListener(OnZetButtonPressed);
         boardCheck = FindObjectOfType<BoardCheckQ>();
 
-      
+
     }
+
+
 
     void UpdatePlayerList()
     {
@@ -307,5 +309,25 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");
     }
 
-  
+
+    void GoToEndScene()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Time's up! Going to EndScene.");
+            StartCoroutine(WaitAndGoToEndScene());
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    private IEnumerator WaitAndGoToEndScene()
+    {
+        yield return new WaitForSeconds(1f);
+        boardCheck.photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered);
+    }
+
+
 }

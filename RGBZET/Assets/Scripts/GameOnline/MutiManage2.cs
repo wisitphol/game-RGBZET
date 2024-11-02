@@ -88,9 +88,10 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 if (timer <= 0)
                 {
                     TimeUp();
-                    
+
+            
                     GoToEndScene();
-                    
+
                 }
             }
         }
@@ -375,7 +376,9 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     private IEnumerator DeleteRoomAndGoToMenu()
     {
-        yield return new WaitForSeconds(1f);
+
+        yield return new WaitForSeconds(1f); 
+
         Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
         // ลบข้อมูลห้องจาก Firebase
         var task = databaseRef.RemoveValueAsync();  // databaseRef ใช้ตัวแปรที่ชี้ไปยังห้องใน Firebase

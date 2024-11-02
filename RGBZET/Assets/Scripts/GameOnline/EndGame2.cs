@@ -147,6 +147,7 @@ public class EndGame2 : MonoBehaviourPunCallbacks
 
         }
 
+        // เช็คจำนวนผู้เล่น
 
         if (players.Length == 1)
         {

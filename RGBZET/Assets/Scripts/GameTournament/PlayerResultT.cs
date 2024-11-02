@@ -34,22 +34,18 @@ public class PlayerResultT : MonoBehaviourPunCallbacks
             ScoreText.text = score;
         }
 
-        if (ResultText != null)
+         if (ResultText != null)
         {
             ResultText.text = result;
 
-            /*  if (win == "Winner")
-              {
-                  WinText.color = Color.green; // สีสำหรับ Winner
-              }
-              else if (win == "Draw")
-              {
-                  WinText.color = Color.yellow; // สีสำหรับ Draw
-              }
-              else
-              {
-                  WinText.color = Color.white; // สีเริ่มต้น
-              }*/
+            if (result == "WIN")
+            {
+                ResultText.color = Color.cyan; // สีสำหรับ Winner
+            }
+            else
+            {
+                ResultText.color = Color.white; // สีเริ่มต้น
+            }
         }
     }
 
