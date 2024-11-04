@@ -475,7 +475,7 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
 
     private void OnClickSummaryButton()
     {
-        SceneManager.LoadScene("SumTournament");
+        SceneManager.LoadScene("SumT");
     }
 
     public void UpdateMatchState(string matchId, Dictionary<string, object> newState)

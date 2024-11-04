@@ -127,6 +127,7 @@ MonoBehaviour:
   - RPC_SumTournament
   - StartGameCountdown
   - RPC_ForceLeaveAndDestroyRoom
+  - RPC_ReturnToMenu
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

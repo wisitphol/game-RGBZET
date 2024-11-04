@@ -565,7 +565,7 @@ public class MutiManageT : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_LoadEndGameScene()
     {
-        SceneManager.LoadScene("ResultTournament");
+        SceneManager.LoadScene("ResultT");
     }
 
     private void ResetPlayerData()
