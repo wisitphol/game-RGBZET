@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ProfileUI : MonoBehaviour
+public class ProfileUi : MonoBehaviour
 {
     [Header("Profile Info")]
     [SerializeField] private TMP_Text usernameText;
