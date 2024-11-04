@@ -7,7 +7,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 
 public class LobbyUI : MonoBehaviourPunCallbacks
@@ -37,24 +36,23 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     void Start()
     {
         auth = FirebaseAuth.DefaultInstance;
-        roomId = PlayerPrefs.GetString("RoomId");
-        hostUserId = PlayerPrefs.GetString("HostUserId");
+
+        if (PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomId"))
+        {
+            roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
+        }
+
+        if (PhotonNetwork.CurrentRoom != null && PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("hostUserId"))
+        {
+            hostUserId = PhotonNetwork.CurrentRoom.CustomProperties["hostUserId"].ToString();
+        }
+
         roomCodeText.text = "Room ID: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         startGameButton.onClick.AddListener(() => SoundOnClick(StartGame));
         readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
-        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() =>
-        {
-            if (auth.CurrentUser.UserId == hostUserId)
-            {
-                StartCoroutine(DestroyRoomAndReturnToMainGame());
-            }
-            else
-            {
-                PhotonNetwork.LeaveRoom();
-            }
-        }));
+        leaveRoomButton.onClick.AddListener(() => SoundOnClick(() => LeaveRoom()));
 
         copyButton.onClick.AddListener(() => SoundOnClick(() =>
         {
@@ -62,7 +60,6 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         }));
 
         notificationPopup.SetActive(false);
-
         UpdateUI();
     }
 
@@ -231,55 +228,47 @@ public class LobbyUI : MonoBehaviourPunCallbacks
         UpdateUI();
         ShowNotification($"{otherPlayer.NickName} left");
 
-        if (otherPlayer.UserId == hostUserId)
+        // ตรวจสอบว่า host ออกจากห้องหรือไม่
+        if (otherPlayer.IsMasterClient)
         {
-            ShowNotification("Host left. Returning to menu");
-            StartCoroutine(DestroyRoomAndReturnToMainGame());
+            // บังคับให้ทุกคนออกจากห้องและลบข้อมูลใน Firebase
+            photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
         }
     }
 
-    public override void OnJoinedRoom()
+    [PunRPC]
+    void RPC_ForceLeaveAndDestroyRoom()
     {
-        string username = AuthManager.Instance.GetCurrentUsername();
-        bool isHost = PhotonNetwork.IsMasterClient;
-
-        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        if (PhotonNetwork.IsMasterClient)
         {
-            { "username", username },
-            { "isHost", isHost },
-            { "IsReady", maxPlayers == 1 }
-        };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-
-        Debug.Log($"Joined room. Username: {username}, IsHost: {isHost}, MaxPlayers: {maxPlayers}");
-        UpdateUI();
+            StartCoroutine(DestroyRoomAndReturnToMainGame());
+        }
+        else
+        {
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("Menu");
+        }
     }
 
-    public override void OnLeftRoom()
+    private void LeaveRoom()
     {
-        SceneManager.LoadScene("Menu");
-    }
-
-    void ShowNotification(string message)
-    {
-        notificationText.text = message;
-        notificationPopup.SetActive(true);
-        StartCoroutine(HideNotificationAfterDelay(3f));
-        Debug.Log($"Notification: {message}");
-    }
-
-    IEnumerator HideNotificationAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        notificationPopup.SetActive(false);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // ถ้า host ออก ให้บังคับทุกคนออกจากห้อง
+            photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
+        }
+        else
+        {
+            // ถ้าไม่ใช่ host ออกจากห้องทันที
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("Menu");
+        }
     }
 
     private IEnumerator DestroyRoomAndReturnToMainGame()
     {
-        if (auth.CurrentUser.UserId == hostUserId)
+        if (PhotonNetwork.IsMasterClient)
         {
-            yield return new WaitForSeconds(1f);
-
             var task = databaseRef.RemoveValueAsync();
             yield return new WaitUntil(() => task.IsCompleted);
 
@@ -289,17 +278,14 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             }
             else
             {
-                PhotonNetwork.CurrentRoom.IsOpen = false;
-                PhotonNetwork.CurrentRoom.IsVisible = false;
-                PhotonNetwork.LeaveRoom();
+                Debug.Log("Room data removed from Firebase successfully.");
             }
 
-            yield return new WaitForSeconds(1f);
+            PhotonNetwork.CurrentRoom.IsOpen = false;
+            PhotonNetwork.CurrentRoom.IsVisible = false;
+            PhotonNetwork.LeaveRoom();
+
             SceneManager.LoadScene("Menu");
-        }
-        else
-        {
-            Debug.Log("Player is not the host, so the room will not be destroyed.");
         }
     }
 
@@ -322,6 +308,31 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             buttonAction.Invoke();
         }
     }
+    
+    void ShowNotification(string message)
+    {
+        if (notificationText != null && notificationPopup != null)
+        {
+            notificationText.text = message;
+            notificationPopup.SetActive(true);
+            StartCoroutine(HideNotificationAfterDelay(3f));
+            Debug.Log($"Notification: {message}");
+        }
+        else
+        {
+            Debug.LogError("Notification elements are not set in the inspector.");
+        }
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (notificationPopup != null)
+        {
+            notificationPopup.SetActive(false);
+        }
+    }
+
 
     private IEnumerator WaitForSound(System.Action buttonAction)
     {

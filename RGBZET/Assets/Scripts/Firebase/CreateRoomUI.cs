@@ -35,6 +35,8 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     private int selectedTime = 10;
     private string userId;
     private string roomId;
+    private string hostUserId;
+    private int maxPlayers;
 
     void Start()
     {
@@ -61,7 +63,6 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         }));
 
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
-
         notificationPopup.SetActive(false);
     }
 
@@ -103,16 +104,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         {
             bool isSelected = (i + 1) == playerCount;
             RectTransform buttonRect = playerCountButtons[i].GetComponent<RectTransform>();
-            
-            // ปรับขนาดปุ่ม
-            if (isSelected)
-            {
-                buttonRect.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            }
-            else
-            {
-                buttonRect.localScale = Vector3.one;
-            }
+            buttonRect.localScale = isSelected ? new Vector3(1.5f, 1.5f, 1.5f) : Vector3.one;
         }
     }
 
@@ -121,18 +113,8 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         for (int i = 0; i < timeButtons.Length; i++)
         {
             int time = (i == timeButtons.Length - 1) ? -1 : (i + 1) * 10;
-            bool isSelected = time == selectedTime;
             RectTransform buttonRect = timeButtons[i].GetComponent<RectTransform>();
-            
-            // ปรับขนาดปุ่ม
-            if (isSelected)
-            {
-                buttonRect.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            }
-            else
-            {
-                buttonRect.localScale = Vector3.one;
-            }
+            buttonRect.localScale = (time == selectedTime) ? new Vector3(1.5f, 1.5f, 1.5f) : Vector3.one;
         }
     }
 
@@ -146,6 +128,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
     void CreateRoom()
     {
         roomId = GenerateRoomId();
+        hostUserId = userId;
 
         Dictionary<string, object> withfriendsData = new Dictionary<string, object>
         {
@@ -168,6 +151,8 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
                 Debug.Log($"Room created successfully: roomId={roomId}, playerCount={playerCount}, hostUserId={userId}");
                 ExitGames.Client.Photon.Hashtable roomProperties = new ExitGames.Client.Photon.Hashtable
                 {
+                    { "roomId", roomId },
+                    { "hostUserId", hostUserId },
                     { "gameTime", selectedTime }
                 };
 
@@ -175,12 +160,10 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
                 {
                     MaxPlayers = (byte)playerCount,
                     CustomRoomProperties = roomProperties,
-                    CustomRoomPropertiesForLobby = new string[] { "gameTime" }
+                    CustomRoomPropertiesForLobby = new string[] { "roomId", "hostUserId", "gameTime" }
                 };
 
                 PhotonNetwork.CreateRoom(roomId, roomOptions);
-                PlayerPrefs.SetString("RoomId", roomId);
-                PlayerPrefs.SetString("HostUserId", userId);
             }
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }
@@ -190,7 +173,7 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         System.Random random = new System.Random();
         return new string(Enumerable.Repeat(chars, length)
-          .Select(s => s[random.Next(s.Length)]).ToArray());
+            .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 
     public override void OnCreatedRoom()
@@ -234,12 +217,12 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
                 {
                     string username = snapshot.Child("username").Value.ToString();
                     Debug.Log($"Setting username: {username} for userId: {userId}");
-                    ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username }, { "isHost", true } };
+                    ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+                    {
+                        { "username", username },
+                        { "isHost", true }
+                    };
                     PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
-                    Debug.Log($"Custom Properties Set: {PhotonNetwork.LocalPlayer.CustomProperties["username"]}, {PhotonNetwork.LocalPlayer.CustomProperties["isHost"]}");
-
-                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable());
-
                     onComplete?.Invoke();
                 }
                 else
@@ -258,7 +241,37 @@ public class CreateRoomUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("OnJoinedRoom called");
+        if (PhotonNetwork.CurrentRoom != null)
+        {
+            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("roomId"))
+            {
+                roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
+            }
+            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("hostUserId"))
+            {
+                hostUserId = PhotonNetwork.CurrentRoom.CustomProperties["hostUserId"].ToString();
+            }
+
+            maxPlayers = PhotonNetwork.CurrentRoom.MaxPlayers;
+        }
+
+        string username = AuthManager.Instance.GetCurrentUsername();
+        bool isHost = PhotonNetwork.IsMasterClient;
+
+        ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            { "username", username },
+            { "isHost", isHost },
+            { "IsReady", maxPlayers == 1 }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
+
+        Debug.Log($"Joined room. Username: {username}, IsHost: {isHost}, RoomId: {roomId}, HostUserId: {hostUserId}");
+    }
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene("Menu");
     }
 
     void SoundOnClick(System.Action buttonAction)

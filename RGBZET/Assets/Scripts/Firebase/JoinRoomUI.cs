@@ -174,9 +174,10 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         ShowNotification("Joined room");
+        PhotonNetwork.IsMessageQueueRunning = false; // หยุดคิวข้อความขณะโหลดซีน
+
         SetPlayerUsername(() =>
         {
-            PlayerPrefs.SetString("RoomId", roomId);
             if (roomType == "tournament")
             {
                 PhotonNetwork.LoadLevel("TournamentLobby");
@@ -185,8 +186,18 @@ public class JoinRoomUI : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.LoadLevel("Lobby");
             }
+
+            StartCoroutine(ResumeMessageQueueAfterSceneLoad()); // เรียกใช้ Coroutine เพื่อเปิดคิวข้อความใหม่หลังจากโหลดเสร็จ
         });
     }
+
+    private IEnumerator ResumeMessageQueueAfterSceneLoad()
+    {
+        // รอให้ซีนโหลดเสร็จ
+        yield return new WaitForSeconds(1f);
+        PhotonNetwork.IsMessageQueueRunning = true; // เปิดใช้งานคิวข้อความใหม่
+    }
+
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
