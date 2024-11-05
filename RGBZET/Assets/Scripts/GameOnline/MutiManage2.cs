@@ -32,7 +32,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        roomId = PlayerPrefs.GetString("RoomId");
+        roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         UpdatePlayerList();
@@ -77,7 +77,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     void Update()
     {
-         // ตรวจสอบว่าเวลาเป็นไม่จำกัดหรือไม่
+        // ตรวจสอบว่าเวลาเป็นไม่จำกัดหรือไม่
         if (!isUnlimitedTime)
         {
             if (timer > 0)
@@ -89,7 +89,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
                 {
                     TimeUp();
 
-            
+
                     GoToEndScene();
 
                 }
@@ -176,17 +176,11 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        if (otherPlayer.IsMasterClient)
-        {
-            Debug.Log("The player who left is the MasterClient.");
-            StartCoroutine(DeleteRoomAndGoToMenu());
-        }
-        else
-        {
-            // ถ้าไม่ใช่ MasterClient ก็แค่ Update รายชื่อผู้เล่น
-            UpdatePlayerList();
-            Debug.Log($"{otherPlayer.NickName} player Out");
-        }
+        // ตรวจสอบว่า host ออกจากห้องหรือไม่
+        // บังคับให้ทุกคนออกจากห้องและลบข้อมูลใน Firebase
+        photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
+        Debug.Log($"{otherPlayer.NickName} player Out");
+
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
@@ -198,7 +192,7 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            string username = PlayerPrefs.GetString("username");
+            string username = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("username") ? PhotonNetwork.LocalPlayer.CustomProperties["username"].ToString() : "Guest";
             ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable { { "username", username }, { "isHost", true } };
             PhotonNetwork.LocalPlayer.SetCustomProperties(playerProperties);
             Debug.Log($"host: {username}");
@@ -365,48 +359,39 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
         }
     }
 
-
-    public override void OnMasterClientSwitched(Player newMasterClient)
+    [PunRPC]
+    void RPC_ForceLeaveAndDestroyRoom()
     {
-        if (!PhotonNetwork.LocalPlayer.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
-            StartCoroutine(DeleteRoomAndGoToMenu());
+            StartCoroutine(DestroyRoomAndReturnToMainGame());
+        }
+        else
+        {
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("Menu");
         }
     }
 
-    private IEnumerator DeleteRoomAndGoToMenu()
+    private IEnumerator DestroyRoomAndReturnToMainGame()
     {
-
-        yield return new WaitForSeconds(1f); 
-
-        Debug.Log("Started DeleteRoomAndGoToMenu coroutine.");
-        // ลบข้อมูลห้องจาก Firebase
-        var task = databaseRef.RemoveValueAsync();  // databaseRef ใช้ตัวแปรที่ชี้ไปยังห้องใน Firebase
+        var task = databaseRef.RemoveValueAsync();
         yield return new WaitUntil(() => task.IsCompleted);
 
         if (task.IsFaulted || task.IsCanceled)
         {
-            Debug.LogError("Can't delete room from Firebase.");
+            Debug.LogError("Failed to remove room data from Firebase.");
         }
         else
         {
-            Debug.Log("Can delete room from Firebase.");
+            Debug.Log("Room data removed from Firebase successfully.");
         }
 
-        // ออกจากห้อง Photon
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
         PhotonNetwork.LeaveRoom();
 
-        // ตรวจสอบสถานะการเชื่อมต่อกับ Game Server
-        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
-
-        // ยกเลิกการเชื่อมต่อจาก Game Server
-        PhotonNetwork.Disconnect();
-
-        // ตรวจสอบสถานะการยกเลิกการเชื่อมต่อจาก Game Server
-        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
-
-        // เข้าสู่หน้าเมนู
-        SceneManager.LoadScene("Menu");  // เปลี่ยนชื่อ Scene เป็น "Menu" หรือตามที่คุณกำหนด
+        SceneManager.LoadScene("Menu");
     }
 
     IEnumerator GameTimer()

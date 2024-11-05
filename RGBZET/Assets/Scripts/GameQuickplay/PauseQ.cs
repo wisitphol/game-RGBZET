@@ -23,66 +23,14 @@ public class PauseQ : MonoBehaviourPunCallbacks
     {
         pausePanel.SetActive(false);
         pauseButton.onClick.AddListener(() => SoundOnClick(TogglePause));
-        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(PlayerPrefs.GetString("RoomId"));
+        
     }
 
     void TogglePause()
     {
         bool isActive = pausePanel.activeSelf;
         pausePanel.SetActive(!isActive);
-        menuButton.onClick.AddListener(() => SoundOnClick(MenuButtonClicked));
-    }
-
-    private void MenuButtonClicked()
-    {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            StartCoroutine(DeleteRoomAndGoToMenu());
-        }
-        else
-        {
-            StartCoroutine(LeaveRoomAndCheckConnection());
-        }
-    }
-
-    private IEnumerator DeleteRoomAndGoToMenu()
-    {
-        yield return new WaitForSeconds(1f); 
-        var task = databaseReference.RemoveValueAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.IsFaulted || task.IsCanceled)
-        {
-            Debug.LogError("Can't delete room from Firebase.");
-        }
-        else
-        {
-            Debug.Log("Can delete room from Firebase.");
-        }
-
-        PhotonNetwork.LeaveRoom();
-
-        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
-
-        PhotonNetwork.Disconnect();
-
-        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
-
-        SceneManager.LoadScene("Menu");
-    }
-
-    private IEnumerator LeaveRoomAndCheckConnection()
-    {
-        yield return new WaitForSeconds(1f); 
-        PhotonNetwork.LeaveRoom();
-
-        yield return new WaitUntil(() => !PhotonNetwork.InRoom);
-
-        PhotonNetwork.Disconnect();
-
-        yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
-
-        SceneManager.LoadScene("Menu");
+         menuButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
     }
 
      void SoundOnClick(System.Action buttonAction)
