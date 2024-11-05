@@ -16,7 +16,7 @@ public class EndGame2 : MonoBehaviourPunCallbacks
     public GameObject player2;
     public GameObject player3;
     public GameObject player4;
-
+    private string roomId;
     private GameObject[] playerObjects;
     private PlayerResult2[] playerResults;
     private DatabaseReference databaseReference;
@@ -69,7 +69,8 @@ public class EndGame2 : MonoBehaviourPunCallbacks
 
         // เริ่มต้นการเชื่อมต่อ Firebase
         // ตรวจสอบให้แน่ใจว่า path นี้ตรงกับที่ใช้ใน MutiManage2
-        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(PlayerPrefs.GetString("RoomId"));
+        roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
+        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         LogServerConnectionStatus();
 

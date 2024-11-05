@@ -16,7 +16,7 @@ public class EndGameQ : MonoBehaviourPunCallbacks
     public GameObject player2;
     public GameObject player3;
     public GameObject player4;
-
+    private string roomId;
     private GameObject[] playerObjects;
     private PlayerResultQ[] playerResults;
     private DatabaseReference databaseReference;
@@ -66,7 +66,8 @@ public class EndGameQ : MonoBehaviourPunCallbacks
             }
         }
 
-        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(PlayerPrefs.GetString("RoomId"));
+        roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
+        databaseReference = FirebaseDatabase.DefaultInstance.GetReference("withfriends").Child(roomId);
 
         LogServerConnectionStatus();
 
