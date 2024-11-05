@@ -23,6 +23,8 @@ public class PlayUI : MonoBehaviourPunCallbacks
     private DatabaseReference databaseRef;
     private FirebaseAuth auth;
     private string userId;
+    private string roomId;
+    private string hostUserId;
 
     void Start()
     {
@@ -58,7 +60,7 @@ public class PlayUI : MonoBehaviourPunCallbacks
     {
         string playerName = AuthManager.Instance.GetCurrentUsername();
         PhotonNetwork.NickName = playerName;
-        
+
         ExitGames.Client.Photon.Hashtable playerProperties = new ExitGames.Client.Photon.Hashtable
         {
             { "username", playerName }
@@ -87,7 +89,12 @@ public class PlayUI : MonoBehaviourPunCallbacks
         RoomOptions roomOptions = new RoomOptions
         {
             MaxPlayers = 4,
-            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable { { "GameType", "Quickplay" } },
+            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            { "GameType", "Quickplay" },
+            { "roomId", roomId },
+            { "hostUserId", userId }
+        },
             CustomRoomPropertiesForLobby = new string[] { "GameType" }
         };
 
@@ -114,11 +121,34 @@ public class PlayUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        string roomId = PhotonNetwork.CurrentRoom.Name;
-        PlayerPrefs.SetString("RoomId", roomId);
-        PlayerPrefs.Save();
+        // ตรวจสอบค่า roomId และ hostUserId ใน CustomProperties ของห้องก่อน
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("roomId", out object roomIdValue))
+        {
+            roomId = roomIdValue.ToString();
+        }
+        else
+        {
+            Debug.LogError("RoomId is missing in CustomProperties");
+        }
 
-        UpdatePlayerCountInFirebase(roomId);
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("hostUserId", out object hostUserIdValue))
+        {
+            hostUserId = hostUserIdValue.ToString();
+        }
+        else
+        {
+            Debug.LogError("HostUserId is missing in CustomProperties");
+        }
+
+        // ถ้ามี roomId เรียก UpdatePlayerCountInFirebase
+        if (!string.IsNullOrEmpty(roomId))
+        {
+            UpdatePlayerCountInFirebase(roomId);
+        }
+        else
+        {
+            Debug.LogError("roomId is null or empty. Cannot update player count in Firebase.");
+        }
 
         ShowNotification("Joined room. Loading lobby...");
         SceneManager.LoadScene("QuickplayLobby");
@@ -192,10 +222,14 @@ public class PlayUI : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        if (PhotonNetwork.CountOfPlayersInRooms == 0)
+        if (PhotonNetwork.CountOfPlayersInRooms == 0 && PhotonNetwork.CurrentRoom != null)
         {
-            string roomId = PlayerPrefs.GetString("RoomId");
-            databaseRef.Child("quickplay").Child(roomId).RemoveValueAsync();
+            // ตรวจสอบว่ามีค่า roomId ใน CustomProperties ของห้อง
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("roomId", out object roomId))
+            {
+                // ลบข้อมูลห้องใน Firebase ตาม roomId
+                databaseRef.Child("quickplay").Child(roomId.ToString()).RemoveValueAsync();
+            }
         }
     }
 }

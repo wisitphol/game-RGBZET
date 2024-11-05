@@ -45,7 +45,7 @@ public class QuickplayLobbyUI : MonoBehaviourPunCallbacks
     void Start()
     {
         auth = FirebaseAuth.DefaultInstance;
-        roomId = PlayerPrefs.GetString("RoomId");
+        roomId = PhotonNetwork.CurrentRoom.CustomProperties["roomId"].ToString();
         roomCodeText.text = "Room ID: " + roomId;
         databaseRef = FirebaseDatabase.DefaultInstance.GetReference("quickplay").Child(roomId);
 
