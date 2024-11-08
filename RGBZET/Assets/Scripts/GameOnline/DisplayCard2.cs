@@ -23,41 +23,52 @@ public class DisplayCard2 : MonoBehaviour
     public string FontType;
     public int Point;
     public Sprite Spriteimg;
-
     private Text IdText;
     public Image ArtImage;
-
     public bool cardBack;
     public static bool staticCardBack;
-
     public GameObject Board;
     public int numberOfCardInDeck;
+    private int retryCount = 0;  // กำหนดตัวนับการเช็คซ้ำ
+    private int maxRetries = 3;  // กำหนดจำนวนครั้งสูงสุดที่ต้องการเช็คซ้ำ
+    private float retryDelay = 0.5f;  // ระยะเวลารอระหว่างการเช็คซ้ำ (0.5 วินาที)
 
 
 
     // Start is called before the first frame update
     void Start()
     {
-        numberOfCardInDeck = Deck2.deckSize;
+        StartCoroutine(CheckAndLoadCardData());
+    }
 
-        //Debug.Log("CardList Count: " + CardData.cardList.Count);
-        //Debug.Log("DisplayId: " + displayId);
-
-
-        if (CardData.cardList == null || CardData.cardList.Count == 0)
+    private IEnumerator CheckAndLoadCardData()
+    {
+        while (retryCount < maxRetries)
         {
-            Debug.LogError("CardData.cardList is null or empty.");
-            return;
+            if (CardData.cardList != null && CardData.cardList.Count > 0)
+            {
+                // โหลดข้อมูลหาก CardData.cardList ไม่เป็น null และมีข้อมูล
+                numberOfCardInDeck = Deck2.deckSize;
+
+                if (displayId >= 0 && displayId < CardData.cardList.Count)
+                {
+                    displayCard.Add(CardData.cardList[displayId]);
+                    yield break;  // จบ Coroutine เมื่อโหลดข้อมูลสำเร็จ
+                }
+                else
+                {
+                    Debug.LogError("displayId is out of range.");
+                    yield break;
+                }
+            }
+
+            retryCount++;
+            Debug.LogWarning("Retry loading CardData.cardList: Attempt " + retryCount);
+            yield return new WaitForSeconds(retryDelay);  // รอเวลาตาม retryDelay ก่อนตรวจสอบใหม่
         }
 
-        if (displayId >= 0 && displayId < CardData.cardList.Count)
-        {
-            displayCard.Add(CardData.cardList[displayId]);
-        }
-        else
-        {
-            Debug.LogError("displayId is out of range.");
-        }
+        // หากตรวจสอบครบจำนวนครั้งแล้วยังไม่มีข้อมูล จะแสดง error
+        Debug.LogError("CardData.cardList is null or empty.");
     }
 
     // Update is called once per frame
@@ -97,6 +108,15 @@ public class DisplayCard2 : MonoBehaviour
         }
         else
         {
+            // ตรวจสอบซ้ำก่อนจะแสดง error
+            if (retryCount < maxRetries)
+            {
+                retryCount++;
+                Debug.LogWarning("Retry loading displayCard: Attempt " + retryCount);
+                return;  // ข้ามการทำงานในรอบนี้และรอรอบถัดไป
+            }
+
+            // หากตรวจสอบซ้ำครบ maxRetries ครั้งแล้วยังไม่มีข้อมูลให้แสดง error
             Debug.LogError("displayCard is empty.");
         }
     }
