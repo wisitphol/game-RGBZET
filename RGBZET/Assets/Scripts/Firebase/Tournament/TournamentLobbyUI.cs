@@ -1,17 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using Photon.Pun;
-using Photon.Realtime;
+using UnityEngine.SceneManagement;
+using Firebase.Auth;
 using Firebase.Database;
+using Photon.Pun;
+using TMPro;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.SceneManagement;
 
 public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 {
-    [Header("Player UI")]
+    [Header("Player Objects")]
     public GameObject player1;
     public GameObject player2;
     public GameObject player3;
@@ -33,45 +34,26 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
     public TMP_Text notificationText;
 
     [Header("Audio")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip buttonSound;
+    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public AudioClip buttonSound;
 
     private DatabaseReference tournamentRef;
     private string tournamentId;
     private int playerCount;
     private string tournamentName;
-    private bool isReady = false;
     private string currentUsername;
-    private bool isCleaningUp = false;
+    private bool isReady = false;
+    private bool isLeavingRoom = false;
     private bool isInitialized = false;
-    private int connectionRetryCount = 0;
-    private const int MAX_CONNECTION_RETRIES = 3;
 
     void Start()
     {
-        InitializeTournamentData();
-        SetupUIElements();
-        
-        if (!PhotonNetwork.IsConnected)
-        {
-            ShowNotification("Connecting to server...");
-            PhotonNetwork.ConnectUsingSettings();
-        }
-        else if (PhotonNetwork.InLobby)
-        {
-            JoinOrCreateRoom();
-        }
-        else
-        {
-            PhotonNetwork.JoinLobby();
-        }
-
-        PhotonNetwork.AutomaticallySyncScene = true;
-        UpdateUI();
+        InitializeTournament();
     }
 
-    private void InitializeTournamentData()
+    private void InitializeTournament()
     {
+        // Load tournament data from PlayerPrefs
         tournamentId = PlayerPrefs.GetString("TournamentId");
         playerCount = PlayerPrefs.GetInt("PlayerCount");
         tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
@@ -82,459 +64,98 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         if (string.IsNullOrEmpty(tournamentId) || playerCount <= 0)
         {
             Debug.LogError("TournamentId or PlayerCount is missing.");
-            ShowNotification("Invalid tournament data");
-            StartCoroutine(ReturnToMenuWithDelay(2f));
             return;
         }
 
+        // Initialize Firebase reference
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
+
+        // Set up UI
+        SetupUI();
+        SetupButtons();
+
+        // Set up player properties and connect to Photon
+        //SetPlayerProperties();
+        ConnectToPhoton();
+
+        isInitialized = true;
     }
 
-    private void SetupUIElements()
+    private void SetupUI()
     {
         tournamentNameText.text = "Room: " + tournamentName;
-        tournamentIdText.text = "Room ID: " + tournamentId;
+        
+        // แสดง tournamentId และ copyButton เฉพาะ host
+        bool isHost = PhotonNetwork.IsMasterClient;
+        
+        if (tournamentIdText != null)
+        {
+            tournamentIdText.gameObject.SetActive(isHost);
+            if (isHost)
+            {
+                tournamentIdText.text = "Room ID: " + tournamentId;
+            }
+        }
 
+        // ซ่อน/แสดง copyButton
+        if (copyButton != null)
+        {
+            copyButton.gameObject.SetActive(isHost);
+        }
+
+        if (notificationPopup != null)
+        {
+            notificationPopup.SetActive(false);
+        }
+    }
+
+    private void SetupButtons()
+    {
         startTournamentButton.onClick.AddListener(() => SoundOnClick(StartTournament));
         leaveTournamentButton.onClick.AddListener(() => SoundOnClick(LeaveTournament));
         readyButton.onClick.AddListener(() => SoundOnClick(ToggleReady));
         copyButton.onClick.AddListener(() => SoundOnClick(CopyRoomIdToClipboard));
-
-        if (notificationPopup != null)
-        {
-            notificationPopup.SetActive(false);
-        }
     }
 
-    private void UpdateUI()
-    {
-        UpdatePlayerCount();
-        UpdatePlayerList();
-        UpdateStartButtonVisibility();
-        UpdateReadyButtonVisibility();
-    }
-
-    private void UpdatePlayerCount()
-    {
-        if (PhotonNetwork.CurrentRoom != null)
-        {
-            playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / {playerCount}";
-        }
-    }
-
-    private void UpdatePlayerList()
-    {
-        GameObject[] playerObjects = { player1, player2, player3, player4, player5, player6, player7, player8 };
-        Player[] players = PhotonNetwork.PlayerList;
-
-        for (int i = 0; i < playerObjects.Length; i++)
-        {
-            if (i < players.Length && playerObjects[i] != null)
-            {
-                playerObjects[i].SetActive(true);
-                PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
-
-                if (playerLobby != null)
-                {
-                    UpdateSinglePlayer(playerLobby, players[i]);
-                }
-            }
-            else if (playerObjects[i] != null)
-            {
-                playerObjects[i].SetActive(false);
-            }
-        }
-    }
-
-    private void UpdateSinglePlayer(PlayerLobby2 playerLobby, Player player)
-    {
-        playerLobby.SetActorNumber(player.ActorNumber);
-        string username = player.CustomProperties.ContainsKey("username") ? 
-            player.CustomProperties["username"].ToString() : 
-            player.NickName;
-        bool isReady = player.CustomProperties.ContainsKey("IsReady") && 
-            (bool)player.CustomProperties["IsReady"];
-        string readyStatus = isReady ? "Ready" : "Not Ready";
-        
-        playerLobby.UpdatePlayerInfo(username, readyStatus);
-
-        if (player.CustomProperties.ContainsKey("iconId"))
-        {
-            int iconId = (int)player.CustomProperties["iconId"];
-            playerLobby.UpdatePlayerIcon(iconId);
-        }
-    }
-
-    private void UpdateStartButtonVisibility()
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            startTournamentButton.gameObject.SetActive(false);
-            return;
-        }
-
-        bool allPlayersReady = PhotonNetwork.PlayerList.All(p => 
-            p.CustomProperties.ContainsKey("IsReady") && (bool)p.CustomProperties["IsReady"]);
-        bool allPlayersJoined = PhotonNetwork.CurrentRoom.PlayerCount == playerCount;
-
-        startTournamentButton.gameObject.SetActive(true);
-        startTournamentButton.interactable = allPlayersReady && allPlayersJoined;
-
-        if (startTournamentButton.interactable)
-        {
-            ShowNotification("Ready to start tournament");
-        }
-        else if (!allPlayersJoined)
-        {
-            ShowNotification("Waiting for more players");
-        }
-        else if (!allPlayersReady)
-        {
-            ShowNotification("Waiting for all players to be ready");
-        }
-    }
-
-    private void UpdateReadyButtonVisibility()
-    {
-        readyButton.gameObject.SetActive(true);
-        UpdateReadyButtonText();
-    }
-
-    private void UpdateReadyButtonText()
-    {
-        bool isReady = PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("IsReady") && 
-            (bool)PhotonNetwork.LocalPlayer.CustomProperties["IsReady"];
-        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
-    }
-
-    private void StartTournament()
-    {
-        if (!PhotonNetwork.IsMasterClient)
-        {
-            ShowNotification("Only the host can start the tournament");
-            return;
-        }
-
-        if (PhotonNetwork.CurrentRoom.PlayerCount != playerCount)
-        {
-            ShowNotification("Waiting for more players");
-            return;
-        }
-
-        if (!AreAllPlayersReady())
-        {
-            ShowNotification("Not all players are ready");
-            return;
-        }
-
-        ShowNotification("Starting tournament...");
-        StartCoroutine(SetupTournamentAndLoadBracket());
-    }
-
-    private bool AreAllPlayersReady()
-    {
-        return PhotonNetwork.PlayerList.All(p => 
-            p.CustomProperties.ContainsKey("IsReady") && (bool)p.CustomProperties["IsReady"]);
-    }
-
-    private IEnumerator SetupTournamentAndLoadBracket()
-    {
-        yield return StartCoroutine(UpdateTournamentStatus("in_progress"));
-        yield return StartCoroutine(ShufflePlayers());
-
-        PhotonNetwork.CurrentRoom.IsOpen = false;
-        PhotonNetwork.CurrentRoom.IsVisible = false;
-
-        PhotonNetwork.LoadLevel("TournamentBracket");
-    }
-
-    private void ToggleReady()
-    {
-        if (!PhotonNetwork.IsConnectedAndReady)
-        {
-            ShowNotification("Cannot set ready status - not connected");
-            return;
-        }
-
-        isReady = !isReady;
-        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable 
-        { 
-            { "IsReady", isReady } 
-        };
-
-        try
-        {
-            PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error setting ready status: {e.Message}");
-            ShowNotification("Failed to update ready status");
-        }
-    }
-
-    private IEnumerator UpdateTournamentStatus(string status)
-    {
-        var task = tournamentRef.Child("status").SetValueAsync(status);
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.Exception != null)
-        {
-            Debug.LogError($"Failed to update tournament status: {task.Exception}");
-            ShowNotification("Failed to update tournament status");
-        }
-    }
-
-    private IEnumerator ShufflePlayers()
-    {
-        List<Player> players = PhotonNetwork.PlayerList.ToList();
-        System.Random rng = new System.Random();
-        players = players.OrderBy(x => rng.Next()).ToList();
-
-        var task = tournamentRef.Child("bracket").GetValueAsync();
-        yield return new WaitUntil(() => task.IsCompleted);
-
-        if (task.Exception != null)
-        {
-            Debug.LogError($"Failed to get bracket data: {task.Exception}");
-            ShowNotification("Failed to prepare tournament bracket");
-            yield break;
-        }
-
-        var bracketSnapshot = task.Result;
-        Dictionary<string, object> bracket = (Dictionary<string, object>)bracketSnapshot.Value;
-        var updatedBracket = new Dictionary<string, object>(bracket);
-
-        int playerIndex = 0;
-        foreach (var match in bracket.ToList())
-        {
-            if (match.Key.StartsWith("round_0"))
-            {
-                Dictionary<string, object> matchData = (Dictionary<string, object>)match.Value;
-                if (playerIndex < players.Count)
-                {
-                    ((Dictionary<string, object>)matchData["player1"])["username"] = 
-                        players[playerIndex].CustomProperties["username"];
-                    playerIndex++;
-                }
-                if (playerIndex < players.Count)
-                {
-                    ((Dictionary<string, object>)matchData["player2"])["username"] = 
-                        players[playerIndex].CustomProperties["username"];
-                    playerIndex++;
-                }
-                updatedBracket[match.Key] = matchData;
-            }
-        }
-
-        var updateTask = tournamentRef.Child("bracket").SetValueAsync(updatedBracket);
-        yield return new WaitUntil(() => updateTask.IsCompleted);
-
-        if (updateTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update bracket with shuffled players: {updateTask.Exception}");
-            ShowNotification("Failed to update tournament bracket");
-        }
-    }
-
-    private void CopyRoomIdToClipboard()
-    {
-        GUIUtility.systemCopyBuffer = tournamentId;
-        ShowNotification("Room ID copied to clipboard");
-    }
-
-    private void LeaveTournament()
-    {
-        StartCoroutine(LeaveTournamentCoroutine());
-    }
-
-    private IEnumerator LeaveTournamentCoroutine()
-    {
-        DisableUIElements();
-        ShowNotification("Leaving tournament...");
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            var task = tournamentRef.RemoveValueAsync();
-            yield return new WaitUntil(() => task.IsCompleted);
-
-            if (task.IsFaulted)
-            {
-                Debug.LogError($"Failed to delete tournament: {task.Exception}");
-            }
-        }
-
-        yield return StartCoroutine(DisconnectAndReturnToMenu());
-    }
-
-    private void DisableUIElements()
-    {
-        if (startTournamentButton != null) startTournamentButton.interactable = false;
-        if (leaveTournamentButton != null) leaveTournamentButton.interactable = false;
-        if (readyButton != null) readyButton.interactable = false;
-        if (copyButton != null) copyButton.interactable = false;
-    }
-
-    private IEnumerator DisconnectAndReturnToMenu()
+    private void ConnectToPhoton()
     {
         if (PhotonNetwork.IsConnected)
         {
-            PhotonNetwork.LeaveRoom();
-            yield return new WaitUntil(() => !PhotonNetwork.InRoom);
-
-            PhotonNetwork.Disconnect();
-            yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+            OnConnectedToMaster();
         }
-
-        SceneManager.LoadScene("Menu");
+        else
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
-    private IEnumerator ReturnToMenuWithDelay(float delay)
+    private void SetPlayerProperties()
     {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene("Menu");
-    }
-
-    private IEnumerator HostLeftCleanup()
-    {
-        isCleaningUp = true;
-        ShowNotification("Host has left the tournament");
-
-        if (PhotonNetwork.IsMasterClient)
+        // ตรวจสอบว่าเชื่อมต่อแล้วและพร้อมใช้งาน
+        if (!PhotonNetwork.IsConnected || !PhotonNetwork.InRoom)
         {
-            var task = tournamentRef.RemoveValueAsync();
-            yield return new WaitUntil(() => task.IsCompleted);
-
-            if (task.IsFaulted)
-            {
-                Debug.LogError($"Failed to remove tournament data: {task.Exception}");
-            }
+            Debug.LogWarning("Cannot set player properties - not connected or not in room");
+            return;
         }
 
-        photonView.RPC("RPC_ReturnToMenu", RpcTarget.All);
-    }
-
-    private IEnumerator InitializePlayerProperties()
-    {
-        yield return new WaitUntil(() => PhotonNetwork.IsConnectedAndReady);
-
-        bool initSuccess = false;
-        while (!initSuccess && connectionRetryCount < MAX_CONNECTION_RETRIES)
+        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable
         {
-            initSuccess = TryInitializeProperties();
-            
-            if (!initSuccess)
-            {
-                connectionRetryCount++;
-                if (connectionRetryCount < MAX_CONNECTION_RETRIES)
-                {
-                    Debug.Log($"Retrying initialization... Attempt {connectionRetryCount}/{MAX_CONNECTION_RETRIES}");
-                    yield return new WaitForSeconds(1f);
-                }
-            }
-        }
+            { "username", currentUsername },
+            { "IsReady", false }
+        };
 
-        if (!initSuccess)
+        try 
         {
-            Debug.LogError("Failed to initialize player properties after maximum retries");
-            ShowNotification("Failed to connect. Returning to menu...");
-            yield return StartCoroutine(ReturnToMenuWithDelay(2f));
-        }
-    }
-
-    private bool TryInitializeProperties()
-    {
-        try
-        {
-            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable
-            {
-                { "username", currentUsername },
-                { "IsReady", false }
-            };
-            
             PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
-            isInitialized = true;
-            Debug.Log("Player properties initialized successfully");
-            return true;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Failed to initialize player properties: {e.Message}");
-            ShowNotification("Failed to initialize player data");
-            return false;
+            Debug.LogError($"Failed to set player properties: {e.Message}");
         }
     }
-
-    private IEnumerator RetryInitialization()
-    {
-        connectionRetryCount++;
-        if (connectionRetryCount < MAX_CONNECTION_RETRIES)
-        {
-            yield return new WaitForSeconds(1f);
-            yield return StartCoroutine(InitializePlayerProperties());
-        }
-        else
-        {
-            Debug.LogError("Failed to initialize player properties after maximum retries");
-            ShowNotification("Failed to connect. Returning to menu...");
-            yield return StartCoroutine(ReturnToMenuWithDelay(2f));
-        }
-    }
-
-    private void ShowNotification(string message)
-    {
-        if (notificationText != null && notificationPopup != null)
-        {
-            notificationText.text = message;
-            notificationPopup.SetActive(true);
-            StartCoroutine(HideNotificationAfterDelay(3f));
-        }
-        Debug.Log($"Notification: {message}");
-    }
-
-    private IEnumerator HideNotificationAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (notificationPopup != null)
-        {
-            notificationPopup.SetActive(false);
-        }
-    }
-
-    private void SoundOnClick(System.Action buttonAction)
-    {
-        if (audioSource != null && buttonSound != null)
-        {
-            audioSource.PlayOneShot(buttonSound);
-            StartCoroutine(WaitForSound(buttonAction));
-        }
-        else
-        {
-            buttonAction.Invoke();
-        }
-    }
-
-    private IEnumerator WaitForSound(System.Action buttonAction)
-    {
-        yield return new WaitForSeconds(buttonSound.length);
-        buttonAction.Invoke();
-    }
-
-    public override void OnConnectedToMaster()
-    {
-        Debug.Log("Connected to Master Server");
-        ShowNotification("Connected to server");
-        PhotonNetwork.JoinLobby();
-    }
-
-    public override void OnJoinedLobby()
-    {
-        Debug.Log("Joined Lobby");
-        ShowNotification("Joining tournament room...");
-        JoinOrCreateRoom();
-    }
-
-    private void JoinOrCreateRoom()
+    
+    void JoinOrCreateRoom()
     {
         RoomOptions roomOptions = new RoomOptions
         {
@@ -549,86 +170,255 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Joined Tournament Room: " + PhotonNetwork.CurrentRoom.Name);
-        ShowNotification("Joined tournament room");
+        Debug.Log("Joined Room: " + PhotonNetwork.CurrentRoom.Name);
         
-        if (!isInitialized)
+        // อัพเดท UI ตามสถานะ host
+        bool isHost = PhotonNetwork.IsMasterClient;
+        if (tournamentIdText != null)
         {
-            StartCoroutine(InitializePlayerProperties());
+            tournamentIdText.gameObject.SetActive(isHost);
         }
-        
+        if (copyButton != null)
+        {
+            copyButton.gameObject.SetActive(isHost);
+        }
+
+        SetPlayerProperties();
         UpdateUI();
         AddPlayerToBracket();
+        ShowNotification("Joined tournament room");
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
+    void UpdateUI()
     {
-        Debug.Log($"Player joined: {newPlayer.NickName}");
-        ShowNotification($"{newPlayer.NickName} joined the tournament");
-        UpdateUI();
+        if (!isInitialized) return;
+
+        playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / {playerCount}";
+        startTournamentButton.gameObject.SetActive(PhotonNetwork.IsMasterClient);
+        startTournamentButton.interactable = PhotonNetwork.CurrentRoom.PlayerCount == playerCount && AreAllPlayersReady();
+        UpdatePlayerList();
     }
 
-    public override void OnPlayerLeftRoom(Player otherPlayer)
+    void UpdatePlayerList()
     {
-        if (isCleaningUp) return;
+        GameObject[] playerObjects = { player1, player2, player3, player4, player5, player6, player7, player8 };
+        Player[] players = PhotonNetwork.PlayerList;
 
-        Debug.Log($"Player left: {otherPlayer.NickName}");
-
-        if (otherPlayer.IsMasterClient)
+        for (int i = 0; i < playerObjects.Length; i++)
         {
-            Debug.Log("Host has left. Starting cleanup...");
-            StartCoroutine(HostLeftCleanup());
-        }
-        else
-        {
-            ShowNotification($"{otherPlayer.NickName} left the tournament");
-            UpdateUI();
-        }
-    }
+            if (i < players.Length && playerObjects[i] != null)
+            {
+                playerObjects[i].SetActive(true);
+                PlayerLobby2 playerLobby = playerObjects[i].GetComponent<PlayerLobby2>();
 
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        UpdateUI();
-    }
+                if (playerLobby != null)
+                {
+                    playerLobby.SetActorNumber(players[i].ActorNumber);
+                    string username = players[i].CustomProperties.ContainsKey("username") ? 
+                        players[i].CustomProperties["username"].ToString() : 
+                        players[i].NickName;
+                    bool isReady = players[i].CustomProperties.ContainsKey("IsReady") && 
+                        (bool)players[i].CustomProperties["IsReady"];
+                    string readyStatus = isReady ? "Ready" : "Not Ready";
 
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        Debug.Log($"Master Client switched to: {newMasterClient.NickName}");
-        
-        if (isCleaningUp && PhotonNetwork.IsMasterClient)
-        {
-            StartCoroutine(HostLeftCleanup());
-        }
-        UpdateUI();
-    }
+                    playerLobby.UpdatePlayerInfo(username, readyStatus);
 
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        Debug.Log($"Disconnected: {cause}");
-        isInitialized = false;
-        
-        if (!isCleaningUp)
-        {
-            ShowNotification($"Disconnected: {cause}");
-            SceneManager.LoadScene("Menu");
+                    if (players[i].CustomProperties.ContainsKey("iconId"))
+                    {
+                        int iconId = (int)players[i].CustomProperties["iconId"];
+                        playerLobby.UpdatePlayerIcon(iconId);
+                    }
+                }
+            }
+            else if (playerObjects[i] != null)
+            {
+                playerObjects[i].SetActive(false);
+            }
         }
     }
 
-    public override void OnJoinRoomFailed(short returnCode, string message)
+    void ToggleReady()
     {
-        Debug.LogError($"Failed to join room: {message}");
-        ShowNotification("Failed to join tournament room");
-        StartCoroutine(RetryJoinRoom());
+        isReady = !isReady;
+        ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable { { "IsReady", isReady } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Not Ready" : "Ready";
     }
 
-    public override void OnCreateRoomFailed(short returnCode, string message)
+    bool AreAllPlayersReady()
     {
-        Debug.LogError($"Failed to create room: {message}");
-        ShowNotification("Failed to create tournament room");
-        StartCoroutine(RetryJoinRoom());
+        return PhotonNetwork.PlayerList.All(p => 
+            p.CustomProperties.TryGetValue("IsReady", out object isReady) && (bool)isReady);
     }
 
-    private void AddPlayerToBracket()
+    void StartTournament()
+    {
+        if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == playerCount && AreAllPlayersReady())
+        {
+            StartCoroutine(SetupTournamentAndLoadBracket());
+        }
+    }
+
+    IEnumerator SetupTournamentAndLoadBracket()
+    {
+        yield return StartCoroutine(UpdateTournamentStatus("in_progress"));
+        yield return StartCoroutine(ShufflePlayers());
+
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+
+        PhotonNetwork.LoadLevel("TournamentBracket");
+    }
+
+    IEnumerator UpdateTournamentStatus(string status)
+    {
+        var task = tournamentRef.Child("status").SetValueAsync(status);
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError($"Failed to update tournament status: {task.Exception}");
+            ShowNotification("Failed to update tournament status");
+        }
+    }
+
+    IEnumerator ShufflePlayers()
+    {
+        List<Player> players = PhotonNetwork.PlayerList.ToList();
+        System.Random rng = new System.Random();
+        players = players.OrderBy(x => rng.Next()).ToList();
+
+        var task = tournamentRef.Child("bracket").GetValueAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (task.Exception != null)
+        {
+            Debug.LogError($"Failed to get bracket data: {task.Exception}");
+            ShowNotification("Failed to setup tournament bracket");
+            yield break;
+        }
+
+        var bracketSnapshot = task.Result;
+        Dictionary<string, object> bracket = (Dictionary<string, object>)bracketSnapshot.Value;
+        var updatedBracket = new Dictionary<string, object>(bracket);
+
+        int playerIndex = 0;
+        // จัดการเฉพาะ round 0 และจัดเรียงตาม matchNumber
+        var firstRoundMatches = bracket.Where(m => m.Key.StartsWith("round_0_"))
+                                    .OrderBy(m => int.Parse(m.Key.Split('_')[3]));
+
+        foreach (var match in firstRoundMatches)
+        {
+            Dictionary<string, object> matchData = (Dictionary<string, object>)match.Value;
+            
+            // กำหนดผู้เล่นคนที่ 1
+            if (playerIndex < players.Count)
+            {
+                ((Dictionary<string, object>)matchData["player1"])["username"] = 
+                    players[playerIndex].CustomProperties["username"];
+                playerIndex++;
+            }
+
+            // กำหนดผู้เล่นคนที่ 2
+            if (playerIndex < players.Count)
+            {
+                ((Dictionary<string, object>)matchData["player2"])["username"] = 
+                    players[playerIndex].CustomProperties["username"];
+                playerIndex++;
+            }
+
+            updatedBracket[match.Key] = matchData;
+        }
+
+        var updateTask = tournamentRef.Child("bracket").SetValueAsync(updatedBracket);
+        yield return new WaitUntil(() => updateTask.IsCompleted);
+
+        if (updateTask.Exception != null)
+        {
+            Debug.LogError($"Failed to update bracket with shuffled players: {updateTask.Exception}");
+            ShowNotification("Failed to update tournament bracket");
+        }
+    }
+
+    void LeaveTournament()
+    {
+        if (!isLeavingRoom)
+        {
+            Debug.Log("Initiating voluntary leave tournament");
+            if (PhotonNetwork.IsMasterClient)
+            {
+                photonView.RPC("RPC_ForceLeaveTournament", RpcTarget.All);
+            }
+            else
+            {
+                StartCoroutine(ForceLeaveTournamentCoroutine());
+            }
+        }
+    }
+
+    [PunRPC]
+    private void RPC_ForceLeaveTournament()
+    {
+        if (!isLeavingRoom)
+        {
+            Debug.Log("Executing forced leave tournament");
+            StartCoroutine(ForceLeaveTournamentCoroutine());
+        }
+    }
+
+    private IEnumerator ForceLeaveTournamentCoroutine()
+    {
+        isLeavingRoom = true;
+
+        // Disable all interactive UI elements
+        DisableAllButtons();
+
+        // If this is the master client, delete the tournament
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Master client is deleting tournament data");
+            ShowNotification("Deleting tournament...");
+            var deleteTask = tournamentRef.RemoveValueAsync();
+            yield return new WaitUntil(() => deleteTask.IsCompleted);
+
+            if (deleteTask.Exception != null)
+            {
+                Debug.LogError($"Failed to delete tournament: {deleteTask.Exception}");
+            }
+        }
+
+        ShowNotification("Leaving tournament...");
+
+        // Leave the current room if we're in one
+        if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Leaving Photon room");
+            PhotonNetwork.LeaveRoom();
+            yield return new WaitUntil(() => !PhotonNetwork.InRoom);
+        }
+
+        // Disconnect from Photon
+        if (PhotonNetwork.IsConnected)
+        {
+            Debug.Log("Disconnecting from Photon");
+            PhotonNetwork.Disconnect();
+            yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+        }
+
+        // Load the menu scene
+        Debug.Log("Loading Menu scene");
+        SceneManager.LoadScene("Menu");
+    }
+
+    private void DisableAllButtons()
+    {
+        if (startTournamentButton != null) startTournamentButton.interactable = false;
+        if (leaveTournamentButton != null) leaveTournamentButton.interactable = false;
+        if (readyButton != null) readyButton.interactable = false;
+        if (copyButton != null) copyButton.interactable = false;
+    }
+
+    void AddPlayerToBracket()
     {
         tournamentRef.Child("bracket").GetValueAsync().ContinueWith(task =>
         {
@@ -661,62 +451,113 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         });
     }
 
-    private IEnumerator RetryJoinRoom()
+    public override void OnLeftRoom()
     {
-        connectionRetryCount++;
-        if (connectionRetryCount < MAX_CONNECTION_RETRIES)
-        {
-            ShowNotification($"Retrying... Attempt {connectionRetryCount}/{MAX_CONNECTION_RETRIES}");
-            yield return new WaitForSeconds(1f);
+        Debug.Log("Left the room successfully");
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"Player entered room: {newPlayer.NickName}");
+        ShowNotification($"{newPlayer.NickName} joined the tournament");
+        UpdateUI();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Debug.Log($"Player left room: {otherPlayer.NickName}");
             
-            if (PhotonNetwork.IsConnectedAndReady)
-            {
-                JoinOrCreateRoom();
-            }
-            else
-            {
-                PhotonNetwork.ConnectUsingSettings();
-            }
+        if (otherPlayer.IsMasterClient)
+        {
+            Debug.Log("Master client left, forcing everyone to leave");
+            ShowNotification("Host left the tournament");
+            photonView.RPC("RPC_ForceLeaveTournament", RpcTarget.All);
         }
         else
         {
-            ShowNotification("Failed to join after multiple attempts");
-            yield return StartCoroutine(ReturnToMenuWithDelay(2f));
+            ShowNotification($"{otherPlayer.NickName} left the tournament");
+            UpdateUI();
         }
     }
 
-    [PunRPC]
-    private void RPC_ReturnToMenu()
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-        StartCoroutine(DisconnectAndReturnToMenu());
+        UpdateUI();
     }
 
-    protected virtual void OnApplicationPause(bool pauseStatus)
+    public override void OnDisconnected(DisconnectCause cause)
     {
-        if (!pauseStatus && !isInitialized && PhotonNetwork.IsConnectedAndReady)
+        Debug.Log($"Disconnected from Photon: {cause}");
+        if (!isLeavingRoom)
         {
-            StartCoroutine(InitializePlayerProperties());
+            isLeavingRoom = true;
+            ShowNotification("Disconnected from server");
+            SceneManager.LoadScene("Menu");
         }
     }
 
-    void OnDestroy()
+    void CopyRoomIdToClipboard()
     {
-        // Cleanup button listeners
-        if (startTournamentButton != null)
-            startTournamentButton.onClick.RemoveAllListeners();
-        if (leaveTournamentButton != null)
-            leaveTournamentButton.onClick.RemoveAllListeners();
-        if (readyButton != null)
-            readyButton.onClick.RemoveAllListeners();
-        if (copyButton != null)
-            copyButton.onClick.RemoveAllListeners();
+        GUIUtility.systemCopyBuffer = tournamentId;
+        ShowNotification("Tournament ID copied to clipboard");
+        Debug.Log("Room ID copied: " + tournamentId);
+    }
+
+    void ShowNotification(string message)
+    {
+        if (notificationText != null && notificationPopup != null)
+        {
+            notificationText.text = message;
+            notificationPopup.SetActive(true);
+            StartCoroutine(HideNotificationAfterDelay(3f));
+            Debug.Log($"Notification: {message}");
+        }
+    }
+
+    IEnumerator HideNotificationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (notificationPopup != null)
+        {
+            notificationPopup.SetActive(false);
+        }
+    }
+
+    void SoundOnClick(System.Action buttonAction)
+    {
+        if (audioSource != null && buttonSound != null)
+        {
+            audioSource.PlayOneShot(buttonSound);
+            StartCoroutine(WaitForSound(buttonAction));
+        }
+        else
+        {
+            buttonAction.Invoke();
+        }
+    }
+
+    private IEnumerator WaitForSound(System.Action buttonAction)
+    {
+        yield return new WaitForSeconds(buttonSound.length);
+        buttonAction.Invoke();
+    }
+
+    private void OnDestroy()
+    {
+        if (!isLeavingRoom)
+        {
+            // Cleanup button listeners
+            if (startTournamentButton != null)
+                startTournamentButton.onClick.RemoveAllListeners();
+            if (leaveTournamentButton != null)
+                leaveTournamentButton.onClick.RemoveAllListeners();
+            if (readyButton != null)
+                readyButton.onClick.RemoveAllListeners();
+            if (copyButton != null)
+                copyButton.onClick.RemoveAllListeners();
+        }
 
         // Stop all coroutines
         StopAllCoroutines();
-
-        // Clear references
-        tournamentRef = null;
-        isInitialized = false;
-        isCleaningUp = false;
     }
 }

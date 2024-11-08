@@ -36,16 +36,6 @@ public class TournamentBracketUI : MonoBehaviourPunCallbacks
     private int retryCount = 0;
     private const int MAX_RETRIES = 3;
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
     private void Start()
     {
         if (PhotonNetwork.IsConnected)

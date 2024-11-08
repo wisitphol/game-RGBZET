@@ -166,32 +166,56 @@ public class CreateTournamentUI : MonoBehaviourPunCallbacks
 
     void CreateTournamentBracket()
     {
-        int rounds = Mathf.CeilToInt(Mathf.Log(playerCount, 2));
+        int totalRounds = Mathf.CeilToInt(Mathf.Log(playerCount, 2));
         Dictionary<string, object> bracket = new Dictionary<string, object>();
 
-        for (int round = 0; round < rounds; round++)
+        // ข้อมูลพื้นฐานของ match
+        Dictionary<string, object> emptyPlayer = new Dictionary<string, object>
+        {
+            { "username", "" },
+            { "inLobby", false },
+            { "isPlaying", false },
+            { "hasCompleted", false }
+        };
+
+        // สร้าง bracket structure
+        for (int round = 0; round < totalRounds; round++)
         {
             int matchesInRound = playerCount / (int)Mathf.Pow(2, round + 1);
+            
             for (int match = 0; match < matchesInRound; match++)
             {
                 string matchId = $"round_{round}_match_{match}";
-                string nextMatchId = round < rounds - 1 ? $"round_{round + 1}_match_{match / 2}" : "victory";
+                string nextMatchId;
 
-                if (matchesInRound == 1)
+                // คำนวณ nextMatchId
+                if (round < totalRounds - 1)
+                {
+                    // คำนวณ match ถัดไปในรอบถัดไป
+                    int nextRoundMatch = match / 2;
+                    nextMatchId = $"round_{round + 1}_match_{nextRoundMatch}";
+                }
+                else
                 {
                     nextMatchId = "victory";
                 }
 
-                bracket[matchId] = new Dictionary<string, object>
+                // สร้างโครงสร้างข้อมูลของ match
+                Dictionary<string, object> matchData = new Dictionary<string, object>
                 {
-                    { "player1", new Dictionary<string, object> { { "username", "" }, { "inLobby", false } } },
-                    { "player2", new Dictionary<string, object> { { "username", "" }, { "inLobby", false } } },
+                    { "player1", new Dictionary<string, object>(emptyPlayer) },
+                    { "player2", new Dictionary<string, object>(emptyPlayer) },
                     { "winner", "" },
-                    { "nextMatchId", nextMatchId }
+                    { "nextMatchId", nextMatchId },
+                    { "round", round },
+                    { "matchNumber", match }
                 };
+
+                bracket[matchId] = matchData;
             }
         }
 
+        // อัพเดตข้อมูลไปยัง Firebase
         databaseRef.Child("tournaments").Child(tournamentId).Child("bracket").SetValueAsync(bracket).ContinueWith(task =>
         {
             if (task.IsFaulted)

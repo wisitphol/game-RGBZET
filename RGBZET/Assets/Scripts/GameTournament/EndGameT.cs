@@ -227,6 +227,24 @@ public class EndGameT : MonoBehaviourPunCallbacks
         }
     }
 
+    private bool IsValidNextMatch(string currentMatchId, string nextMatchId)
+    {
+        string[] currentParts = currentMatchId.Split('_');
+        string[] nextParts = nextMatchId.Split('_');
+        
+        if (currentParts.Length >= 4 && nextParts.Length >= 4)
+        {
+            int currentRound = int.Parse(currentParts[1]);
+            int currentMatch = int.Parse(currentParts[3]);
+            int nextRound = int.Parse(nextParts[1]);
+            int nextMatch = int.Parse(nextParts[3]);
+            
+            return nextRound == currentRound + 1 && nextMatch == currentMatch / 2;
+        }
+        
+        return false;
+    }
+
     private IEnumerator UpdateGameResults()
     {
         if (!PhotonNetwork.IsMasterClient || winningPlayer == null)
@@ -237,8 +255,109 @@ public class EndGameT : MonoBehaviourPunCallbacks
         string winnerUsername = winningPlayer.CustomProperties["username"].ToString();
         Debug.Log($"Starting match update process for winner: {winnerUsername}");
 
-        yield return StartCoroutine(UpdateCurrentMatch(winnerUsername));
+        yield return StartCoroutine(UpdateMatchAndAdvanceWinner(winnerUsername));
+    }
 
+    private IEnumerator UpdateMatchAndAdvanceWinner(string winnerUsername)
+    {
+        DatabaseReference matchRef = databaseReference
+            .Child("bracket")
+            .Child(currentMatchId);
+
+        // Update current match first
+        var updateCurrentMatchTask = matchRef.UpdateChildrenAsync(new Dictionary<string, object>
+        {
+            { "winner", winnerUsername },
+            { "player1/hasCompleted", true },
+            { "player2/hasCompleted", true }
+        });
+
+        yield return new WaitUntil(() => updateCurrentMatchTask.IsCompleted);
+
+        if (updateCurrentMatchTask.Exception != null)
+        {
+            Debug.LogError($"Failed to update match result: {updateCurrentMatchTask.Exception}");
+            yield break;
+        }
+
+        // Get nextMatchId
+        var nextMatchTask = matchRef.Child("nextMatchId").GetValueAsync();
+        yield return new WaitUntil(() => nextMatchTask.IsCompleted);
+
+        if (nextMatchTask.Exception != null)
+        {
+            Debug.LogError($"Failed to get next match ID: {nextMatchTask.Exception}");
+            yield break;
+        }
+
+        string nextMatchId = nextMatchTask.Result.Value?.ToString();
+
+        if (!string.IsNullOrEmpty(nextMatchId) && nextMatchId != "victory")
+        {
+            if (!IsValidNextMatch(currentMatchId, nextMatchId))
+            {
+                Debug.LogError($"Invalid next match: {nextMatchId} for current match: {currentMatchId}");
+                yield break;
+            }
+
+            DatabaseReference nextMatchRef = databaseReference
+                .Child("bracket")
+                .Child(nextMatchId);
+
+            var nextMatchDataTask = nextMatchRef.GetValueAsync();
+            yield return new WaitUntil(() => nextMatchDataTask.IsCompleted);
+
+            if (nextMatchDataTask.Exception != null)
+            {
+                Debug.LogError($"Failed to get next match data: {nextMatchTask.Exception}");
+                yield break;
+            }
+
+            var nextMatchData = nextMatchDataTask.Result;
+            string player1Username = nextMatchData.Child("player1").Child("username").Value?.ToString();
+            bool shouldBePlayer1 = string.IsNullOrEmpty(player1Username);
+
+            var playerUpdate = new Dictionary<string, object>
+            {
+                { shouldBePlayer1 ? "player1" : "player2", new Dictionary<string, object>
+                    {
+                        { "username", winnerUsername },
+                        { "inLobby", false },
+                        { "isPlaying", false },
+                        { "hasCompleted", false }
+                    }
+                }
+            };
+
+            var updateNextMatchTask = nextMatchRef.UpdateChildrenAsync(playerUpdate);
+            yield return new WaitUntil(() => updateNextMatchTask.IsCompleted);
+
+            if (updateNextMatchTask.Exception != null)
+            {
+                Debug.LogError($"Failed to update next match: {updateNextMatchTask.Exception}");
+            }
+        }
+        else if (nextMatchId == "victory")
+        {
+            var updateTournamentTask = databaseReference.Child("won").SetValueAsync(winnerUsername);
+            yield return new WaitUntil(() => updateTournamentTask.IsCompleted);
+
+            if (updateTournamentTask.Exception != null)
+            {
+                Debug.LogError($"Failed to update tournament winner: {updateTournamentTask.Exception}");
+            }
+
+            yield return StartCoroutine(UpdatePlayerTournamentStats(winnerUsername));
+        }
+    }
+
+    private void CheckNextMatch()
+    {
+        StartCoroutine(CheckNextMatchCoroutine());
+    }
+
+    private IEnumerator CheckNextMatchCoroutine()
+    {
         var nextMatchTask = databaseReference
             .Child("bracket")
             .Child(currentMatchId)
@@ -249,110 +368,18 @@ public class EndGameT : MonoBehaviourPunCallbacks
 
         if (nextMatchTask.Exception != null)
         {
-            Debug.LogError($"Failed to get next match ID: {nextMatchTask.Exception}");
+            Debug.LogError($"Failed to check next match: {nextMatchTask.Exception}");
             yield break;
         }
 
         string nextMatchId = nextMatchTask.Result.Value?.ToString();
-        Debug.Log($"Next match ID: {nextMatchId}");
-
-        if (!string.IsNullOrEmpty(nextMatchId))
+        if (!string.IsNullOrEmpty(nextMatchId) && nextMatchId != "victory")
         {
-            if (nextMatchId == "victory")
-            {
-                yield return StartCoroutine(UpdateTournamentWinner(winnerUsername));
-            }
-            else
-            {
-                yield return StartCoroutine(AdvanceWinnerToNextMatch(nextMatchId, winnerUsername));
-            }
+            nextRoundButton.gameObject.SetActive(true);
         }
     }
 
-    private IEnumerator UpdateCurrentMatch(string winnerUsername)
-    {
-        Dictionary<string, object> updateData = new Dictionary<string, object>
-        {
-            { "winner", winnerUsername },
-            { "winnerScore", winningPlayer.CustomProperties["score"] },
-            { "player1/hasCompleted", true },
-            { "player2/hasCompleted", true }
-        };
-
-        var updateTask = databaseReference
-            .Child("bracket")
-            .Child(currentMatchId)
-            .UpdateChildrenAsync(updateData);
-
-        yield return new WaitUntil(() => updateTask.IsCompleted);
-
-        if (updateTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update current match: {updateTask.Exception}");
-        }
-    }
-
-    private IEnumerator AdvanceWinnerToNextMatch(string nextMatchId, string winnerUsername)
-    {
-        var nextMatchTask = databaseReference
-            .Child("bracket")
-            .Child(nextMatchId)
-            .GetValueAsync();
-
-        yield return new WaitUntil(() => nextMatchTask.IsCompleted);
-
-        if (nextMatchTask.Exception != null)
-        {
-            Debug.LogError($"Failed to get next match data: {nextMatchTask.Exception}");
-            yield break;
-        }
-
-        var nextMatchData = nextMatchTask.Result;
-        string player1Username = nextMatchData.Child("player1").Child("username").Value?.ToString();
-        bool shouldBePlayer1 = string.IsNullOrEmpty(player1Username);
-
-        Dictionary<string, object> playerData = new Dictionary<string, object>
-        {
-            { "username", winnerUsername },
-            { "inLobby", false },
-            { "isPlaying", false },
-            { "hasCompleted", false }
-        };
-
-        var updateData = new Dictionary<string, object>
-        {
-            { shouldBePlayer1 ? "player1" : "player2", playerData }
-        };
-
-        var updateTask = databaseReference
-            .Child("bracket")
-            .Child(nextMatchId)
-            .UpdateChildrenAsync(updateData);
-
-        yield return new WaitUntil(() => updateTask.IsCompleted);
-
-        if (updateTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update next match: {updateTask.Exception}");
-        }
-    }
-
-    private IEnumerator UpdateTournamentWinner(string winnerUsername)
-    {
-        var updateTask = databaseReference.Child("won").SetValueAsync(winnerUsername);
-        yield return new WaitUntil(() => updateTask.IsCompleted);
-
-        if (updateTask.Exception != null)
-        {
-            Debug.LogError($"Failed to update tournament winner: {updateTask.Exception}");
-        }
-        else
-        {
-            yield return StartCoroutine(UpdateWinnerStats(winnerUsername));
-        }
-    }
-
-    private IEnumerator UpdateWinnerStats(string winnerUsername)
+    private IEnumerator UpdatePlayerTournamentStats(string winnerUsername)
     {
         var userQuery = FirebaseDatabase.DefaultInstance
             .GetReference("users")
@@ -386,63 +413,6 @@ public class EndGameT : MonoBehaviourPunCallbacks
                 int currentWins = int.Parse(currentStatsTask.Result.Value.ToString());
                 yield return statsRef.SetValueAsync(currentWins + 1);
             }
-        }
-    }
-
-    private void CheckNextMatch()
-    {
-        StartCoroutine(CheckNextMatchCoroutine());
-    }
-
-    private IEnumerator CheckNextMatchCoroutine()
-    {
-        var nextMatchTask = databaseReference
-            .Child("bracket")
-            .Child(currentMatchId)
-            .Child("nextMatchId")
-            .GetValueAsync();
-
-        yield return new WaitUntil(() => nextMatchTask.IsCompleted);
-
-        if (nextMatchTask.Exception != null)
-        {
-            Debug.LogError($"Failed to check next match: {nextMatchTask.Exception}");
-            yield break;
-        }
-
-        string nextMatchId = nextMatchTask.Result.Value?.ToString();
-        if (!string.IsNullOrEmpty(nextMatchId) && nextMatchId != "victory")
-        {
-            nextRoundButton.gameObject.SetActive(true);
-        }
-    }
-
-    private void ShowLoading(string message)
-    {
-        if (loadingPanel != null)
-        {
-            loadingPanel.SetActive(true);
-            if (loadingText != null)
-            {
-                loadingText.text = message;
-            }
-        }
-    }
-
-    private void HideLoading()
-    {
-        if (loadingPanel != null)
-        {
-            loadingPanel.SetActive(false);
-        }
-    }
-
-    private IEnumerator EnableBackButtonAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (backToMenu != null)
-        {
-            backToMenu.interactable = true;
         }
     }
 
@@ -481,6 +451,35 @@ public class EndGameT : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Menu");
     }
 
+    private void ShowLoading(string message)
+    {
+        if (loadingPanel != null)
+        {
+            loadingPanel.SetActive(true);
+            if (loadingText != null)
+            {
+                loadingText.text = message;
+            }
+        }
+    }
+
+    private void HideLoading()
+    {
+        if (loadingPanel != null)
+        {
+            loadingPanel.SetActive(false);
+        }
+    }
+
+    private IEnumerator EnableBackButtonAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (backToMenu != null)
+        {
+            backToMenu.interactable = true;
+        }
+    }
+
     private void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
@@ -511,7 +510,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
             nextRoundButton.onClick.RemoveAllListeners();
         }
 
-        // Cleanup player results
+        // Clean up player results
         if (playerResults != null)
         {
             for (int i = 0; i < playerResults.Length; i++)
@@ -546,35 +545,5 @@ public class EndGameT : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         Debug.Log($"Player {otherPlayer.NickName} left the room");
-    }
-
-    // Helper Methods for Firebase Operations
-    private void LogFirebaseError(string operation, System.Exception exception)
-    {
-        Debug.LogError($"Firebase {operation} failed: {exception.Message}");
-        if (exception.InnerException != null)
-        {
-            Debug.LogError($"Inner exception: {exception.InnerException.Message}");
-        }
-    }
-
-    private bool ValidateMatchData(DataSnapshot matchData)
-    {
-        if (!matchData.Exists)
-        {
-            Debug.LogError("Match data does not exist");
-            return false;
-        }
-
-        var player1Data = matchData.Child("player1");
-        var player2Data = matchData.Child("player2");
-
-        if (!player1Data.Exists || !player2Data.Exists)
-        {
-            Debug.LogError("Player data is missing");
-            return false;
-        }
-
-        return true;
     }
 }
