@@ -56,7 +56,7 @@ public class CardData : MonoBehaviour
     cardList.Add(new Card(25, "B", "Blue", "One", "Game", 1, Resources.Load<Sprite>("st-26")));
     cardList.Add(new Card(26, "B", "Blue", "One", "Tic",  1, Resources.Load<Sprite>("st-27")));
 
-  /*  cardList.Add(new Card(27, "RR", "Red", "One", "Merk", 1, Resources.Load<Sprite>("nd-1")));
+    cardList.Add(new Card(27, "RR", "Red", "One", "Merk", 1, Resources.Load<Sprite>("nd-1")));
     cardList.Add(new Card(28, "RR", "Red", "One", "Game", 1, Resources.Load<Sprite>("nd-2")));
     cardList.Add(new Card(29, "RR", "Red", "One", "Tic",  1, Resources.Load<Sprite>("nd-3")));
     cardList.Add(new Card(30, "GG", "Red", "One", "Merk", 1, Resources.Load<Sprite>("nd-4")));
@@ -114,7 +114,7 @@ public class CardData : MonoBehaviour
     cardList.Add(new Card(77, "GGG", "Blue", "One", "Tic",  1, Resources.Load<Sprite>("rd-24")));
     cardList.Add(new Card(78, "BBB", "Blue", "One", "Merk", 1, Resources.Load<Sprite>("rd-25")));
     cardList.Add(new Card(79, "BBB", "Blue", "One", "Game", 1, Resources.Load<Sprite>("rd-26")));
-    cardList.Add(new Card(80, "BBB", "Blue", "One", "Tic",  1, Resources.Load<Sprite>("rd-27")));*/
+    cardList.Add(new Card(80, "BBB", "Blue", "One", "Tic",  1, Resources.Load<Sprite>("rd-27")));
 
 
     Debug.Log("CardList Count after adding: " + cardList.Count);
