@@ -61,11 +61,11 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
         Debug.Log($"TournamentLobbyUI Start - TournamentId: {tournamentId}, PlayerCount: {playerCount}, TournamentName: {tournamentName}");
 
-        if (string.IsNullOrEmpty(tournamentId) || playerCount <= 0)
+      /*  if (string.IsNullOrEmpty(tournamentId) || playerCount <= 0)
         {
-            Debug.LogError("TournamentId or PlayerCount is missing.");
+            //Debug.LogError("TournamentId or PlayerCount is missing.");
             return;
-        }
+        }*/
 
         // Initialize Firebase reference
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
