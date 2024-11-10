@@ -176,11 +176,19 @@ public class MutiManage2 : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        // ตรวจสอบว่า host ออกจากห้องหรือไม่
-        // บังคับให้ทุกคนออกจากห้องและลบข้อมูลใน Firebase
-        photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
-        Debug.Log($"{otherPlayer.NickName} player Out");
-
+        if (PhotonNetwork.IsMasterClient && otherPlayer == PhotonNetwork.MasterClient)
+        {
+            // ถ้า MasterClient ออกจากห้อง, ให้บังคับให้ทุกคนออกจากห้องและลบข้อมูลห้องจาก Firebase
+            photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
+            Debug.Log($"{otherPlayer.NickName} (MasterClient) left. All players will leave and the room will be destroyed.");
+        }
+        else
+        {
+            // ถ้าไม่ใช่ MasterClient, ออกจากห้องแค่ผู้เล่นคนนั้น
+            PhotonNetwork.LeaveRoom();
+            SceneManager.LoadScene("Menu");
+            Debug.Log($"{otherPlayer.NickName} left the room.");
+        }
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)

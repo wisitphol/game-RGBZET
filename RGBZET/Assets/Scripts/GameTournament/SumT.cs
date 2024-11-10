@@ -128,14 +128,6 @@ public class SumT : MonoBehaviour
 
             DatabaseReference userRef = FirebaseDatabase.DefaultInstance.GetReference("users").Child(userId);
 
-            // เพิ่มจำนวนเกมที่เล่นโดยใช้ Transaction
-            userRef.Child("gamescount").RunTransaction(mutableData =>
-            {
-                int currentGamesPlayed = mutableData.Value != null ? int.Parse(mutableData.Value.ToString()) : 0;
-                mutableData.Value = currentGamesPlayed + 1;
-                return TransactionResult.Success(mutableData);
-            });
-
             // อัปเดตจำนวนชัยชนะ
             userRef.Child("gameswintournament").RunTransaction(mutableData =>
             {

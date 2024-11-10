@@ -70,6 +70,7 @@ public class Drag2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler,
             startPosition = this.transform.localPosition;
             startRotation = this.transform.localRotation;
             photonView.RPC("RPC_OnBeginDrag", RpcTarget.All, startPosition, startRotation);
+            
         }
         else
         {
