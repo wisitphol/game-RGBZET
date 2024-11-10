@@ -29,10 +29,10 @@ public class TutorialUI : MonoBehaviour
     void Start()
     {
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
-        Tutorial1.SetActive(true);
-        Tutorial2.SetActive(false);
-        Tutorial3.SetActive(false);
-        Tutorial4.SetActive(false);
+       // Tutorial1.SetActive(true);
+       // Tutorial2.SetActive(false);
+       // Tutorial3.SetActive(false);
+       // Tutorial4.SetActive(false);
 
         Button1.onClick.AddListener(() => SoundOnClick(ToggleTutorial1));
         Button2.onClick.AddListener(() => SoundOnClick(ToggleTutorial2));
