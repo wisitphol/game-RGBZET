@@ -11,8 +11,8 @@ using System.Collections.Generic;
 
 public class LoginUI : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField emailInput;
-    [SerializeField] private TMP_InputField passwordInput;
+    [SerializeField] private InputField emailInput;
+    [SerializeField] private InputField passwordInput;
     [SerializeField] private Button loginButton;
     [SerializeField] private Button RegisterButton;
     [SerializeField] private GameObject feedbackPopup;
