@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class Framerate : MonoBehaviour
 {
-    private float deltaTime = 0.0f;
+    //private float deltaTime = 0.0f;
     public string firstSceneName = "SplashScreen";  // เปลี่ยนชื่อ scene แรกตามที่คุณใช้
     void Start()
     {
@@ -13,7 +13,7 @@ public class Framerate : MonoBehaviour
         Application.targetFrameRate = 60;
     }
 
-    void Update()
+   /* void Update()
     {
         // คำนวณ deltaTime สำหรับการคำนวณ FPS
         deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f; 
@@ -28,5 +28,5 @@ public class Framerate : MonoBehaviour
             int fps = Mathf.CeilToInt(1.0f / deltaTime);
             GUI.Label(new Rect(10, 10, 100, 20), fps + " FPS");
         }
-    }
+    }*/
 }

@@ -13,12 +13,17 @@ public class DropQ : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
     private DeckQ deck;
     private int currentScore;
     private MutimanageQ muti;
+    public GameObject iszet;
+    public GameObject isnotzet;
 
     public void Start()
     {
         deck = FindObjectOfType<DeckQ>();
         currentScore = 0;
         muti = FindAnyObjectByType<MutimanageQ>();
+
+        iszet.SetActive(false);
+        isnotzet.SetActive(false);
     }
 
     public void Update()
@@ -115,6 +120,7 @@ public class DropQ : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
 
             if (isSet)
             {
+                iszet.SetActive(true);
                 int TotalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
 
                 UpdateScore(TotalScore);
@@ -131,15 +137,24 @@ public class DropQ : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
             }
             else
             {
+                isnotzet.SetActive(true);
                 photonView.RPC("ReturnCardsToOriginalPositionRPC", RpcTarget.AllBuffered);
 
                 UpdateScore(-1);
             }
+             StartCoroutine(HideSetIndicators());
         }
         else
         {
             Debug.Log("Unexpected number of cards: " + droppedCards.Count);
         }
+    }
+
+    private IEnumerator HideSetIndicators()
+    {
+        yield return new WaitForSeconds(2f); // ปรับเวลาได้ตามต้องการ
+        iszet.SetActive(false);
+        isnotzet.SetActive(false);
     }
 
     public bool CheckCardsAreSet(Card card1, Card card2, Card card3)
