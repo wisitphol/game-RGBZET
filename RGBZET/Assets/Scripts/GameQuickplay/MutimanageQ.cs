@@ -138,13 +138,13 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         // ตรวจสอบว่าเป็น MasterClient คนเก่าที่ออกจากห้อง
-        if (otherPlayer.IsMasterClient)
-        {
+       // if (otherPlayer.IsMasterClient)
+       // {
             // ถ้า MasterClient ออกจากห้อง, ให้บังคับให้ทุกคนออกจากห้องและลบข้อมูลห้องจาก Firebase
             photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
             Debug.Log($"{otherPlayer.NickName} (MasterClient) left. All players will leave and the room will be destroyed.");
-        }
-        else
+       // }
+       /* else
         {
             // ถ้าไม่ใช่ MasterClient และเป็นผู้เล่นคนที่ออกจากห้องนั้นเอง จะออกจากห้องและกลับไปที่เมนู
             if (PhotonNetwork.LocalPlayer == otherPlayer)
@@ -154,7 +154,7 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
                 Debug.Log($"{otherPlayer.NickName} left the room.");
             }
             UpdatePlayerList();
-        }
+        }*/
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
