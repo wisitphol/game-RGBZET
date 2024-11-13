@@ -23,12 +23,12 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
     private DatabaseReference databaseRef;
     private string roomId;
     private BoardCheckQ boardCheck;
-    //private float timer;
+    private float timer;
     public TMP_Text timerText;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
-    //public float gameDuration;
-    //private bool isUnlimitedTime = false;
+    public float gameDuration;
+    private bool isUnlimitedTime = false;
 
     void Start()
     {
@@ -41,9 +41,47 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         zetButton.onClick.AddListener(OnZetButtonPressed);
         boardCheck = FindObjectOfType<BoardCheckQ>();
 
+        gameDuration = 30f * 60f; // ค่า default
+        timer = gameDuration;
+        StartCoroutine(GameTimer());
+        UpdateTimerUI();
 
     }
 
+    void Update()
+    {
+        // ตรวจสอบว่าเวลาเป็นไม่จำกัดหรือไม่
+        if (!isUnlimitedTime)
+        {
+            if (timer > 0)
+            {
+                timer -= Time.deltaTime;
+                UpdateTimerUI(); // อัปเดต UI เมื่อเริ่มเกม
+
+                if (timer <= 0)
+                {
+                    TimeUp();
+
+
+                    GoToEndScene();
+
+                }
+            }
+        }
+    }
+
+    void UpdateTimerUI()
+    {
+        if (timerText != null && !isUnlimitedTime)
+        {
+            // แปลงเวลาที่เหลือเป็นนาทีและวินาที
+            int minutes = Mathf.FloorToInt(timer / 60);
+            int seconds = Mathf.FloorToInt(timer % 60);
+
+            // แสดงผลเวลาในรูปแบบ mm:ss
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+    }
 
 
     void UpdatePlayerList()
@@ -99,7 +137,8 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        if (PhotonNetwork.IsMasterClient && otherPlayer == PhotonNetwork.MasterClient)
+        // ตรวจสอบว่าเป็น MasterClient คนเก่าที่ออกจากห้อง
+        if (otherPlayer.IsMasterClient)
         {
             // ถ้า MasterClient ออกจากห้อง, ให้บังคับให้ทุกคนออกจากห้องและลบข้อมูลห้องจาก Firebase
             photonView.RPC("RPC_ForceLeaveAndDestroyRoom", RpcTarget.All);
@@ -107,10 +146,14 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         }
         else
         {
-            // ถ้าไม่ใช่ MasterClient, ออกจากห้องแค่ผู้เล่นคนนั้น
-            PhotonNetwork.LeaveRoom();
-            SceneManager.LoadScene("Menu");
-            Debug.Log($"{otherPlayer.NickName} left the room.");
+            // ถ้าไม่ใช่ MasterClient และเป็นผู้เล่นคนที่ออกจากห้องนั้นเอง จะออกจากห้องและกลับไปที่เมนู
+            if (PhotonNetwork.LocalPlayer == otherPlayer)
+            {
+                PhotonNetwork.LeaveRoom();
+                SceneManager.LoadScene("Menu");
+                Debug.Log($"{otherPlayer.NickName} left the room.");
+            }
+            UpdatePlayerList();
         }
     }
 
@@ -310,6 +353,43 @@ public class MutimanageQ : MonoBehaviourPunCallbacks
         PhotonNetwork.LeaveRoom();
 
         SceneManager.LoadScene("Menu");
+    }
+
+    IEnumerator GameTimer()
+    {
+        // รอจนกว่าจะครบเวลาเกม
+        while (timer > 0)
+        {
+            yield return null; // รอ frame ถัดไป
+        }
+    }
+
+    void GoToEndScene()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Time's up! Going to EndScene.");
+            StartCoroutine(WaitAndGoToEndScene());
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    private IEnumerator WaitAndGoToEndScene()
+    {
+        yield return new WaitForSeconds(1f); // หน่วงเวลา 3 วินาทีก่อนเปลี่ยน Scene
+        boardCheck.photonView.RPC("RPC_LoadResult", RpcTarget.AllBuffered); // เรียกใช้ฟังก์ชัน RPC_LoadEndScene
+    }
+
+    private void TimeUp()
+    {
+        // ซ่อน timerText เมื่อเวลาหมด
+        if (timerText != null)
+        {
+            timerText.gameObject.SetActive(false);
+        }
     }
 
 }
