@@ -448,7 +448,7 @@ public class EndGameT : MonoBehaviourPunCallbacks
             yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
         }
 
-        SceneManager.LoadScene("Menu");
+        SceneManager.LoadScene("TournamentBracket");
     }
 
     private void ShowLoading(string message)

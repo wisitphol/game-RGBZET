@@ -39,7 +39,7 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
     private DatabaseReference tournamentRef;
     private string tournamentId;
-    private int playerCount;
+    //private int playerCount;
     private string tournamentName;
     private string currentUsername;
     private bool isReady = false;
@@ -55,17 +55,10 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
     {
         // Load tournament data from PlayerPrefs
         tournamentId = PlayerPrefs.GetString("TournamentId");
-        playerCount = PlayerPrefs.GetInt("PlayerCount");
         tournamentName = PlayerPrefs.GetString("TournamentName", "Unnamed Tournament");
         currentUsername = AuthManager.Instance.GetCurrentUsername();
 
-        Debug.Log($"TournamentLobbyUI Start - TournamentId: {tournamentId}, PlayerCount: {playerCount}, TournamentName: {tournamentName}");
-
-      /*  if (string.IsNullOrEmpty(tournamentId) || playerCount <= 0)
-        {
-            //Debug.LogError("TournamentId or PlayerCount is missing.");
-            return;
-        }*/
+        Debug.Log($"TournamentLobbyUI Start - TournamentId: {tournamentId}, TournamentName: {tournamentName}");
 
         // Initialize Firebase reference
         tournamentRef = FirebaseDatabase.DefaultInstance.GetReference("tournaments").Child(tournamentId);
@@ -75,7 +68,6 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         SetupButtons();
 
         // Set up player properties and connect to Photon
-        //SetPlayerProperties();
         ConnectToPhoton();
 
         isInitialized = true;
@@ -155,7 +147,7 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         }
     }
     
-    void JoinOrCreateRoom()
+    /*void JoinOrCreateRoom()
     {
         RoomOptions roomOptions = new RoomOptions
         {
@@ -166,7 +158,7 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
         };
 
         PhotonNetwork.JoinOrCreateRoom(tournamentId, roomOptions, TypedLobby.Default);
-    }
+    }*/
 
     public override void OnJoinedRoom()
     {
@@ -191,11 +183,11 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
     void UpdateUI()
     {
-        if (!isInitialized) return;
+        if (!isInitialized || PhotonNetwork.CurrentRoom == null) return;
 
-        playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / {playerCount}";
+        playerCountText.text = $"Players: {PhotonNetwork.CurrentRoom.PlayerCount} / {PhotonNetwork.CurrentRoom.MaxPlayers}";
         startTournamentButton.gameObject.SetActive(PhotonNetwork.IsMasterClient);
-        startTournamentButton.interactable = PhotonNetwork.CurrentRoom.PlayerCount == playerCount && AreAllPlayersReady();
+        startTournamentButton.interactable = PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers && AreAllPlayersReady();
         UpdatePlayerList();
     }
 
@@ -253,7 +245,9 @@ public class TournamentLobbyUI : MonoBehaviourPunCallbacks
 
     void StartTournament()
     {
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == playerCount && AreAllPlayersReady())
+        if (PhotonNetwork.IsMasterClient && 
+            PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers && 
+            AreAllPlayersReady())
         {
             StartCoroutine(SetupTournamentAndLoadBracket());
         }
