@@ -14,16 +14,17 @@ public class Pause2 : MonoBehaviourPunCallbacks
     [SerializeField] public Button pauseButton;
     [SerializeField] public GameObject pausePanel;
     [SerializeField] public Button menuButton;
-    private DatabaseReference databaseReference;
+    [SerializeField] public Button guideButton;
+    [SerializeField] public GameObject guidePanel;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
     void Start()
     {
-        // ซ่อนแผง pause panel ตอนเริ่มเกม
         pausePanel.SetActive(false);
-
-        // เพิ่ม listener ให้กับปุ่ม pause
         pauseButton.onClick.AddListener(() => SoundOnClick(TogglePause));
+
+        guidePanel.SetActive(false);
+        guideButton.onClick.AddListener(() => SoundOnClick(ToggleGuide));
 
     }
 
@@ -32,6 +33,12 @@ public class Pause2 : MonoBehaviourPunCallbacks
         bool isActive = pausePanel.activeSelf;
         pausePanel.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
         menuButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
+    }
+
+    void ToggleGuide()
+    {
+        bool isActive = guidePanel.activeSelf;
+        guidePanel.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
     }
 
      void SoundOnClick(System.Action buttonAction)

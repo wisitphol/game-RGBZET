@@ -15,7 +15,8 @@ public class PauseQ : MonoBehaviourPunCallbacks
     [SerializeField] public Button pauseButton;
     [SerializeField] public GameObject pausePanel;
     [SerializeField] public Button menuButton;
-    private DatabaseReference databaseReference;
+    [SerializeField] public Button guideButton;
+    [SerializeField] public GameObject guidePanel;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
 
@@ -23,17 +24,25 @@ public class PauseQ : MonoBehaviourPunCallbacks
     {
         pausePanel.SetActive(false);
         pauseButton.onClick.AddListener(() => SoundOnClick(TogglePause));
-        
+
+        guidePanel.SetActive(false);
+        guideButton.onClick.AddListener(() => SoundOnClick(ToggleGuide));
     }
 
     void TogglePause()
     {
         bool isActive = pausePanel.activeSelf;
         pausePanel.SetActive(!isActive);
-         menuButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
+        menuButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Menu")));
     }
 
-     void SoundOnClick(System.Action buttonAction)
+      void ToggleGuide()
+    {
+        bool isActive = guidePanel.activeSelf;
+        guidePanel.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
+    }
+
+    void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
         {

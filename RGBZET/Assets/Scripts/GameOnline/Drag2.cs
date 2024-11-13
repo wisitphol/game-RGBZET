@@ -55,7 +55,7 @@ public class Drag2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler,
             if (outline != null)
             {
                 outline.enabled = true; // เปิดการใช้งาน Outline
-                outline.effectColor = Color.yellow; // เปลี่ยนสีของ Outline
+                outline.effectColor = new Color(233f, 214f, 34f, 221f);
                 outline.effectDistance = new Vector2(7, 7); // เพิ่มความหนาของขอบ
                 Debug.Log("Outline enabled with yellow color and thicker border.");
             }

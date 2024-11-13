@@ -22,7 +22,9 @@ public class SettingUI : MonoBehaviour
     [SerializeField] public GameObject accountPanel;
     [SerializeField] public GameObject quitPanel;
     [SerializeField] public Slider volumeSlider;  // ตัวเลื่อนสำหรับควบคุมเสียง
-    [SerializeField] public AudioSource audioSource;
+    [SerializeField] public Slider backgroundMusicSlider; // Slider สำหรับควบคุมเสียงเพลงพื้นหลัง
+    [SerializeField] public AudioSource soundaudio;
+    [SerializeField] public AudioSource mbgaudio; // AudioSource สำหรับเพลงพื้นหลัง
     [SerializeField] public AudioClip buttonSound;
 
     void Start()
@@ -36,6 +38,10 @@ public class SettingUI : MonoBehaviour
         volumeSlider.value = savedVolume;
         AudioListener.volume = savedVolume; // ตั้งค่าเริ่มต้นให้ตรงกับระดับเสียงที่บันทึกไว้
 
+        float savedMusicVolume = PlayerPrefs.GetFloat("backgroundMusicVolume", 0.4f);
+        backgroundMusicSlider.value = savedMusicVolume;
+        mbgaudio.volume = savedMusicVolume;
+
         soundButton.onClick.AddListener(() => SoundOnClick(ToggleSound));
         accountButton.onClick.AddListener(() => SoundOnClick(ToggleAccount));
         quitButton.onClick.AddListener(() => SoundOnClick(ToggleQuit));
@@ -43,6 +49,10 @@ public class SettingUI : MonoBehaviour
         // ตั้งค่า Slider เริ่มต้น
         volumeSlider.onValueChanged.AddListener(AdjustVolume);
         volumeSlider.value = AudioListener.volume; // ตั้งค่าเริ่มต้นให้ตรงกับระดับเสียงปัจจุบัน
+
+        // Listener สำหรับ backgroundMusicSlider (เสียงเพลงพื้นหลัง)
+        backgroundMusicSlider.onValueChanged.AddListener(AdjustBackgroundMusicVolume);
+        backgroundMusicSlider.value = mbgaudio.volume;
 
         logoutButton.onClick.AddListener(() => SoundOnClick(OnLogoutButtonClicked));
 
@@ -90,6 +100,21 @@ public class SettingUI : MonoBehaviour
         PlayerPrefs.Save(); // บันทึกการเปลี่ยนแปลงใน PlayerPrefs
     }
 
+    void AdjustBackgroundMusicVolume(float value)
+    {
+        if (mbgaudio != null)  // ตรวจสอบว่า backgroundMusicSource ยังไม่เป็น null
+        {
+            mbgaudio.volume = value;  // ปรับระดับเสียงเพลงพื้นหลัง
+            PlayerPrefs.SetFloat("backgroundMusicVolume", value);  // บันทึกระดับเสียง
+            PlayerPrefs.Save();  // บันทึกการเปลี่ยนแปลง
+        }
+        else
+        {
+            Debug.LogWarning("Background music source is missing or destroyed.");
+        }
+
+    }
+
     void OnLogoutButtonClicked()
     {
         AuthManager.Instance.Logout();
@@ -98,9 +123,9 @@ public class SettingUI : MonoBehaviour
 
     void SoundOnClick(System.Action buttonAction)
     {
-        if (audioSource != null && buttonSound != null)
+        if (soundaudio != null && buttonSound != null)
         {
-            audioSource.PlayOneShot(buttonSound);
+            soundaudio.PlayOneShot(buttonSound);
             // รอให้เสียงเล่นเสร็จก่อนที่จะทำการเปลี่ยน scene
             StartCoroutine(WaitForSound(buttonAction));
         }

@@ -15,77 +15,39 @@ using System.Linq;
 
 public class TournamentRuleUI : MonoBehaviour
 {
-   [SerializeField] public Button backButton;
+    [SerializeField] public Button backButton;
     [SerializeField] public Button Button1;
     [SerializeField] public Button Button2;
-    [SerializeField] public Button Button3;
-    [SerializeField] public Button Button4;
-    [SerializeField] public GameObject Tutorial1;
-    [SerializeField] public GameObject Tutorial2;
-    [SerializeField] public GameObject Tutorial3;
-    [SerializeField] public GameObject Tutorial4;
+    [SerializeField] public Text Tutorial1;
+    [SerializeField] public Text Tutorial2;
     [SerializeField] public AudioSource audioSource;
     [SerializeField] public AudioClip buttonSound;
 
-    void Start()
+   void Start()
     {
         backButton.onClick.AddListener(() => SoundOnClick(() => SceneManager.LoadScene("Tournament")));
-        Tutorial1.SetActive(true);
-        Tutorial2.SetActive(false);
-        Tutorial3.SetActive(false);
-        Tutorial4.SetActive(false);
+        Tutorial1.enabled = true;
+        Tutorial2.enabled = false;
 
         Button1.onClick.AddListener(() => SoundOnClick(ToggleTutorial1));
         Button2.onClick.AddListener(() => SoundOnClick(ToggleTutorial2));
-        Button3.onClick.AddListener(() => SoundOnClick(ToggleTutorial3));
-        Button4.onClick.AddListener(() => SoundOnClick(ToggleTutorial4));
     }
 
     void ToggleTutorial1()
     {
-        bool isActive = Tutorial1.activeSelf;
-        Tutorial1.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
-
-        Tutorial2.SetActive(false);
-        Tutorial3.SetActive(false);
-        Tutorial4.SetActive(false);
-
+        bool isActive = Tutorial1.enabled;
+        Tutorial1.enabled = !isActive; // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
+        Tutorial2.enabled = false;
     }
 
     void ToggleTutorial2()
     {
-        bool isActive = Tutorial2.activeSelf;
-        Tutorial2.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
-
-        Tutorial1.SetActive(false);
-        Tutorial3.SetActive(false);
-        Tutorial4.SetActive(false);
-
-    }
-    void ToggleTutorial3()
-    {
-        bool isActive = Tutorial3.activeSelf;
-        Tutorial3.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
-
-        Tutorial1.SetActive(false);
-        Tutorial2.SetActive(false);
-        Tutorial4.SetActive(false);
-
+        bool isActive = Tutorial2.enabled;
+        Tutorial2.enabled = !isActive; // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
+        Tutorial1.enabled = false;
     }
 
-    void ToggleTutorial4()
-    {
-        bool isActive = Tutorial4.activeSelf;
-        Tutorial4.SetActive(!isActive); // แสดงถ้าถูกซ่อน, ซ่อนถ้าแสดงอยู่
-
-        Tutorial1.SetActive(false);
-        Tutorial2.SetActive(false);
-        Tutorial3.SetActive(false);
-        
-
-    }
-
-        void SoundOnClick(System.Action buttonAction)
+    void SoundOnClick(System.Action buttonAction)
     {
         if (audioSource != null && buttonSound != null)
         {

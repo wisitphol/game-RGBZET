@@ -15,6 +15,8 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
     private DeckT deck;
     private int currentScore;
     private MutiManageT mutiT;
+    public GameObject iszet;
+    public GameObject isnotzet;
 
 
     public void Start()
@@ -22,6 +24,8 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
         deck = FindObjectOfType<DeckT>(); // หรือใช้วิธีการค้นหาที่สอดคล้องกับโครงสร้างของโปรเจคของคุณ
         currentScore = 0; // เพิ่มบรรทัดนี้เพื่อกำหนดค่าเริ่มต้นของ currentScore
         mutiT = FindAnyObjectByType<MutiManageT>();
+        iszet.SetActive(false);
+        isnotzet.SetActive(false);
     }
 
     public void Update()
@@ -136,6 +140,7 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
 
             if (isSet)
             {
+                iszet.SetActive(true);
                 // คำนวณคะแนนรวมของการ์ด 3 ใบ
                 int TotalScore = CalculateTotalScore(droppedCards[0], droppedCards[1], droppedCards[2]);
 
@@ -158,6 +163,7 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
             }
             else
             {
+                isnotzet.SetActive(true);
                 //Debug.Log("Not a valid Set. Return the cards to their original position.");
                 // นำการ์ดที่ไม่ตรงเงื่อนไขกลับไปที่ตำแหน่งเดิม
 
@@ -166,12 +172,19 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
                 UpdateScore(-1);
 
             }
+            StartCoroutine(HideSetIndicators());
         }
         else
         {
             //Debug.Log("Unexpected number of cards: " + droppedCards.Count); // Debug Log เมื่อมีจำนวนการ์ดไม่ถูกต้อง
         }
 
+    }
+    private IEnumerator HideSetIndicators()
+    {
+        yield return new WaitForSeconds(2f); // ปรับเวลาได้ตามต้องการ
+        iszet.SetActive(false);
+        isnotzet.SetActive(false);
     }
 
     public bool CheckCardsAreSet(Card card1, Card card2, Card card3)
@@ -325,7 +338,7 @@ public class DropT : MonoBehaviourPunCallbacks, IDropHandler, IPointerEnterHandl
     [PunRPC]
     public void RemoveCardByMasterClient(int viewID)
     {
-       // Debug.Log("RemoveCardByMasterClient RPC called");
+        // Debug.Log("RemoveCardByMasterClient RPC called");
         // หา PhotonView จาก viewID ที่ได้รับมา
         if (PhotonNetwork.IsMasterClient)
         {
