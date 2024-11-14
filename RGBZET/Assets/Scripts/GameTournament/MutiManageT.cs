@@ -537,7 +537,7 @@ public class MutiManageT : MonoBehaviourPunCallbacks
     private void StartGameTimer()
     {
         isGameActive = true;
-        timer = 100f;
+        timer = 15f * 60f;
     }
 
     [PunRPC]
