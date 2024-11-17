@@ -1,0 +1,5 @@
+<linker>
+    <assembly fullname="System">
+        <type fullname="Mono.Net.Security.ChainValidationHelper" preserve="all" />
+    </assembly>
+</linker>
